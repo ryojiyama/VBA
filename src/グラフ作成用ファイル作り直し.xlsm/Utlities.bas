@@ -1,6 +1,6 @@
 Attribute VB_Name = "Utlities"
+' DeleteAllChartsAndSheets_シート中のグラフと余計なシートを削除する
 Sub DeleteAllChartsAndSheets()
-    ' シート中のグラフと余計なシートを削除
     Dim sheet As Worksheet
     Dim chart As ChartObject
     Dim sheetName As String
@@ -35,7 +35,7 @@ Sub DeleteAllChartsAndSheets()
 
     Application.DisplayAlerts = True
 
-    
+
 End Sub
 
 ' DeleteAllChartsAndSheets_配列内に特定の値が存在するかチェックする関数
@@ -50,7 +50,7 @@ Sub UniformizeLineGraphAxes()
     ' Display input dialog to set the maximum value for the axes
     Dim MaxValue As Variant
     MaxValue = InputBox("Y軸の最大値を入力してください。(整数)", "最大値を入力")
-    
+
     ' Check if the user pressed Cancel
     If MaxValue = False Then
         MsgBox "操作がキャンセルされました。", vbInformation
@@ -95,29 +95,29 @@ Sub HighlightDuplicateValues()
     ' 対象シート名のリスト
     Dim sheetNames As Variant
     sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
-    
+
     ' 変数宣言
     Dim ws As Worksheet
     Dim lastRow As Long, i As Long, j As Long
     Dim valueToFind As Variant
     Dim colorIndex As Integer
     Dim sheetName As Variant
-    
+
     ' シートごとに処理
     For Each sheetName In sheetNames
         ' シートオブジェクトを設定
         Set ws = ThisWorkbook.Sheets(sheetName)
-        
+
         ' 最終行を取得
         lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
-        
+
         ' 色のインデックスを初期化
         colorIndex = 3 ' Excelの色インデックスは3から始まる
-        
+
         For i = 2 To lastRow
             ' 現在のセルの値を取得
             valueToFind = ws.Cells(i, "H").value
-            
+
             ' 同じ値を持つセルが既に色付けされていないかチェック
             If ws.Cells(i, "H").Interior.colorIndex = xlNone Then
                 For j = i + 1 To lastRow
@@ -127,7 +127,7 @@ Sub HighlightDuplicateValues()
                         ws.Cells(j, "H").Interior.colorIndex = colorIndex
                     End If
                 Next j
-                
+
                 ' 色インデックスを更新して次の色に変更
                 colorIndex = colorIndex + 1
                 ' Excelの色インデックスの最大値を超えないようにチェック
@@ -144,25 +144,25 @@ Public Sub FillBlanksWithHyphenInMultipleSheets()
     Dim lastCol As Long
     Dim i As Long, j As Long
     Dim sheetName As Variant
-    
+
     ' 対象シートの名前を配列に設定
     sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
-    
+
     ' 各シートについて処理を行う
     For Each sheetName In sheetNames
         On Error Resume Next
         ' 対象シートを設定
         Set ws = ThisWorkbook.Sheets(sheetName)
         On Error GoTo 0
-        
+
         If ws Is Nothing Then
             Set ws = Nothing ' ws変数をクリア
             GoTo NextSheet ' 次のシートに進む
         End If
-        
+
         lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
         lastCol = ws.Cells(1, "Z").Column ' Z列の列番号を設定
-        
+
         ' 2行目から最終行までループ（1行目はヘッダーと仮定）
         For i = 2 To lastRow
             For j = ws.Cells(i, "B").Column To lastCol
@@ -171,11 +171,10 @@ Public Sub FillBlanksWithHyphenInMultipleSheets()
                 End If
             Next j
         Next i
-        
+
         ' シート処理の終了ラベル
 NextSheet:
         ' 次のシートの処理に移る前に変数をクリア
         Set ws = Nothing
     Next sheetName
 End Sub
-

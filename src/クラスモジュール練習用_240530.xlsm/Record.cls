@@ -31,8 +31,6 @@ Public Function GetSpecificValues() As Collection
 End Function
 
 
-
-
 Public Sub Initialize( _
     ByVal ID As String, _
     ByVal Temperature As String, _
@@ -40,7 +38,7 @@ Public Sub Initialize( _
     ByVal DateValue As Date, _
     ByVal TemperatureValue As Double, _
     ByVal Force As Double)
-    
+
     Me.ID = ID
     Me.Temperature = Temperature
     Me.Location = Location
@@ -50,3 +48,31 @@ Public Sub Initialize( _
 End Sub
 
 
+' データをロードし、分類およびグループ化を行うメソッド
+Public Sub LoadData(ByVal ws As Worksheet, ByVal row As Integer)
+    ID = ws.Cells(row, 1).Value
+    Temperature = ws.Cells(row, 2).Value
+    Location = ws.Cells(row, 3).Value
+    DateValue = ws.Cells(row, 4).Value
+    TemperatureValue = ws.Cells(row, 5).Value
+    Force = ws.Cells(row, 6).Value
+
+    ' IDを分析してカテゴリを決定
+    Dim parts() As String
+    parts = Split(ID, "-")
+
+    ' 中間部分でのカテゴリ判定
+    If InStr(parts(1), "F") > 0 Then
+        Category = "MultiValue"
+    Else
+        Category = "SingleValue"
+    End If
+
+    ' 末尾部分でのグループ判定
+    Select Case parts(3)
+        Case "側"
+            Group = "OtherValue." & parts(3) & "." & parts(2)
+        Case Else
+            Group = Category & "." & parts(3) & "." & parts(2)
+    End Select
+End Sub

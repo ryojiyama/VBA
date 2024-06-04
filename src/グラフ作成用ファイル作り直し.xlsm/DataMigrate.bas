@@ -7,15 +7,16 @@ Sub DataMigration_GraphToTestDB_FromGraphbook()
     Dim localPath As String
     Dim wb As Workbook
     Dim isOpen As Boolean
-    
+
+    '"OneDriveGraph:C:\Users\QC07\TSホールディングス株式会社\OfficeScriptの整理 - ドキュメント\QC_グラフ作成"
     localPath = Environ("OneDriveGraph") ' & "\Database\Database試験結果_データベース.xlsm"
-    
+
     ' 現在のディレクトリを基準に相対パスを設定
     relativePath = localPath & "\Database\試験結果_データベース.xlsm"
     Set sourceWorkbook = ThisWorkbook
     Set targetWorkbook = Workbooks.Open(relativePath)
-    
-    
+
+
     ' 試験結果_データベース.xlsmが既に開かれているかを確認
     isOpen = False
     For Each wb In Application.Workbooks
@@ -25,21 +26,21 @@ Sub DataMigration_GraphToTestDB_FromGraphbook()
             Exit For
         End If
     Next wb
-    
+
     ' 開かれていない場合はOpenWorkbook関数を使用して開く
     If Not isOpen Then
         Set targetWorkbook = OpenWorkbook(relativePath)
     End If
-    
+
     On Error GoTo ErrorHandler
-    
+
     ' データの転記処理を実行
     MigrateData sourceWorkbook, targetWorkbook
-    
+
     Application.ScreenUpdating = True
-    
+
     Exit Sub
-    
+
 ErrorHandler:
     MsgBox "エラーが発生しました: " & Err.Description, vbExclamation
     Application.ScreenUpdating = True
@@ -94,7 +95,7 @@ Sub CopyData_CopyPaste(ByRef sourceSheet As Worksheet, ByRef targetSheet As Work
     Dim newIDCollection As Collection
     Dim numRecords As Long
     Dim i As Long
-    
+
     ' 転記元のシートの最終行と最終列を取得（ヘッダー行を除外）
     lastRow = sourceSheet.Cells(sourceSheet.Rows.Count, "B").End(xlUp).row
     If lastRow < 2 Then
@@ -107,7 +108,7 @@ Sub CopyData_CopyPaste(ByRef sourceSheet As Worksheet, ByRef targetSheet As Work
     ' 転記元のレコード数を計算
     numRecords = lastRow - 1 ' ヘッダー行を除外
     currentID = targetSheet.Cells(targetLastRow, "B").value
-    
+
     ' 新しいIDを生成
     Set newIDCollection = GetNewID(currentID, IDPrefix, numRecords)
 
@@ -133,22 +134,21 @@ Function GetNewID(ByVal currentID As String, ByVal IDPrefix As String, ByVal num
     'DataMigration_GraphToTestDB_FromGraphbook()のサブプロシージャ
     Dim newIDCollection As Collection
     Set newIDCollection = New Collection
-    
+
     Dim currentNumber As Long
     Dim i As Long
     Dim idNumberPart As String
-    
+
     ' プレフィックスを取り除いて数値部分を抽出
     idNumberPart = Replace(currentID, IDPrefix, "")
     currentNumber = Val(idNumberPart)
-    
+
     ' 複数の新しいIDを生成
     For i = 1 To numRecords
         currentNumber = currentNumber + 1
         newIDCollection.Add IDPrefix & Format(currentNumber, "00000")
     Next i
-    
+
     Set GetNewID = newIDCollection
     ' Debug.Print "Generated " & numRecords & " new IDs starting from " & currentNumber - numRecords + 1
 End Function
-

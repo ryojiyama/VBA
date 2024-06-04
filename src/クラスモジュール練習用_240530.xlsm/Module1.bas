@@ -1,66 +1,106 @@
 Attribute VB_Name = "Module1"
+Sub CopyAndPopulateSheet(templateSheetName As String, newSheetName As String, dataCollection As Collection)
+    Dim sourceSheet As Worksheet, targetSheet As Worksheet
+    Dim lastRow As Long
+    Dim i As Integer
+    Dim record As Variant
 
-Sub CopyAndPopulateSheet( _
-    sourceSheetName As String, _
-    prefix As String, _
-    index As Integer, _
-    customPropertyName As String, _
-    customPropertyValue As String, _
-    dataCollection As Collection, _
-    writeMethod As String)
+    ' Ensure template exists
+    Set sourceSheet = ThisWorkbook.Sheets(templateSheetName)
+    sourceSheet.Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count)
+    Set targetSheet = ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count)
+    targetSheet.Name = newSheetName
 
-    Dim sheetName As String
+    ' Write data to the new sheet
+    lastRow = 2 ' Assuming headers are in the first row
+    For Each record In dataCollection
+        With targetSheet
+            .Cells(lastRow, "B").Value = record.ID
+            .Cells(lastRow, "C").Value = record.Temperature
+            .Cells(lastRow, "D").Value = record.Location
+            .Cells(lastRow, "E").Value = record.DateValue
+            .Cells(lastRow, "F").Value = record.TemperatureValue
+            .Cells(lastRow, "G").Value = record.Force
+        End With
+        lastRow = lastRow + 1
+    Next record
+End Sub
+
+
+'新しいコードには含まれていない。
+Function GenerateSheetName(prefix As String, index As Integer) As String
+    GenerateSheetName = prefix & Format(index, "00")
+End Function
+
+
+
+
+' Mainプロシージャ
+Sub TestSheetCreationAndDataWriting()
     Dim ws As Worksheet
-    Dim DataSetManager As New DataSetManager
+    Set ws = ThisWorkbook.Sheets("DataSheet")
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    Dim i As Integer
 
-    ' シート名を生成
-    sheetName = GenerateSheetName(prefix, index)
-    Debug.Print "Generated sheet name: " & sheetName
+    Dim testValues As New Collection
+    Dim groupedRecords As Object
+    Set groupedRecords = CreateObject("Scripting.Dictionary")
 
-    ' シートの存在確認と作成
-    On Error Resume Next
-    Set ws = ThisWorkbook.Sheets(sheetName)
-    On Error GoTo 0
+    For i = 2 To lastRow
+        Dim Record As New Record
+        Record.LoadData ws, i
+        testValues.Add Record
 
-    If ws Is Nothing Then
-        ' コピーするソースシートが存在するか確認
-        If Not SheetExists(sourceSheetName) Then
-            Debug.Print "Source sheet not found: " & sourceSheetName
-            Exit Sub
+        ' 分類されたグループにレコードを追加
+        If Not groupedRecords.Exists(Record.Group) Then
+            groupedRecords.Add Record.Group, New Collection
         End If
-        
-        On Error Resume Next
-        Sheets(sourceSheetName).Copy After:=Sheets(Sheets.Count)
-        Set ws = ActiveSheet
-        ws.Name = sheetName
-        On Error GoTo 0
-        
-        ' シート名の変更が成功したか確認
-        If ws.Name <> sheetName Then
-            Debug.Print "Failed to rename the sheet correctly."
-            Exit Sub
+        groupedRecords(Record.Group).Add Record
+    Next i
+
+    ' グループの内容を確認（デバッグ用）
+    Dim key As Variant
+    For Each key In groupedRecords
+        Debug.Print "Group: " & key & ", Count: " & groupedRecords(key).Count
+    Next key
+
+    ' データのグループ化とシート書き込みを行う
+    Call PopulateGroupedSheets
+End Sub
+
+Sub PopulateGroupedSheets(groupedRecords As Object)
+    Dim ws As Worksheet
+    Dim sheetIndex As Integer
+    Dim key As Variant
+    Dim newSheetName As String
+    Dim templateName As String
+
+    sheetIndex = 1
+
+    For Each key In groupedRecords.Keys
+        ' Template sheet determination based on group key
+        If InStr(key, "SingleValue") > 0 Then
+            templateName = "Temp_Shinsei"
+        ElseIf InStr(key, "OtherValue") > 0 Then
+            templateName = "Temp_Teiki"
+        Else
+            templateName = "Temp_Irai"
         End If
-    End If
 
-    If Not ws Is Nothing Then
-        ' カスタムプロパティの設定
-        ws.CustomProperties.Add Name:=customPropertyName, Value:=customPropertyValue
+        ' Generate unique sheet name
+        newSheetName = key & "_" & sheetIndex
 
-        ' データの転記
-        Select Case writeMethod
-            Case "WriteSelectedValuesToOutputSheet"
-                DataSetManager.WriteSelectedValuesToOutputSheet sourceSheetName, ws.Name, dataCollection
-            Case "WriteSelectedValuesToRstlSheet"
-                DataSetManager.WriteSelectedValuesToRstlSheet sourceSheetName, ws.Name, dataCollection
-            Case "WriteSelectedValuesToResultTempSheet"
-                DataSetManager.WriteSelectedValuesToResultTempSheet ws.Name, dataCollection
-            Case Else
-                Debug.Print "Unknown write method: " & writeMethod
-        End Select
-    Else
-        Debug.Print "Failed to create or find the sheet: " & sheetName
-    End If
-
+        ' Check if the sheet already exists
+        If Not SheetExists(newSheetName) Then
+            ' Copy and populate the sheet if it does not exist
+            Call CopyAndPopulateSheet(templateName, newSheetName, groupedRecords(key))
+            sheetIndex = sheetIndex + 1  ' Increment sheet index only if a new sheet was created
+        Else
+            ' Optionally, you can handle the case where the sheet already exists
+            Debug.Print "Sheet already exists: " & newSheetName
+        End If
+    Next key
 End Sub
 
 Function SheetExists(sheetName As String) As Boolean
@@ -70,117 +110,3 @@ Function SheetExists(sheetName As String) As Boolean
     SheetExists = Not tmpSheet Is Nothing
     On Error GoTo 0
 End Function
-
-Function GenerateSheetName(prefix As String, index As Integer) As String
-    GenerateSheetName = prefix & Format(index, "00")
-End Function
-
-
-
-
-
-' 実行するプロシージャ：2024-05-30：シートのコピーはできるが転機できてない。
-Sub TestSheetCreationAndDataWriting()
-    Dim sheetIndex As Integer
-    Dim i As Integer '自分で追加
-    Dim resultTempIndex As Integer
-    Dim testValues As Collection
-    Dim Record As Record
-    Dim resultTempValues As Collection
-    Dim outputValues As Collection
-    Dim rstlValues As Collection
-    
-    ' DataSetManagerの初期化
-    Dim DataSetManager As DataSetManager
-    Set DataSetManager = New DataSetManager
-    DataSetManager.Init
-    Debug.Print "records initialized"
-    
-    ' テストデータの準備
-    Set testValues = New Collection
-    Set resultTempValues = New Collection
-    Set outputValues = New Collection
-    Set rstlValues = New Collection
-    
-    ' サンプルレコードの追加とフィルタリング
-    Set Record = New Record
-    Record.Initialize "01-F110F-Hot-天", "110F", "天頂", DateValue("2024/5/17"), 29, 3.07
-    testValues.Add Record
-    If Record.TemperatureValue = 29 Then
-        resultTempValues.Add Record
-        outputValues.Add Record
-        rstlValues.Add Record
-    End If
-    
-    Set Record = New Record
-    Record.Initialize "02-110-Cold-天", "110", "天頂", DateValue("2024/5/17"), 26, 4.91
-    Record.Initialize "03-F110F-Wet-天", "110F", "天頂", DateValue("2024/5/17"), 26, 2.89
-    testValues.Add Record
-    outputValues.Add Record
-    rstlValues.Add Record
-    
-    Set Record = New Record
-    Record.Initialize "01-F110F-Hot-前", "110F", "前頭部", DateValue("2024/5/17"), 26, 5.25
-    testValues.Add Record
-    outputValues.Add Record
-    rstlValues.Add Record
-    
-    Set Record = New Record
-    Record.Initialize "03-F110F-Wet-前", "110F", "前頭部", DateValue("2024/5/17"), 29, 5.64
-    Else
-    testValues.Add Record
-    If Record.TemperatureValue = 29 Then
-        resultTempValues.Add Record
-    testValues.Add Record
-    outputValues.Add Record
-    rstlValues.Add Record
-    
-    Set Record = New Record
-    Else
-    Record.Initialize "01-F110F-Hot-後", "110F", "後頭部", DateValue("2024/5/17"), 26, 5.12
-    testValues.Add Record
-    outputValues.Add Record
-    rstlValues.Add Record
-    
-        rstlValues.Add Record
-    End If
-    
-    ' インデックス初期化
-    Set Record = New Record
-    Record.Initialize "03-F110F-Wet-後", "110F", "後頭部", DateValue("2024/5/17"), 29, 5.19
-    testValues.Add Record
-    Set Record = New Record
-    Record.Initialize "01-F110F-Hot-後", "110F", "後頭部", DateValue("2024/5/17"), 26, 5.12
-    testValues.Add Record
-    outputValues.Add Record
-    rstlValues.Add Record
-    
-    Set Record = New Record
-    Record.Initialize "03-F110F-Wet-後", "110F", "後頭部", DateValue("2024/5/17"), 29, 5.19
-    testValues.Add Record
-    If Record.TemperatureValue = 29 Then
-        resultTempValues.Add Record
-    Else
-        outputValues.Add Record
-    sheetIndex = 1
-    resultTempIndex = 1
-    
-    ' OutputSingle/OutputSheet シートの作成とデータの書き込み
-    For i = 1 To 5
-        CopyAndPopulateSheet "申請_飛来", "申請_飛来_", sheetIndex, "Temp_Shinsei", "申請_飛来", outputValues, "WriteSelectedValuesToOutputSheet"
-        CopyAndPopulateSheet "申請_墜落", "申請_墜落_", sheetIndex, "Temp_Shinsei", "申請_墜落", outputValues, "WriteSelectedValuesToOutputSheet"
-        sheetIndex = sheetIndex + 1
-    Next i
-    
-    ' Rstl_Single/Rstl_Triple シートの作成とデータの書き込み
-    For i = 1 To 5
-        CopyAndPopulateSheet "定期_飛来", "定期_飛来_", sheetIndex, "Temp_Teiki", "定期_飛来", rstlValues, "WriteSelectedValuesToRstlSheet"
-        CopyAndPopulateSheet "定期_墜落", "定期_墜落_", sheetIndex, "Temp_Teiki", "定期_墜落", rstlValues, "WriteSelectedValuesToRstlSheet"
-        sheetIndex = sheetIndex + 1
-    Next i
-    
-    ' Result_Tempシートの作成とデータの書き込み
-    CopyAndPopulateSheet "依頼試験", "依頼試験_", resultTempIndex, "Temp_Irai", "依頼試験", resultTempValues, "WriteSelectedValuesToResultTempSheet"
-End Sub
-
-
