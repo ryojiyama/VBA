@@ -27,7 +27,7 @@ Sub CopyAndPopulateSheet(templateSheetName As String, newSheetName As String, da
 End Sub
 
 
-'V‚µ‚¢ƒR[ƒh‚É‚ÍŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢B
+'è­ï½°ç¸ºåŠ±ï¼ç¹§ï½³ç¹ï½¼ç¹å³¨â†“ç¸ºï½¯èœ·ï½«ç¸ºï½¾ç¹§å¾Œâ€»ç¸ºï¿½ç¸ºï½ªç¸ºï¿½ç¸²ï¿½
 Function GenerateSheetName(prefix As String, index As Integer) As String
     GenerateSheetName = prefix & Format(index, "00")
 End Function
@@ -35,12 +35,12 @@ End Function
 
 
 
-' MainƒvƒƒV[ƒWƒƒ
+' Mainç¹åŠ±ÎŸç¹§ï½·ç¹ï½¼ç¹§ï½¸ç¹ï½£
 Sub TestSheetCreationAndDataWriting()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("DataSheet")
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).row
     Dim i As Integer
 
     Dim testValues As New Collection
@@ -52,20 +52,20 @@ Sub TestSheetCreationAndDataWriting()
         Record.LoadData ws, i
         testValues.Add Record
 
-        ' •ª—Ş‚³‚ê‚½ƒOƒ‹[ƒv‚ÉƒŒƒR[ƒh‚ğ’Ç‰Á
+        ' åˆ†é¡ã•ã‚ŒãŸã‚°ãƒ«ãƒ¼ãƒ—ã«ãƒ¬ã‚³ãƒ¼ãƒ‰ã‚’è¿½åŠ 
         If Not groupedRecords.Exists(Record.Group) Then
             groupedRecords.Add Record.Group, New Collection
         End If
         groupedRecords(Record.Group).Add Record
     Next i
 
-    ' ƒOƒ‹[ƒv‚Ì“à—e‚ğŠm”FiƒfƒoƒbƒO—pj
+    ' ç¹§ï½°ç¹ï½«ç¹ï½¼ç¹åŠ±ï¿½ï½®èœ€ï¿½è³ï½¹ç¹§å ¤ï½¢ï½ºéš±æ¾ï½¼åŒ»ãƒ§ç¹èˆŒãƒ£ç¹§ï½°é€•ï½¨ï¿½ï½¼ï¿½
     Dim key As Variant
     For Each key In groupedRecords
         Debug.Print "Group: " & key & ", Count: " & groupedRecords(key).Count
     Next key
 
-    ' ƒf[ƒ^‚ÌƒOƒ‹[ƒv‰»‚ÆƒV[ƒg‘‚«‚İ‚ğs‚¤
+    ' ç¹ï¿½ç¹ï½¼ç¹§ï½¿ç¸ºï½®ç¹§ï½°ç¹ï½«ç¹ï½¼ç¹æ€œå–§ç¸ºï½¨ç¹§ï½·ç¹ï½¼ç¹åŸŸå¶Œç¸ºå´ï½¾ï½¼ç¸ºï½¿ç¹§å®šï½¡å¾Œâ‰§
     Call PopulateGroupedSheets
 End Sub
 
