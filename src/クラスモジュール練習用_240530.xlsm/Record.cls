@@ -7,21 +7,39 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-' Record éƒ¢ï½§ï¿½ï½½ï½¯éƒ¢æ™¢ï½½ï½©éƒ¢ï½§ï¿½ï½½ï½¹éƒ¢æ™¢ï½½ï½¢éƒ¢ï½§ï¿½ï½½ï½¸éƒ¢æ™¢ï½½ï½¥éƒ¢æ™¢ï½½ï½¼éƒ¢æ™¢ï½½ï½«
+' Record ƒNƒ‰ƒXƒ‚ƒWƒ…[ƒ‹
 Option Explicit
 
-Public ID As String
-Public Temperature As String
-Public Location As String
-Public DateValue As Date
-Public TemperatureValue As Double
-Public Force As Double
-Public Values As Collection
-Public Category As String
-Public Group As String
+' Public•Ï”‚Ì’è‹`
+Public ID As String 'ID
+Public sampleID As String '—¿ID
+Public itemNum As String '•i”Ô
+Public testPart As String 'Œ±ˆÊ’u
+Public testDate As Date 'ŒŸ¸“ú
+Public testTemp As Double '‰·“x
+Public maxValue As Double 'Å‘å’l
+Public timeOfMax As Double 'Å‘å’l‚ğ‹L˜^‚µ‚½ŠÔ
+Public duration49kN As Double '4.9kN‚ÌŒp‘±ŠÔ
+Public duration73kN As Double '7.3kN‚ÌŒp‘±ŠÔ
+Public preProcess As String '‘Oˆ—
+Public sampleWeight As Double 'd—Ê
+Public sampleTop As Double '“V’¸Œ„ŠÔ
+Public sampleColor As String '–X‘ÌF
+Public sampleLotNum As String '»•iƒƒbƒg
+Public sampleHelLot As String '–X‘Ìƒƒbƒg
+Public sampleBandLot As String '“à‘•ƒƒbƒg
+Public structureResult As String '\‘¢ŒŸ¸
+Public penetrationResult As String 'ŠÑ’ÊŒŸ¸
+Public testSection As String 'Œ±‹æ•ª
 
+
+Public Values As Collection
+Public sheetType As String
+Public groupID As String
+
+' ‰Šú‰»ƒƒ\ƒbƒh
 Public Sub InitSingle()
-    ' é™‹ï½»è­ï¿½è¬”ï¿½é™‹ï½¹é«¢Â€ï¿½ï½¿ï½½ï¿½ï½½ï½¦é¨¾ï¿½ï¿½ï½¿ï½½
+    ' ‰Šú‰»ˆ—
 End Sub
 
 Public Sub InitMultiple()
@@ -32,49 +50,106 @@ Public Function GetSpecificValues() As Collection
     Set GetSpecificValues = Values
 End Function
 
-
 Public Sub Initialize( _
     ByVal ID As String, _
-    ByVal Temperature As String, _
-    ByVal Location As String, _
-    ByVal DateValue As Date, _
-    ByVal TemperatureValue As Double, _
-    ByVal Force As Double)
-
+    ByVal sampleID As String, _
+    ByVal itemNum As String, _
+    ByVal testPart As String, _
+    ByVal testDate As Date, _
+    ByVal testTemp As Double, _
+    ByVal maxValue As Double, _
+    ByVal timeOfMax As Double, _
+    ByVal duration49kN As Double, _
+    ByVal duration73kN As Double, _
+    ByVal preProcess As String, _
+    ByVal sampleWeight As Double, _
+    ByVal sampleTop As Double, _
+    ByVal sampleColor As String, _
+    ByVal sampleLotNum As String, _
+    ByVal sampleHelLot As String, _
+    ByVal sampleBandLot As String, _
+    ByVal structureResult As String, _
+    ByVal penetrationResult As String, _
+    ByVal testSection As String)
+    
     Me.ID = ID
-    Me.Temperature = Temperature
-    Me.Location = Location
-    Me.DateValue = DateValue
-    Me.TemperatureValue = TemperatureValue
-    Me.Force = Force
+    Me.sampleID = sampleID
+    Me.itemNum = itemNum
+    Me.testPart = testPart
+    Me.testDate = testDate
+    Me.testTemp = testTemp
+    Me.maxValue = maxValue
+    Me.timeOfMax = timeOfMax
+    Me.duration49kN = duration49kN
+    Me.duration73kN = duration73kN
+    Me.preProcess = preProcess
+    Me.sampleWeight = sampleWeight
+    Me.sampleTop = sampleTop
+    Me.sampleColor = sampleColor
+    Me.sampleLotNum = sampleLotNum
+    Me.sampleHelLot = sampleHelLot
+    Me.sampleBandLot = sampleBandLot
+    Me.structureResult = structureResult
+    Me.penetrationResult = penetrationResult
+    Me.testSection = testSection
+End Sub
+Public Sub LoadData_Test(ByVal ws As Worksheet, ByVal row As Integer)
+    On Error GoTo ErrorHandler
+
+    ID = ws.Cells(row, 2).Value ' ID‚ª‘æ1—ñ‚É‚ ‚é‚Æ‰¼’è
+    testTemp = ws.Cells(row, 7).Value ' ‰·“x‚ª‘æ2—ñ‚É‚ ‚é‚Æ‰¼’è
+    testPart = ws.Cells(row, 5).Value ' ˆÊ’uî•ñ‚ª‘æ3—ñ‚É‚ ‚é‚Æ‰¼’è
+    testDate = ws.Cells(row, 6).Value ' “ú•t‚ª‘æ4—ñ‚É‚ ‚é‚Æ‰¼’è
+    sampleWeight = ws.Cells(row, 13).Value ' ‰·“x’l‚ª‘æ5—ñ‚É‚ ‚é‚Æ‰¼’è
+    maxValue = ws.Cells(row, 8).Value ' —Í‚ª‘æ6—ñ‚É‚ ‚é‚Æ‰¼’è
+
+    Exit Sub
+
+ErrorHandler:
+    Debug.Print "Error loading data at column: " & Err.Source & " Row: " & row & " Error #" & Err.number & ": " & Err.Description
 End Sub
 
-
-' éƒ¢æ™¢ï½¿ï½½éƒ¢æ™¢ï½½ï½¼éƒ¢ï½§ï¿½ï½½ï½¿éƒ¢ï½§è››ï½µï¾æº½ï½¹æ™¢ï½½ï½¼éƒ¢æ™ï½³ï½¨ï¿½ï½¼ï¿½é‚µï½²ç«æ™¢ï½¿ï½½ï¿½ï½¿ï½½é¬¯ä¿¶ï½§ï½­ç¬™Â€éƒ¢ï½§è›¹ï½»ï¿½ï½¿ï½½ï¿½ï½½ï½³éƒ¢ï½§ï¿½ï½½ï½°éƒ¢æ™¢ï½½ï½«éƒ¢æ™¢ï½½ï½¼éƒ¢æ™„Â€æ‡·å¯†éƒ¢ï½§è³å¤²ï½½ï½¡è •å¨¯é´¬éƒ¢æ™¢ï½½ï½¡éƒ¢ï½§ï¿½ï½½ï½½éƒ¢æ™¢ï½¿ï½½éƒ¢æ™¢ï½¿ï½½
+' ƒf[ƒ^‚ğƒ[ƒh‚µA•ª—Ş‚¨‚æ‚ÑƒOƒ‹[ƒv‰»‚ğs‚¤ƒƒ\ƒbƒh
 Public Sub LoadData(ByVal ws As Worksheet, ByVal row As Integer)
-    ID = ws.Cells(row, 1).Value
-    Temperature = ws.Cells(row, 2).Value
-    Location = ws.Cells(row, 3).Value
-    DateValue = ws.Cells(row, 4).Value
-    TemperatureValue = ws.Cells(row, 5).Value
-    Force = ws.Cells(row, 6).Value
+    ID = ws.Cells(row, 2).Value
+    sampleID = ws.Cells(row, 3).Value
+    itemNum = ws.Cells(row, 4).Value
+    testPart = ws.Cells(row, 5).Value
+    testDate = ws.Cells(row, 6).Value
+    testTemp = ws.Cells(row, 7).Value
+    maxValue = ws.Cells(row, 8).Value
+    timeOfMax = ws.Cells(row, 9).Value
+    duration49kN = ws.Cells(row, 10).Value
+    duration73kN = ws.Cells(row, 11).Value
+    preProcess = ws.Cells(row, 12).Value
+    sampleWeight = ws.Cells(row, 13).Value
+    sampleTop = ws.Cells(row, 14).Value
+    sampleColor = ws.Cells(row, 15).Value
+    sampleLotNum = ws.Cells(row, 16).Value
+    sampleHelLot = ws.Cells(row, 17).Value
+    sampleBandLot = ws.Cells(row, 18).Value
+    structureResult = ws.Cells(row, 19).Value
+    penetrationResult = ws.Cells(row, 20).Value
+    testSection = ws.Cells(row, 21).Value
 
-    ' IDéƒ¢ï½§é›‹æ©¸ï½¿ï½½ï¿½ï½¿ï½½éš´ï½«é—Šé¯‰ï½¼ï¿½é‚µï½ºï¿½ï½½ï½¦éƒ¢ï½§ï¿½ï½½ï½«éƒ¢æ™¢ï½¿ï½½éƒ¢ï½§ï¿½ï½½ï½´éƒ¢æ™¢ï½½ï½ªéƒ¢ï½§èœ»èŒ¨ï½½ï½±ï¿½ï½½ï½ºé™ï½³ï¿½ï½¿ï½½
+    ' ID‚ğ•ªÍ‚µ‚ÄƒJƒeƒSƒŠ‚ğŒˆ’è
     Dim parts() As String
-    parts = Split(ID, "-")
+    parts = Split(sampleID, "-")
 
-    ' é—•ï½³ï¿½ï½½ï½­é¬®ï½¢é¬¥ï½´ï¾å¤Šå´•ï¿½ï½¿ï½½é‚µï½ºï¿½ï½½ï½§é‚µï½ºï¿½ï½½ï½®éƒ¢ï½§ï¿½ï½½ï½«éƒ¢æ™¢ï½¿ï½½éƒ¢ï½§ï¿½ï½½ï½´éƒ¢æ™¢ï½½ï½ªé™‹ï½»ï¿½ï½½ï½¤é™ï½³ï¿½ï½¿ï½½
-    If InStr(parts(1), "F") > 0 Then
-        Category = "MultiValue"
+    ' ’†ŠÔ•”•ª‚Å‚ÌƒJƒeƒSƒŠ”»’è
+    If InStr(parts(1), "F") > 0 And InStr(parts(2), "‘¤") > 0 Then
+        sheetType = "Side"
+    ElseIf InStr(parts(1), "F") > 0 Then
+        sheetType = "Multi"
     Else
-        Category = "SingleValue"
+        sheetType = "Single"
     End If
 
-    ' æœ«å°¾éƒ¨åˆ†ã§ã®ã‚°ãƒ«ãƒ¼ãƒ—åˆ¤å®š
+    ' ––”ö•”•ª‚Å‚ÌƒOƒ‹[ƒv”»’è
     Select Case parts(3)
-        Case "é™‹å¹¢ï½½ï½´"
-            Group = "OtherValue." & parts(3) & "." & parts(2)
+        Case "‘¤"
+            groupID = parts(0) & "." & "SideValue." & parts(1) & "." & parts(3) & "." & parts(2)
         Case Else
-            Group = Category & "." & parts(3) & "." & parts(2)
+            groupID = parts(0) & "." & parts(1) & "." & parts(3) & "." & parts(2)
     End Select
 End Sub

@@ -16,34 +16,6 @@ Public Sub Init_001()
     Debug.Print "records initialized"
 End Sub
 
-Public Sub LoadData(ws As Worksheet)
-    Dim lastRow As Long
-    Dim i As Long
-    Dim rec As Record
-
-    If records Is Nothing Then
-        Debug.Print "records is nothing"
-        Exit Sub
-    End If
-
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).row
-    Debug.Print "Last Row: " & lastRow
-
-    For i = 2 To lastRow
-        Set rec = New Record
-        Debug.Print "New record created for row: " & i
-        rec.Initialize _
-            ID:=ws.Cells(i, 1).Value, _
-            Temperature:=ws.Cells(i, 2).Value, _
-            Location:=ws.Cells(i, 3).Value, _
-            DateValue:=ws.Cells(i, 4).Value, _
-            TemperatureValue:=ws.Cells(i, 5).Value, _
-            Force:=ws.Cells(i, 6).Value
-        Debug.Print "Record initialized for row: " & i & " with ID: " & ws.Cells(i, 1).Value
-        records.Add rec
-        Debug.Print "Record added for row: " & i
-    Next i
-End Sub
 
 
 Public Function GetRecords() As Collection
@@ -89,7 +61,7 @@ Public Sub WriteSelectedValuesToOutputSheet(sourceSheetName As String, sheetName
         ws.Cells(row, "G").Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Data written successfully to " & ws.Name
+    Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -118,7 +90,7 @@ Public Sub WriteSelectedValuesToRstlSheet(sourceSheetName As String, sheetName A
         ws.Cells(row, "G").Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Data written successfully to " & ws.Name
+    Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -150,7 +122,7 @@ Public Sub WriteSelectedValuesToSideSheet(templateSheetName As String, sheetName
         ws.Cells(row, "G").Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Data written successfully to " & ws.Name
+    Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -179,7 +151,7 @@ Public Sub WriteSelectedValuesToResultTempSheet(sheetName As String, specificVal
         ws.Cells(row, "G").Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Data written successfully to " & ws.Name
+    Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -202,7 +174,7 @@ Public Sub WriteSelectedValuesToOutputSheet_Change240604(templateSheetName As St
     ' 新しいシートを参照
     Set ws = ThisWorkbook.Sheets(sheetName)
 
-    Debug.Print "Writing data to sheet: " & ws.Name
+    Debug.Print "Writing data to sheet: " & ws.name
 
     ' ヘッダーを書き込み
     ws.Range("A1").Value = "ID"
@@ -224,7 +196,7 @@ Public Sub WriteSelectedValuesToOutputSheet_Change240604(templateSheetName As St
         ws.Range("F" & row).Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Class: Data written successfully to " & ws.Name
+    Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -268,7 +240,7 @@ Public Sub WriteSelectedValuesToRstlSheet_Change240604(templateSheetName As Stri
         ws.Range("G" & row).Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Class: Data written successfully to " & ws.Name
+    Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -313,7 +285,7 @@ Public Sub WriteSelectedValuesToSideSheet_Change240604(templateSheetName As Stri
         ws.Range("G" & row).Value = Record.Force
         row = row + 1
     Next Record
-    Debug.Print "Class: Data written successfully to " & ws.Name
+    Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:
@@ -333,7 +305,7 @@ Public Sub WriteSelectedValuesToResultTempSheet_Change240604(sheetName As String
     ' 新しいシートを参照
     Set ws = ThisWorkbook.Sheets(sheetName)
 
-    Debug.Print "Writing data to sheet: " & ws.Name
+    Debug.Print "Writing data to sheet: " & ws.name
 
     ' ヘッダーを書き込み
     ws.Range("A1").Value = "ID"
@@ -356,7 +328,7 @@ Public Sub WriteSelectedValuesToResultTempSheet_Change240604(sheetName As String
         row = row + 1
     Next Record
 
-    Debug.Print "Class: Data written successfully to " & ws.Name
+    Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
 ErrorHandler:

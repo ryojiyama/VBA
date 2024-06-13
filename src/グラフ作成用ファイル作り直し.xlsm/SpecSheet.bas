@@ -469,27 +469,76 @@ Sub CustomizeSheetFormats()
 
         ' Loop through each cell in the first row
         For Each cell In ws.Rows(1).Cells
+            ' Determine the data type based on the column header and set the format accordingly
+            Select Case True
+                Case InStr(cell.value, "検査日") > 0
+                    Set rng = ws.Range(cell, ws.Cells(ws.Rows.Count, cell.Column).End(xlUp))
+                    rng.NumberFormat = "yyyy-mm-dd"
+                Case InStr(cell.value, "温度") > 0
+                    Set rng = ws.Range(cell, ws.Cells(ws.Rows.Count, cell.Column).End(xlUp))
+                    rng.NumberFormat = "0.00"
+                Case InStr(cell.value, "最大値(kN)") > 0, InStr(cell.value, "重量") > 0, _
+                     InStr(cell.value, "天頂すきま") > 0
+                    Set rng = ws.Range(cell, ws.Cells(ws.Rows.Count, cell.Column).End(xlUp))
+                    rng.NumberFormat = "0.00"
+                Case InStr(cell.value, "最大値を記録した時間") > 0, _
+                     InStr(cell.value, "4.9kNの継続時間") > 0, _
+                     InStr(cell.value, "7.3kNの継続時間") > 0
+                    Set rng = ws.Range(cell, ws.Cells(ws.Rows.Count, cell.Column).End(xlUp))
+                    rng.NumberFormat = "0.00"
+                Case InStr(cell.value, "ID") > 0, InStr(cell.value, "試料ID") > 0, _
+                     InStr(cell.value, "品番") > 0, InStr(cell.value, "試験位置") > 0, _
+                     InStr(cell.value, "前処理") > 0, InStr(cell.value, "帽体色") > 0, _
+                     InStr(cell.value, "製品ロット") > 0, InStr(cell.value, "帽体ロット") > 0, _
+                     InStr(cell.value, "内装ロット") > 0, InStr(cell.value, "構造検査") > 0, _
+                     InStr(cell.value, "貫通検査") > 0, InStr(cell.value, "試験区分") > 0
+                    Set rng = ws.Range(cell, ws.Cells(ws.Rows.Count, cell.Column).End(xlUp))
+                    rng.NumberFormat = "@"
+            End Select
+        Next cell
+    Next sheet
+
+
+End Sub
+
+Sub CustomizeSheetFormats_Old()
+
+    Dim sheetNames As Variant
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim rng As Range
+    Dim col As Range
+
+    ' Apply to the following sheets
+    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
+
+    ' Loop through each sheet
+    For Each sheet In sheetNames
+        Set ws = Worksheets(sheet)
+
+        ' Loop through each cell in the first row
+        For Each cell In ws.Rows(1).Cells
             If InStr(1, cell.value, "最大値(kN)") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.00 ""kN"""
+                rng.NumberFormat = "0.00 "
             ElseIf InStr(1, cell.value, "最大値(G)") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0 ""G"""
+                rng.NumberFormat = "0 "
             ElseIf InStr(1, cell.value, "時間") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""ms"""
+                rng.NumberFormat = "0.0 "
             ElseIf InStr(1, cell.value, "温度") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""℃"""
+                rng.NumberFormat = "0.0 "
             ElseIf InStr(1, cell.value, "重量") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""g"""
+                rng.NumberFormat = "0.0 "
             ElseIf InStr(1, cell.value, "ロット") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
                 rng.NumberFormat = "@"
             ElseIf InStr(1, cell.value, "天頂すきま") > 0 Then
                 Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""mm"""
+                rng.NumberFormat = "0.0 "
             End If
         Next cell
     Next sheet

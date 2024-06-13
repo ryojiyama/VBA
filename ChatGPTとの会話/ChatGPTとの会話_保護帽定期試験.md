@@ -3755,3 +3755,563 @@ End Sub
 2024年6月3日やること
 TestSheetCreationAndDataWriting()で、レコードを作成してテストをしているが、これをRecordクラスモジュールから読み取って行う。
 DataSetManagerクラスモジュールで書き込みの場合分けを実装する。IDから飛来・落下試験と墜落試験を分ける。
+
+
+Public Sub LoadData(ByVal ws As Worksheet, ByVal row As Integer)
+    ID = ws.Cells(row, 1).Value
+    Temperature = ws.Cells(row, 2).Value
+    Location = ws.Cells(row, 3).Value
+    DateValue = ws.Cells(row, 4).Value
+    TemperatureValue = ws.Cells(row, 5).Value
+    Force = ws.Cells(row, 6).Value
+
+    ' IDを分析してカテゴリを決定
+    Dim parts() As String
+    parts = Split(ID, "-")
+
+    ' 中間部分でのカテゴリ判定
+    If InStr(parts(1), "F") > 0 Then
+        Category = "MultiValue"
+    Else
+        Category = "SingleValue"
+    End If
+
+    ' 末尾部分でのグループ判定
+    Select Case parts(3)
+        Case "側"
+            Group = "SideValue." & parts(3) & "." & parts(2)
+        Case Else
+            Group = Category & "." & parts(3) & "." & parts(2)
+    End Select
+
+    ' TemperatureValue の値に基づいたグループコードの追加
+    If TemperatureValue = 26 Then
+        Group = Group & "." & "Spot"
+    Else
+        Group = Group & "." & "Regular"
+    End If
+End Sub
+```
+
+全体のコードの整理をしたいと思います。
+RecordクラスモジュールのRecordプロシージャでRecordの原型を作成します。
+RecordクラスモジュールのLoadDataプロシージャでRecordのインスタンスを作成します。
+また、LoadDataプロシージャでレコードごとにキーを作成します。
+PopulateGroupedSheetsを用いてそのキーと各シートを紐付けます。
+DataSetManagerクラスモジュールにある各WriteSelectedValuesTo〜モジュールに合わせてシートに値を書き込みます。
+
+```vb
+Sub PopulateGroupedSheets(groupedRecords As Object)
+    Dim key As Variant
+    Dim recordGroup As Collection
+    Dim templateSheetName As String
+    Dim newSheetName As String
+    Dim targetSheet As Worksheet
+
+    For Each key In groupedRecords.Keys
+        Set recordGroup = groupedRecords(key)
+
+        ' Determine the appropriate template sheet based on the group key
+        Select Case key
+            Case "申請_飛来"
+                templateSheetName = "申請_飛来"
+            Case "申請_墜落"
+                templateSheetName = "申請_墜落"
+            Case "定期_飛来"
+                templateSheetName = "定期_飛来"
+            Case "定期_墜落"
+                templateSheetName = "定期_墜落"
+            Case "側面"
+                templateSheetName = "側面"
+            Case "依頼試験"
+                templateSheetName = "依頼試験"
+            Case Else
+                Debug.Print "No matching template found for: " & key
+                GoTo NextGroup
+        End Select
+
+        ' Check if the sheet already exists and copy it if necessary
+        If Not SheetExists(templateSheetName) Then
+            Debug.Print "Template sheet does not exist: " & templateSheetName
+            GoTo NextGroup
+        Else
+            Sheets(templateSheetName).Copy After:=Sheets(Sheets.Count)
+            Set targetSheet = ActiveSheet
+            targetSheet.Name = templateSheetName & "_" & Format(Now, "yyyymmdd_hhmmss")
+        End If
+
+        ' Populate the new sheet with data
+
+key:MultiValue.後.Wetがキーの内容。この内容でシートの振り分けができるかを考える。
+        Dim newName as string
+        ' Template sheet determination based on group key
+        If InStr(key, "SingleValue") > 0 Then
+            templateName = "申請_飛来"
+            templateName = "定期_飛来"
+        ElseIf InStr(key, "SideValue") > 0 Then
+            templateName = "側面試験"
+        Else
+            templateName = "申請_墜落"
+            templateName = "定期_墜落"
+        End If
+
+このように
+各値にそって1枚~2枚のシートを複製し、それをwrite~メソッドに従って値を振り分けたい。
+
+EXCELVBAで条件に従い、行全体を非表示にするコードを書いてください。
+# 条件
+- 範囲はA列の値があるところまで
+- C列の値がない行を非表示にする。
+- 非表示にしている行を表示する。
+
+newSheetName = key & "_" & templateName & "_" & sheetIndex
+keyの部分をtemplateNames.ADD = "申請_飛来" の前の2文字にできますか?
+提示している例なら"申請"のようになります。
+
+このコードを実行したときにキーの値はデバッグ出力するとこうなります。
+key:SingleValue.110.天.Cold
+key:SingleValue.110.天.Cold
+key:MultiValue.110F.天.Wet
+key:MultiValue.110F.天.Wet
+key:MultiValue.110F.前.Hot
+key:MultiValue.110F.前.Hot
+key:MultiValue.110F.前.Wet
+key:MultiValue.110F.前.Wet
+key:MultiValue.110F.後.Hot
+key:MultiValue.110F.後.Hot
+key:MultiValue.110F.後.Wet
+key:MultiValue.110F.後.Wet
+key:SingleValue.110.天.Cold
+key:SingleValue.110.天.Cold
+key:MultiValue.170F.天.Wet
+key:MultiValue.170F.天.Wet
+key:MultiValue.170F.前.Hot
+key:MultiValue.170F.前.Hot
+key:MultiValue.170F.前.Wet
+key:MultiValue.170F.前.Wet
+key:MultiValue.170F.後.Hot
+key:MultiValue.170F.後.Hot
+key:MultiValue.170F.後.Wet
+key:MultiValue.170F.後.Wet
+このキーの値にそってシートを複製したいです。同じ項目をコピーしている部分もあるのでそれにも気を配ってください。
+
+まずはグループの例を示すので振り分けのロジックを考えてください。
+Group1;key:SingleValue.110.天.Cold ;申請_飛来
+Group2;MultiValue.110F.天.Wet, MultiValue.110F.前.Wet, MultiValue.110F.後.Wet  ;申請_墜落シート１枚目
+Group3;MultiValue.110F.天.Hot, MultiValue.110F.前.Hot, MultiValue.110F.後.Hot  ;申請_飛来シート2枚目
+
+
+Group 1
+key: SingleValue.110.天.Cold
+key: SingleValue.110.天.Cold
+key: SingleValue.110.天.Cold
+key: SingleValue.110.天.Cold
+Group 2
+key: MultiValue.110F.前.Hot
+key: MultiValue.110F.後.Hot
+Group 3
+key: MultiValue.110F.前.Hot
+key: MultiValue.110F.後.Hot
+Group 4
+key: MultiValue.110F.天.Wet
+key: MultiValue.110F.前.Wet
+key: MultiValue.110F.後.Wet
+Group 5
+key: MultiValue.110F.天.Wet
+key: MultiValue.110F.前.Wet
+key: MultiValue.110F.後.Wet
+Group 6
+key: MultiValue.1７0F.前.Hot
+key: MultiValue.1７0F.後.Hot
+Group 7
+key: MultiValue.1７0F.天.Wet
+key: MultiValue.1７0F.前.Wet
+key: MultiValue.1７0F.後.Wet
+Group 8
+key: MultiValue.1７0F.前.Hot
+key: MultiValue.1７0F.後.Hot
+Group 9
+key: MultiValue.1７0F.天.Wet
+key: MultiValue.1７0F.前.Wet
+key: MultiValue.1７0F.後.Wet
+
+
+
+key:SingleValue.110.天.Cold
+key:SingleValue.110.天.Cold
+key:MultiValue.110F.天.Wet
+key:MultiValue.110F.天.Wet
+key:MultiValue.110F.前.Hot
+上記のキーを持ったレコードを適切に分類するコードをVBAで作成してください。
+コードは段階的に条件を絞る形式で作成してください。
+キーは以下のようにピリオド（.）で区切られた複数のセグメントから構成されます
+<タイプ>.<番号>.<位置>.<条件>
+1. まずタイプ{Single, Multi}ごとにグループを作成します。
+2. 次に番号{3~4桁の数字}が同じグループを作成します。
+3. 次に条件{Hot, Cold ,Wet}が共通するグループを作成します。
+4. 最後に位置{天、前、後、側}のうち{天、前、後}は同グループでは重複しません。また、{側}が入っているグループは{天、前、後}のどれも含みません。
+
+
+SingleValue Groups:
+Group 110-Cold:
+  天: SingleValue.110.天.Cold
+  天: SingleValue.110.天.Cold
+MultiValue Groups:
+Group 110F-Wet:
+  天: MultiValue.110F.天.Wet
+  天: MultiValue.110F.天.Wet
+Group 110F-Hot:
+  前: MultiValue.110F.前.Hot
+
+
+keys = Array( _
+    "SingleValue.110.天.Cold", _
+    "SingleValue.110.天.Cold", _
+    "MultiValue.110F.天.Wet", _
+    "MultiValue.110F.天.Wet", _
+    "MultiValue.110F.前.Hot", _
+    "SingleValue.210.前.Cold", _
+    "SingleValue.210.後.Cold", _
+    "MultiValue.215.前.Hot", _
+    "MultiValue.215.天.Hot", _
+    "SingleValue.310.側.Wet", _
+    "SingleValue.320.天.Cold", _
+    "SingleValue.320.前.Hot", _
+    "MultiValue.320F.天.Cold", _
+    "MultiValue.320F.前.Wet", _
+    "MultiValue.325F.後.Hot", _
+    "MultiValue.325F.側.Hot", _
+    "SingleValue.330F.後.Cold", _
+    "SingleValue.330F.側.Wet", _
+    "MultiValue.340F.天.Wet", _
+    "MultiValue.340F.前.Wet" _
+)
+
+
+SingleValue Groups:
+Group 110-Cold:
+  天:
+    SingleValue.110.天.Cold
+    SingleValue.110.天.Cold
+Group 210-Cold:
+  前:
+    SingleValue.210.前.Cold
+  後:
+    SingleValue.210.後.Cold
+Group 310-Wet-側:
+  側:
+    SingleValue.310.側.Wet
+Group 320-Cold:
+  天:
+    SingleValue.320.天.Cold
+Group 320-Hot:
+  前:
+    SingleValue.320.前.Hot
+Group 330F-Cold:
+  後:
+    SingleValue.330F.後.Cold
+Group 330F-Wet-側:
+  側:
+    SingleValue.330F.側.Wet
+MultiValue Groups:
+Group 110F-Wet:
+  天:
+    MultiValue.110F.天.Wet
+    MultiValue.110F.天.Wet
+Group 110F-Hot:
+  前:
+    MultiValue.110F.前.Hot
+Group 215-Hot:
+  前:
+    MultiValue.215.前.Hot
+  天:
+    MultiValue.215.天.Hot
+Group 320F-Cold:
+  天:
+    MultiValue.320F.天.Cold
+Group 320F-Wet:
+  前:
+    MultiValue.320F.前.Wet
+Group 325F-Hot:
+  後:
+    MultiValue.325F.後.Hot
+Group 325F-Hot-側:
+  側:
+    MultiValue.325F.側.Hot
+Group 340F-Wet:
+  天:
+    MultiValue.340F.天.Wet
+  前:
+    MultiValue.340F.前.Wet
+
+ID
+試料ID
+品番
+試験内容
+検査日
+温度
+最大値
+最大値を記録した時間
+49kNの継続時間
+73kNの継続時間
+前処理
+重量
+天頂隙間
+色
+ロットNumber
+帽体ロット
+内装ロット
+構造
+貫通
+試験区分
+
+ID
+sampleID
+itemNum
+testPart
+Date
+testTemp
+maxValue
+timeOfMax
+duration49kN
+duration73kN
+preProcess
+sampleWeight
+sampleTop
+sampleColor
+sampleLotNum
+sampleHelLot
+sampleBandLot
+structureResult
+assemblyResult
+penettationResult
+testSection
+
+Public ID As String
+Public Temperature As String
+Public Location As String
+Public DateValue As Date
+Public TemperatureValue As Double
+Public Force As Double
+Public Values As Collection
+Public Category As String
+Public Group As String
+このような形で以下の変数名を宣言するコードの断片を書いてください。
+変数の方はお任せします。
+Public ID As String 'ID
+Public sampleID As String '試料ID
+Public itemNum As String '品番
+Public testPart As String '試験位置
+Public testDate As Date '検査日
+Public testTemp As Double '温度
+Public maxValue As Double '最大値
+Public timeOfMax As Double '最大値を記録した時間
+Public duration49kN As Double '4.9kNの継続時間
+Public duration73kN As Double '7.3kNの継続時間
+Public preProcess As String '前処理
+Public sampleWeight As Double '重量
+Public sampleTop As Double '天頂隙間
+Public sampleColor As String '帽体色
+Public sampleLotNum As String '製品ロット
+Public sampleHelLot As String '帽体ロット
+Public sampleBandLot As String '内装ロット
+Public structureResult As String '構造検査
+Public penetrationResult As String '貫通検査
+Public testSection As String '試験区分
+
+
+Added new entry to sheetTypeIndex: Single_01 = 申請_飛来_01
+newSheetName: 申請_飛来_01
+Created new sheet: 申請_飛来_01
+Record added to sheet: 申請_飛来_01 for groupID: 01
+Added new entry to sheetTypeIndex: Single_02 = 申請_飛来_02
+newSheetName: 申請_飛来_02
+Created new sheet: 申請_飛来_02
+Record added to sheet: 申請_飛来_02 for groupID: 02
+Added new entry to sheetTypeIndex: Multi_03 = 申請_墜落_03
+newSheetName: 申請_墜落_03
+Created new sheet: 申請_墜落_03
+Record added to sheet: 申請_墜落_03 for groupID: 03
+Added new entry to sheetTypeIndex: Multi_04 = 申請_墜落_04
+newSheetName: 申請_墜落_04
+Created new sheet: 申請_墜落_04
+Record added to sheet: 申請_墜落_04 for groupID: 04
+Added new entry to sheetTypeIndex: Multi_01 = 申請_墜落_01
+newSheetName: 申請_墜落_01
+Created new sheet: 申請_墜落_01
+Record added to sheet: 申請_墜落_01 for groupID: 01
+Added new entry to sheetTypeIndex: Multi_02 = 申請_墜落_02
+newSheetName: 申請_墜落_02
+Created new sheet: 申請_墜落_02
+Record added to sheet: 申請_墜落_02 for groupID: 02
+newSheetName: 申請_墜落_01
+Record added to sheet: 申請_墜落_01 for groupID: 01
+newSheetName: 申請_墜落_02
+Record added to sheet: 申請_墜落_02 for groupID: 02
+newSheetName: 申請_墜落_01
+Record added to sheet: 申請_墜落_01 for groupID: 01
+newSheetName: 申請_墜落_02
+Record added to sheet: 申請_墜落_02 for groupID: 02
+newSheetName: 申請_墜落_03
+Record added to sheet: 申請_墜落_03 for groupID: 03
+Total unique records: 11
+既存のシートは{LOG_Helmet, DataSheet, "申請_飛来","申請_墜落","定期_飛来","定期_墜落","側面試験","依頼試験",}
+です。
+
+次のステップです。
+    Dim baseTemplateName As String
+    Select Case sheetType
+        Case "Single"
+            baseTemplateName = "申請_飛来"
+        Case "Multi"
+            baseTemplateName = "申請_墜落"
+        Case Else
+            baseTemplateName = "その他"
+    End Select
+でsheetTypeの値を利用してbaseTemplateNameを決めていますが、これにいくつかの条件を追加したい。
+- Caseが"Single"の場合 baseTemplateName = "定期_飛来"を加える。
+- Caseが"Multi"の場合 baseTemplateName = "定期_墜落"を加える。
+sheetType"Single"が1個見つかった場合、"申請_飛来"のコピーシートが1枚、
+"定期_飛来"シートが1枚、計2枚増えることになります。どのようなロジックになるかを日本語で説明してください。
+
+
+Sub ClassifyKeys(sheetType As String, groupID As String)
+    ' レコードごとにシートネームを作成する
+    Static sheetTypeIndex As Object
+    If sheetTypeIndex Is Nothing Then Set sheetTypeIndex = CreateObject("Scripting.Dictionary")
+
+    ' グループIDを作成
+    groupID = Left(groupID, 2)
+
+    Dim baseTemplateName As String
+    Dim additionalTemplateName As String
+    Select Case sheetType
+        Case "Single"
+            baseTemplateName = "申請_飛来"
+            additionalTemplateName = "定期_飛来"
+        Case "Multi"
+            baseTemplateName = "申請_墜落"
+            additionalTemplateName = "定期_墜落"
+        Case Else
+            baseTemplateName = "その他"
+            additionalTemplateName = ""
+    End Select
+
+    ' 基本テンプレートと追加テンプレートのシート処理
+    Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex)
+    If additionalTemplateName <> "" Then
+        Call ProcessTemplateSheet(additionalTemplateName, sheetType, groupID, sheetTypeIndex)
+    End If
+End Sub
+
+Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object)
+    Dim combinedKey As String
+    combinedKey = templateName & "_" & groupID
+
+    ' シート名の決定
+    If Not sheetTypeIndex.Exists(combinedKey) Then
+        sheetTypeIndex(combinedKey) = templateName & "_" & groupID
+        Debug.Print "Added new entry to sheetTypeIndex: " & combinedKey & " = " & sheetTypeIndex(combinedKey)
+    End If
+
+    Dim newSheetName As String
+    newSheetName = sheetTypeIndex(combinedKey)
+    Debug.Print "newSheetName: " & newSheetName
+
+    Dim newSheet As Worksheet
+    If Not SheetExists(newSheetName) Then
+        Select Case templateName
+            Case "申請_飛来", "申請_墜落", "定期_飛来", "定期_墜落", "側面試験", "依頼試験", "LOG_Helmet", "DataSheet"
+                Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
+                Set newSheet = Worksheets(Worksheets.Count)
+                newSheet.Name = newSheetName
+                ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).Name = "Temp_" & newSheetName
+                Debug.Print "Copied sheet from template: " & templateName & " to new sheet: " & newSheet.Name
+            Case Else
+                Debug.Print "No template found for templateName: " & templateName
+        End Select
+    Else
+        Set newSheet = Worksheets(newSheetName)
+    End If
+
+    Debug.Print "Record added to sheet: " & newSheet.Name & " for groupID: " & groupID
+End Sub
+
+Function SheetExists(sheetName As String) As Boolean
+    Dim sheet As Worksheet
+    On Error Resume Next
+    Set sheet = Worksheets(sheetName)
+    On Error GoTo 0
+    SheetExists = Not sheet Is Nothing
+End Function
+
+' 修正させたコード
+Sub ClassifyKeys(sheetType As String, groupID As String)
+    ' レコードごとにシートネームを作成する
+    Static sheetTypeIndex As Object
+    If sheetTypeIndex Is Nothing Then Set sheetTypeIndex = CreateObject("Scripting.Dictionary")
+
+    ' グループIDを作成
+    groupID = Left(groupID, 2)
+
+    Dim baseTemplateName As String
+    Dim additionalTemplateName As String
+    Select Case sheetType
+        Case "Single"
+            baseTemplateName = "申請_飛来"
+            additionalTemplateName = "定期_飛来"
+        Case "Multi"
+            baseTemplateName = "申請_墜落"
+            additionalTemplateName = "定期_墜落"
+        Case Else
+            baseTemplateName = "その他"
+            additionalTemplateName = ""
+    End Select
+
+    ' 基本テンプレートと追加テンプレートのシート処理
+    ProcessTemplateSheet baseTemplateName, groupID, sheetTypeIndex
+    If additionalTemplateName <> "" Then
+        ProcessTemplateSheet additionalTemplateName, groupID, sheetTypeIndex
+    End If
+End Sub
+
+Sub ProcessTemplateSheet(templateName As String, groupID As String, ByRef sheetTypeIndex As Object)
+    Dim combinedKey As String
+    combinedKey = templateName & "_" & groupID
+
+    ' シート名の決定
+    If Not sheetTypeIndex.Exists(combinedKey) Then
+        sheetTypeIndex(combinedKey) = templateName & "_" & groupID
+        Debug.Print "Added new entry to sheetTypeIndex: " & combinedKey & " = " & sheetTypeIndex(combinedKey)
+    End If
+
+    Dim newSheetName As String
+    newSheetName = sheetTypeIndex(combinedKey)
+    Debug.Print "newSheetName: " & newSheetName
+
+    Dim newSheet As Worksheet
+    If Not SheetExists(newSheetName) Then
+        If templateName <> "" Then
+            Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
+            Set newSheet = Worksheets(Worksheets.Count)
+            newSheet.Name = newSheetName
+            ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).Name = "Temp_" & newSheetName
+            Debug.Print "Copied sheet from template: " & templateName & " to new sheet: " & newSheet.Name
+        Else
+            Debug.Print "No template found for templateName: " & templateName
+        End If
+    Else
+        Set newSheet = Worksheets(newSheetName)
+    End If
+
+    Debug.Print "Record added to sheet: " & newSheet.Name & " for groupID: " & groupID
+End Sub
+
+Function SheetExists(sheetName As String) As Boolean
+    Dim sheet As Worksheet
+    On Error Resume Next
+    Set sheet = Worksheets(sheetName)
+    On Error GoTo 0
+    SheetExists = Not sheet Is Nothing
+End Function
+

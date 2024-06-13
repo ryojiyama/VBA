@@ -5,15 +5,14 @@ Public Sub ListSheetCustomProperties()
     Dim output As String
     
     For Each sheet In ThisWorkbook.Sheets
-        output = "Sheet Name: " & sheet.Name & vbCrLf
+        output = "Sheet Name: " & sheet.name & vbCrLf
         For Each prop In sheet.CustomProperties
-            output = output & "    Property Name: " & prop.Name & ", Value: " & prop.Value & vbCrLf
+            output = output & "    Property Name: " & prop.name & ", Value: " & prop.Value & vbCrLf
         Next prop
         Debug.Print output
     Next sheet
 End Sub
 
-' 複製したシートを削除するプロシージャ
 Sub DeleteSheetsWithTempProperties()
     Dim ws As Worksheet
     Dim i As Integer
@@ -22,20 +21,17 @@ Sub DeleteSheetsWithTempProperties()
 
     For i = ThisWorkbook.Sheets.Count To 1 Step -1
         Set ws = ThisWorkbook.Sheets(i)
-        On Error Resume Next
-        ' カスタムプロパティに 'Temp_' が含まれているか確認
-        If ws.CustomProperties.Count > 0 Then
-            Dim cp As CustomProperty
-            For Each cp In ws.CustomProperties
-                If InStr(cp.Name, "Temp_") > 0 Then
-                    ws.Delete
-                    Exit For
-                End If
-            Next cp
+        ' オブジェクト名に 'Temp_' が含まれているか確認
+        If InStr(1, ws.CodeName, "Temp", vbTextCompare) > 0 Then
+            ws.Delete
         End If
-        On Error GoTo 0
     Next i
-
     Application.DisplayAlerts = True ' 確認ダイアログを再表示する
 End Sub
+
+
+
+
+
+
 
