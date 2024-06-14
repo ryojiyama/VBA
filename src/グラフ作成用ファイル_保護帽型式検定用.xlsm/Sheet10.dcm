@@ -1,0 +1,95 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet10"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Private Sub Worksheet_Activate()
+    Call CheckAndCopyValues
+    Call ApplyFormattingCondition2
+End Sub
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    If Not Intersect(Target, Me.Range("A14")) Is Nothing Then
+        Call CheckAndCopyValues
+        Call ApplyFormattingCondition2
+    End If
+End Sub
+
+Private Sub CheckAndCopyValues()
+    Dim copyDict As Object
+    Set copyDict = CreateObject("Scripting.Dictionary")
+    
+    ' 衝撃値の設定
+    copyDict.Add "B15", "C6"
+    copyDict.Add "B16", "C9"
+    copyDict.Add "B17", "C12"
+    copyDict.Add "B18", "E6"
+    copyDict.Add "B19", "E9"
+    copyDict.Add "B20", "E12"
+    copyDict.Add "B21", "G6"
+    copyDict.Add "B22", "G9"
+    copyDict.Add "B23", "G12"
+    ' 4.9kN時の継続時間の設定
+    copyDict.Add "C15", "D6"
+    copyDict.Add "C16", "D9"
+    copyDict.Add "C17", "D12"
+    copyDict.Add "C18", "F6"
+    copyDict.Add "C19", "F9"
+    copyDict.Add "C20", "F12"
+    copyDict.Add "C21", "H6"
+    copyDict.Add "C22", "H9"
+    copyDict.Add "C23", "H12"
+    ' 7.3kN時の継続時間の設定
+    copyDict.Add "D15", "D7"
+    copyDict.Add "D16", "D10"
+    copyDict.Add "D17", "D13"
+    copyDict.Add "D18", "F7"
+    copyDict.Add "D19", "F10"
+    copyDict.Add "D20", "F13"
+    copyDict.Add "D21", "H7"
+    copyDict.Add "D22", "H10"
+    copyDict.Add "D23", "H13"
+    ' A14の値が"Group"であるか確認
+    If Me.Range("A14").Value = "Group" Then
+        Dim key As Variant
+        For Each key In copyDict.Keys
+            Me.Range(copyDict(key)).Value = Me.Range(key).Value
+        Next key
+    End If
+    
+    ' ディクショナリの解放
+    Set copyDict = Nothing
+End Sub
+
+
+Private Sub ApplyFormattingCondition2()
+    ' A14の値が"Group"であるか確認
+    If Me.Range("A14").Value = "Group" Then
+        ' 範囲A1-H13のフォントを設定
+        Me.Range("A1:H13").Font.name = "游明朝"
+        
+        ' 指定セルのNumberFormatとフォントサイズを設定
+        Me.Range("C6, C9, C12, E6, E9, E12, G6, G9, G12").NumberFormat = "0.00 ""kN"""
+        Me.Range("C6, C9, C12, E6, E9, E12, G6, G9, G12").Font.Size = 10
+        
+        Me.Range("D6, D9, D12, F6, F9, F12, H6, H9, H12").NumberFormat = """    4.90kN   ""0.0 ""ms"""
+        Me.Range("D6, D9, D12, F6, F9, F12, H6, H9, H12").Font.Size = 8
+        Me.Range("D6, D9, D12, F6, F9, F12, H6, H9, H12").HorizontalAlignment = xlLeft
+        
+        Me.Range("D7, D10, D13, F7, F10, F13, H7, H10, H13").NumberFormat = """    7.30kN   ""0.0 ""ms"""
+        Me.Range("D7, D10, D13, F7, F10, F13, H7, H10, H13").Font.Size = 8
+        Me.Range("D7, D10, D13, F7, F10, F13, H7, H10, H13").HorizontalAlignment = xlLeft
+        
+        ' 値が0の場合のNumberFormatを設定
+        Dim rng As Range
+        For Each rng In Me.Range("D7, D10, D13, F7, F10, F13, H7, H10, H13")
+            If rng.Value = 0 Then
+                rng.NumberFormat = """    7.30kN    ― """
+            End If
+        Next rng
+    End If
+End Sub

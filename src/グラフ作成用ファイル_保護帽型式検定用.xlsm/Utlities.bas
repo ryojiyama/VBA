@@ -43,6 +43,58 @@ Function IsInArray(stringToBeFound As String, arr As Variant) As Boolean
     IsInArray = (UBound(Filter(arr, stringToBeFound)) > -1)
 End Function
 
+Sub PrintImpactSheet()
+    Dim ws As Worksheet
+    
+    ' 条件1: 特定のシートを印刷
+    Dim sheetNames1 As Variant
+    sheetNames1 = Array("Impact_Top", "Impact_Front", "Impact_Back")
+    
+    For Each ws In ThisWorkbook.Sheets
+        If foundSheetName(ws.name, sheetNames1) Then
+            ws.PrintOut From:=1, To:=1
+        End If
+    Next ws
+End Sub
+
+Sub PrintSideImpactSheet()
+    Dim ws As Worksheet
+    
+    ' 条件2: "Impact_Side"を名前に含むシートを印刷
+    For Each ws In ThisWorkbook.Sheets
+        If InStr(ws.name, "Impact_Side") > 0 Then
+            ws.PrintOut From:=1, To:=1
+        End If
+    Next ws
+End Sub
+
+Function foundSheetName(stringToBeFound As String, arr As Variant) As Boolean
+    Dim i As Integer
+    For i = LBound(arr) To UBound(arr)
+        If arr(i) = stringToBeFound Then
+            foundSheetName = True
+            Exit Function
+        End If
+    Next i
+    foundSheetName = False
+End Function
+' Impactを含むシート名の調整
+Sub DeleteRowsBelowHeader()
+    Dim ws As Worksheet
+    Dim wsDest As Worksheet
+    Dim sheetName As String
+
+    ' ワークシートをループ
+    For Each ws In ThisWorkbook.Worksheets
+        ' シート名に"Impact"が含まれているかチェック
+        If InStr(ws.name, "Impact") > 0 Then
+            ' ヘッダーの下の行から最終行までを削除
+            ws.Rows("15:" & ws.Rows.Count).Delete
+        End If
+    Next ws
+End Sub
+
+
 
 Sub ClickIconAttheTop()
     ' 右のシートに移動する
