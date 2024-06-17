@@ -18,32 +18,43 @@ Sub TestSheetCreationAndDataWriting()
     Set groupedRecords = CreateObject("Scripting.Dictionary")
 
     For i = 2 To lastRow
-        Dim Record As New Record
-        Record.LoadData ws, i
+        Dim record As New record
+        record.LoadData ws, i
 
         Dim recordID As String
-        recordID = Record.sampleID
+        recordID = record.sampleID
 
-        If Not recordIDs.Exists(recordID) Then
+        If Not recordIDs.exists(recordID) Then
             recordIDs.Add recordID, Nothing
-            testValues.Add Record
+            testValues.Add record
             
             'Debug.Print "SheetType:"; Record.sheetType
-            If Not groupedRecords.Exists(Record.sheetType) Then
-                groupedRecords.Add Record.sheetType, New Collection
+            If Not groupedRecords.exists(record.sheetType) Then
+                groupedRecords.Add record.sheetType, New Collection
+                Debug.Print "Added new group for sheetType: " & record.sheetType
             End If
-            'Debug.Print "Calling ClassifyKeys for sheetType: " & Record.sheetType
-            Call ClassifyKeys(Record.sheetType, Record.groupID)
-            groupedRecords(Record.sheetType).Add Record
-                    groupedRecords(Record.sheetType).Add Record
+'            groupedRecords(record.sheetType).Add record
+'            Debug.Print "Current count for " & record.sheetType & ":" & groupedRecords(record.sheetType).Count
+            Call AddRecordToGroup(groupedRecords(record.sheetType), record)
+            Call ClassifyKeys(record.sheetType, record.groupID)
+                groupedRecords(record.sheetType).Add record
 '            Debug.Print "Record loaded: ID=" & Record.sampleID & _
 '                        " SheetType=" & Record.sheetType & _
 '                        " GroupID=" & Record.GroupID
         Else
-            Debug.Print "Duplicate record skipped: ID=" & Record.sampleID
+            Debug.Print "Duplicate record skipped: ID=" & record.sampleID
         End If
     Next i
-
+    If Not groupedRecords Is Nothing Then
+        For Each key In groupedRecords.keys
+            Debug.Print "key: " & key & ", count:"; groupedRecords(key).Count
+        Next key
+    Else
+        Debug.Print "groupedRecords is not initalized or empty."
+    End If
+    
+    
+    Call PrintGroupedRecords(groupedRecords)
     Debug.Print "Total unique records: " & testValues.Count
 End Sub
 
@@ -69,8 +80,6 @@ Sub ClassifyKeys(sheetType As String, groupID As String)
             additionalTemplateName = ""
     End Select
     ' 基本テンプレートと追加テンプレートのシート処理
-    Debug.Print "baseTemp:"; baseTemplateName
-    Debug.Print "addiTemp:"; additionalTemplateName
     Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex)
     If additionalTemplateName <> "" Then
         Call ProcessTemplateSheet(additionalTemplateName, sheetType, groupID, sheetTypeIndex)
@@ -78,53 +87,40 @@ Sub ClassifyKeys(sheetType As String, groupID As String)
 End Sub
 
 Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object)
-    Debug.Print "Processing template:" & templateName
     Dim combinedKey As String
     combinedKey = templateName & "_" & groupID
     ' シート名の決定
-    If Not sheetTypeIndex.Exists(combinedKey) Then
+    If Not sheetTypeIndex.exists(combinedKey) Then
         sheetTypeIndex(combinedKey) = combinedKey
-        Debug.Print "Added new entry to sheetTypeIndex: " & combinedKey & " = " & sheetTypeIndex(combinedKey)
+        'Debug.Print "Added new entry to sheetTypeIndex: " & combinedKey & " = " & sheetTypeIndex(combinedKey)
     End If
     
     Dim newSheetName As String
     newSheetName = sheetTypeIndex(combinedKey)
-    Debug.Print "newSheetName: " & newSheetName
+    'Debug.Print "newSheetName: " & newSheetName
     
     ' シートの存在確認と取得/作成
     Dim newSheet As Worksheet
     If Not SheetExists(newSheetName) Then
         If templateName <> "" Then
+'            On Error GoTo ErrorHandler
             Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
             Set newSheet = Worksheets(Worksheets.Count)
             newSheet.name = newSheetName
             ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).name = "Temp_" & newSheetName
-            Debug.Print "Copied sheet from template: " & templateName & "to new sheet: "; newSheet.name
+            'Debug.Print "Copied sheet from template: " & templateName & "to new sheet: "; newSheet.name
+'            GoTo ExitSub
         Else
             Debug.Print "No template found for templateName: " & templateName
         End If
     Else
         Set newSheet = Worksheets(newSheetName)
     End If
-    Debug.Print "Record added to sheet:" & newSheet.name & "for groupID:"
-'    If Not SheetExists(newSheetName) Then
-'        Set newSheet = Worksheets.Add
-'        newSheet.name = newSheetName
-'        Debug.Print "Created new sheet: " & newSheetName
-'    Else
-'        Set newSheet = Worksheets(newSheetName)
-'    End If
-
-    ' デバッグ出力：同じグループIDを持つレコードが正しく分類されているか確認
-    'Debug.Print "Record added to sheet: " & newSheet.name & " for groupID: " & groupID
-
+    'Debug.Print "Record added to sheet:" & newSheet.name & "for groupID:"; groupID
+    
     ' レコードをシートに追加する処理（必要に応じて追加）
     ' 例：newSheet.Cells(行, 列).Value = データ
 End Sub
-
-
-
-
 
 Function SheetExists(sheetName As String) As Boolean
     ' シートの存在チェック
@@ -143,6 +139,50 @@ Sub ResetSheetTypeIndex()
     Set groupSheetIndexes = Nothing ' Dictionary オブジェクトの解放
     Set groupSheetIndexes = CreateObject("Scripting.Dictionary") ' 新しい Dictionary オブジェクトの初期化
 End Sub
+' 重複チェック
+Sub AddRecordToGroup(ByRef group As Collection, ByVal newRecord As record)
+    Dim exists As Boolean
+    exists = False
+
+    Dim rec As record
+    For Each rec In group
+        If rec.Equals(newRecord) Then
+            exists = True
+            Exit For
+        End If
+    Next rec
+
+    If Not exists Then
+        group.Add newRecord
+    End If
+End Sub
+
+' -----------------------------------------------------------------------------------------------------
+Sub PrintGroupedRecords(ByRef groupedRecords As Object)
+    Dim dictkey As Variant
+    Dim record As record
+    Dim recordsCollection As Collection
+    
+    ' groupedRecordsの各sheetTypeをループ
+    For Each dictkey In groupedRecords.keys
+        Set recordsCollection = groupedRecords(dictkey)
+        'Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & recordsCollection.Count
+        Debug.Print "key: " & dictkey & ", count:"; groupedRecords(dictkey).Count
+        ' 各レコードの詳細を出力
+        For Each record In recordsCollection
+            Debug.Print "  Record ID: " & record.sampleID & _
+                        ", Group ID: " & record.groupID & _
+                        ", Sheet Type: " & record.sheetType
+        Next record
+    Next dictkey
+End Sub
+
+
+
+
+
+
+
 
 Sub ClassifyKeys1600_シートの生成までうまく行った｡(sheetType As String, groupID As String)
     ' レコードごとにシートネームを作成する
@@ -166,7 +206,7 @@ Sub ClassifyKeys1600_シートの生成までうまく行った｡(sheetType As String, groupID 
     combinedKey = sheetType & "_" & groupID
     
     ' シート名の決定
-    If Not sheetTypeIndex.Exists(combinedKey) Then
+    If Not sheetTypeIndex.exists(combinedKey) Then
         sheetTypeIndex(combinedKey) = baseTemplateName & "_" & groupID
         Debug.Print "Added new entry to sheetTypeIndex: " & combinedKey & " = " & sheetTypeIndex(combinedKey)
     End If
@@ -251,28 +291,28 @@ End Sub
 
 
 Sub ClassifyKeys_20240613(testValues As Collection, ByRef singleGroups As Scripting.Dictionary, ByRef multiGroups As Scripting.Dictionary)
-    Dim Record As Variant
-    For Each Record In testValues
+    Dim record As Variant
+    For Each record In testValues
         ' 必要な変数を取得
         Dim position As String
         Dim number As String
         Dim condition As String
         Dim recordType As String
 
-        position = Record.testPart  ' Locationプロパティを使用
-        number = Record.ID  ' IDプロパティを使用
-        condition = Record.Temperature  ' Temperatureプロパティを使用
+        position = record.testPart  ' Locationプロパティを使用
+        number = record.ID  ' IDプロパティを使用
+        condition = record.Temperature  ' Temperatureプロパティを使用
         recordType = "Single"  ' 固定値（適切なプロパティがないため）
 
         ' Recordオブジェクトの各プロパティが存在するかチェック
         On Error Resume Next
         Debug.Print "Checking properties for Record:"
-        Debug.Print "  ID: " & Record.ID
-        Debug.Print "  Location: " & Record.testPart
-        Debug.Print "  Temperature: " & Record.Temperature
-        Debug.Print "  DateValue: " & Record.DateValue
-        Debug.Print "  TemperatureValue: " & Record.TemperatureValue
-        Debug.Print "  Force: " & Record.Force
+        Debug.Print "  ID: " & record.ID
+        Debug.Print "  Location: " & record.testPart
+        Debug.Print "  Temperature: " & record.Temperature
+        Debug.Print "  DateValue: " & record.DateValue
+        Debug.Print "  TemperatureValue: " & record.TemperatureValue
+        Debug.Print "  Force: " & record.Force
         On Error GoTo 0
 
         ' エラーが発生するプロパティを特定
@@ -291,26 +331,26 @@ Sub ClassifyKeys_20240613(testValues As Collection, ByRef singleGroups As Script
 
         Dim tempDict As Scripting.Dictionary
         If recordType = "Single" Then
-            If Not singleGroups.Exists(groupKey) Then
+            If Not singleGroups.exists(groupKey) Then
                 singleGroups.Add groupKey, CreateObject("Scripting.Dictionary")
             End If
             Set tempDict = singleGroups(groupKey)
-            AddToGroup tempDict, position, Record
+            AddToGroup tempDict, position, record
         ElseIf recordType = "Multi" Then
-            If Not multiGroups.Exists(groupKey) Then
+            If Not multiGroups.exists(groupKey) Then
                 multiGroups.Add groupKey, CreateObject("Scripting.Dictionary")
             End If
             Set tempDict = multiGroups(groupKey)
-            AddToGroup tempDict, position, Record
+            AddToGroup tempDict, position, record
         End If
-    Next Record
+    Next record
 End Sub
 
-Sub AddToGroup(ByVal group As Scripting.Dictionary, ByVal position As String, ByVal Record As Record)
-    If Not group.Exists(position) Then
+Sub AddToGroup(ByVal group As Scripting.Dictionary, ByVal position As String, ByVal record As record)
+    If Not group.exists(position) Then
         group.Add position, New Collection
     End If
-    group(position).Add Record
+    group(position).Add record
 End Sub
 
 Sub PrintGroups(ByVal groups As Scripting.Dictionary)
@@ -320,10 +360,10 @@ Sub PrintGroups(ByVal groups As Scripting.Dictionary)
         Dim position As Variant
         For Each position In groups(groupKey).keys
             Debug.Print "  " & position & ":"
-            Dim Record As Variant
-            For Each Record In groups(groupKey)(position)
-                Debug.Print "    ID=" & Record.ID & ", Location=" & Record.testPart  ' 各RecordのIDとLocationを出力
-            Next Record
+            Dim record As Variant
+            For Each record In groups(groupKey)(position)
+                Debug.Print "    ID=" & record.ID & ", Location=" & record.testPart  ' 各RecordのIDとLocationを出力
+            Next record
         Next position
     Next groupKey
 End Sub
@@ -386,7 +426,57 @@ Sub PopulateGroupedSheets(singleGroups As Scripting.Dictionary, multiGroups As S
     Next groupKey
 End Sub
 
+Sub ProcessTemplateSheet202406171100(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object)
+    Dim combinedKey As String
+    combinedKey = templateName & "_" & groupID
+    Debug.Print "combinedKey:" & combinedKey
+    ' シート名の決定
+    If Not sheetTypeIndex.exists(combinedKey) Then
+        sheetTypeIndex(combinedKey) = combinedKey
+        Debug.Print "Added new entry to sheetTypeIndex: " & combinedKey & " = " & sheetTypeIndex(combinedKey)
+    End If
+    
+    Dim newSheetName As String
+    newSheetName = sheetTypeIndex(combinedKey)
+    Debug.Print "newSheetName: " & newSheetName
+    
+    ' シートの存在確認と取得/作成
+    Dim newSheet As Worksheet
+    If Not SheetExists(newSheetName) Then
+        If templateName <> "" Then
+'            On Error GoTo ErrorHandler
+            Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
+            Set newSheet = Worksheets(Worksheets.Count)
+            newSheet.name = newSheetName
+            ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).name = "Temp_" & newSheetName
+            Debug.Print "Copied sheet from template: " & templateName & "to new sheet: "; newSheet.name
+'            GoTo ExitSub
+        Else
+            Debug.Print "No template found for templateName: " & templateName
+        End If
+    Else
+        Set newSheet = Worksheets(newSheetName)
+    End If
+    Debug.Print "Record added to sheet:" & newSheet.name & "for groupID:"
+    
+'ErrorHandler:
+'    Debug.Print "Error " & Err.number & ": " & Err.Description
+'    Resume Next
+'ExitSub:
+'    If Not SheetExists(newSheetName) Then
+'        Set newSheet = Worksheets.Add
+'        newSheet.name = newSheetName
+'        Debug.Print "Created new sheet: " & newSheetName
+'    Else
+'        Set newSheet = Worksheets(newSheetName)
+'    End If
 
+    ' デバッグ出力：同じグループIDを持つレコードが正しく分類されているか確認
+    'Debug.Print "Record added to sheet: " & newSheet.name & " for groupID: " & groupID
+
+    ' レコードをシートに追加する処理（必要に応じて追加）
+    ' 例：newSheet.Cells(行, 列).Value = データ
+End Sub
 'Sub TestSheetCreationAndDataWriting1350()
 '    Dim ws As Worksheet
 '    Set ws = ThisWorkbook.Sheets("DataSheet")

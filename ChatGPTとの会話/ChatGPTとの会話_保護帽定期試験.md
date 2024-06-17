@@ -4406,3 +4406,112 @@ NextIteration:
 End Sub
 
 
+groupedRecords is initialilzed.
+Added new group for sheetType: Single
+Current count for Single:1
+Record added to sheet:申請_飛来_01for groupID:01
+Record added to sheet:定期_飛来_01for groupID:01
+groupedRecords is initialilzed.
+Current count for Single:4
+Record added to sheet:申請_飛来_02for groupID:02
+Record added to sheet:定期_飛来_02for groupID:02
+groupedRecords is initialilzed.
+Added new group for sheetType: Multi
+Current count for Multi:1
+Record added to sheet:申請_墜落_03for groupID:03
+Record added to sheet:定期_墜落_03for groupID:03
+groupedRecords is initialilzed.
+Current count for Multi:4
+Record added to sheet:申請_墜落_04for groupID:04
+Record added to sheet:定期_墜落_04for groupID:04
+groupedRecords is initialilzed.
+Current count for Multi:7
+Record added to sheet:申請_墜落_01for groupID:01
+Record added to sheet:定期_墜落_01for groupID:01
+groupedRecords is initialilzed.
+Current count for Multi:10
+Record added to sheet:申請_墜落_02for groupID:02
+Record added to sheet:定期_墜落_02for groupID:02
+groupedRecords is initialilzed.
+Current count for Multi:13
+Record added to sheet:申請_墜落_01for groupID:01
+Record added to sheet:定期_墜落_01for groupID:01
+groupedRecords is initialilzed.
+Current count for Multi:16
+Record added to sheet:申請_墜落_02for groupID:02
+Record added to sheet:定期_墜落_02for groupID:02
+groupedRecords is initialilzed.
+Current count for Multi:19
+Record added to sheet:申請_墜落_01for groupID:01
+Record added to sheet:定期_墜落_01for groupID:01
+groupedRecords is initialilzed.
+Current count for Multi:22
+Record added to sheet:申請_墜落_02for groupID:02
+Record added to sheet:定期_墜落_02for groupID:02
+groupedRecords is initialilzed.
+Current count for Multi:25
+Record added to sheet:申請_墜落_03for groupID:03
+Record added to sheet:定期_墜落_03for groupID:03
+key: Single, count: 6
+key: Multi, count: 27
+key: Single, count: 6
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+key: Multi, count: 27
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+Total unique records: 11
+
+
+{LOG_Helmet, DataSheet, 申請_飛来, 申請_墜落, 定期_飛来, 定期_墜落, 側面試験, 依頼試験}
+
+396-天Hot	01-396-天-Hot-White	396	天頂	2024/2/21	23 	4
+396-天Cold	02-396-天-Cold-White	396	天頂	2024/2/21	23 	4
+F396F-天Hot	03-396F-天-Hot-OthClr	396F	天頂	2024/2/21	23 	4
+F396F-天Cold	04-396F-天-Cold-OthClr	396F	天頂	2024/2/21	23 	4
+397-天Hot	01-350F-天-Hot-White	350F	天頂	2024/4/10	23 	3
+397-天Cold	02-350F-天-Cold-White	350F	天頂	2024/4/10	23 	5
+F397F-天Hot	01-350F-前-Hot-White	350F	前頭部	2024/4/10	23 	5
+F397F-天Cold	02-350F-前-Cold-White	350F	前頭部	2024/4/10	23 	5
+397-天Hot	01-350F-後-Hot-White	350F	後頭部	2024/4/10	23 	7
+397-天Cold	02-350F-後-Cold-White	350F	後頭部	2024/4/10	23 	7
+F397F-天Hot	03-350F-後-Wet-White	350F	後頭部	2024/4/10	23 	7
+レコードは上記のテーブルの内容を読み込んでいます。問題は
+
+
+お世話になっております。https://www.sg-mark.org/mailmagazine/no76/ のページを拝見して質問があります。
+
+- CEマークは自己適合宣言ですので、 とありますが、これは業者が独自に試験を行い適合したかどうかはその独自試験の結果から判断している。 ということでしょうか？
+
+- CE認証(認証番号：BS EN1078:2012+A1:2012(Exclude clause 4.1/6/7) という表記の製品が販売されています。これはEN1078に完全に適合したという意味でしょうか？それとも4.1条、6条、7条以外の項目に適合したという意味でしょうか？
+
+突然の質問すみません。お手数をおかけしますがご回答よろしく。

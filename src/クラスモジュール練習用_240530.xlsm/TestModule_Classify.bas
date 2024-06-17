@@ -56,13 +56,13 @@ keys = Array( _
         Dim tempDict As Scripting.Dictionary
         ' レコードタイプがSingleValueかMultiValueかによって処理を分岐
         If recordType = "Single" Then
-            If Not singleGroups.Exists(groupKey) Then
+            If Not singleGroups.exists(groupKey) Then
                 singleGroups.Add groupKey, CreateObject("Scripting.Dictionary")
             End If
             Set tempDict = singleGroups(groupKey)
             AddToGroup tempDict, key, position
         ElseIf recordType = "Multi" Then
-            If Not multiGroups.Exists(groupKey) Then
+            If Not multiGroups.exists(groupKey) Then
                 multiGroups.Add groupKey, CreateObject("Scripting.Dictionary")
             End If
             Set tempDict = multiGroups(groupKey)
@@ -80,7 +80,7 @@ End Sub
 
 Sub AddToGroup(ByVal group As Scripting.Dictionary, ByVal key As String, ByVal position As String)
     ' 指定された位置にリストが既に存在するかチェックし、存在しない場合は新しいリストを作成
-    If Not group.Exists(position) Then
+    If Not group.exists(position) Then
         group.Add position, New Collection  ' Collectionを使用して複数の要素を保持
     End If
     group(position).Add key  ' 位置に関わらずキーをリストに追加
@@ -88,7 +88,7 @@ End Sub
 
 Function GroupHasPosition(group As Scripting.Dictionary, position As String) As Boolean
     ' Check if the position exists in the group
-    GroupHasPosition = group.Exists(position)
+    GroupHasPosition = group.exists(position)
 End Function
 
 Function GroupHasOtherPositions(group As Scripting.Dictionary) As Boolean
@@ -97,7 +97,7 @@ Function GroupHasOtherPositions(group As Scripting.Dictionary) As Boolean
     positions = Array("天", "前", "後")
     Dim pos As Variant
     For Each pos In positions
-        If group.Exists(pos) Then
+        If group.exists(pos) Then
             GroupHasOtherPositions = True
             Exit Function
         End If

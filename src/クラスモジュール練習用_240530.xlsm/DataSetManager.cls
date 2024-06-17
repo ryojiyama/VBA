@@ -43,7 +43,7 @@ End Function
 Public Sub WriteSelectedValuesToOutputSheet(sourceSheetName As String, sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -52,15 +52,15 @@ Public Sub WriteSelectedValuesToOutputSheet(sourceSheetName As String, sheetName
     ws.Range("B1:G1").Value = Array("ID", "Temperature", "Location", "DateValue", "TemperatureValue", "Force")
     row = 2
 
-    For Each Record In specificValues
-        ws.Cells(row, "B").Value = Record.ID
-        ws.Cells(row, "C").Value = Record.Temperature
-        ws.Cells(row, "D").Value = Record.Location
-        ws.Cells(row, "E").Value = Record.DateValue
-        ws.Cells(row, "F").Value = Record.TemperatureValue
-        ws.Cells(row, "G").Value = Record.Force
+    For Each record In specificValues
+        ws.Cells(row, "B").Value = record.ID
+        ws.Cells(row, "C").Value = record.Temperature
+        ws.Cells(row, "D").Value = record.Location
+        ws.Cells(row, "E").Value = record.DateValue
+        ws.Cells(row, "F").Value = record.TemperatureValue
+        ws.Cells(row, "G").Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
@@ -72,7 +72,7 @@ End Sub
 Public Sub WriteSelectedValuesToRstlSheet(sourceSheetName As String, sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -81,15 +81,15 @@ Public Sub WriteSelectedValuesToRstlSheet(sourceSheetName As String, sheetName A
     ws.Range("B1:G1").Value = Array("ID", "Temperature", "Location", "DateValue", "TemperatureValue", "Force")
     row = 2
 
-    For Each Record In specificValues
-        ws.Cells(row, "B").Value = Record.ID
-        ws.Cells(row, "C").Value = Record.Temperature
-        ws.Cells(row, "D").Value = Record.Location
-        ws.Cells(row, "E").Value = Record.DateValue
-        ws.Cells(row, "F").Value = Record.TemperatureValue
-        ws.Cells(row, "G").Value = Record.Force
+    For Each record In specificValues
+        ws.Cells(row, "B").Value = record.ID
+        ws.Cells(row, "C").Value = record.Temperature
+        ws.Cells(row, "D").Value = record.Location
+        ws.Cells(row, "E").Value = record.DateValue
+        ws.Cells(row, "F").Value = record.TemperatureValue
+        ws.Cells(row, "G").Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
@@ -101,7 +101,7 @@ End Sub
 Public Sub WriteSelectedValuesToSideSheet(templateSheetName As String, sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -113,15 +113,15 @@ Public Sub WriteSelectedValuesToSideSheet(templateSheetName As String, sheetName
     row = 2
 
     ' データを書き込み
-    For Each Record In specificValues
-        ws.Cells(row, "B").Value = Record.ID
-        ws.Cells(row, "C").Value = Record.Temperature
-        ws.Cells(row, "D").Value = Record.Location
-        ws.Cells(row, "E").Value = Record.DateValue
-        ws.Cells(row, "F").Value = Record.TemperatureValue
-        ws.Cells(row, "G").Value = Record.Force
+    For Each record In specificValues
+        ws.Cells(row, "B").Value = record.ID
+        ws.Cells(row, "C").Value = record.Temperature
+        ws.Cells(row, "D").Value = record.Location
+        ws.Cells(row, "E").Value = record.DateValue
+        ws.Cells(row, "F").Value = record.TemperatureValue
+        ws.Cells(row, "G").Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
@@ -133,7 +133,7 @@ End Sub
 Public Sub WriteSelectedValuesToResultTempSheet(sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -142,15 +142,15 @@ Public Sub WriteSelectedValuesToResultTempSheet(sheetName As String, specificVal
     ws.Range("B1:G1").Value = Array("ID", "Temperature", "Location", "DateValue", "TemperatureValue", "Force")
     row = 2
 
-    For Each Record In specificValues
-        ws.Cells(row, "B").Value = Record.ID
-        ws.Cells(row, "C").Value = Record.Temperature
-        ws.Cells(row, "D").Value = Record.Location
-        ws.Cells(row, "E").Value = Record.DateValue
-        ws.Cells(row, "F").Value = Record.TemperatureValue
-        ws.Cells(row, "G").Value = Record.Force
+    For Each record In specificValues
+        ws.Cells(row, "B").Value = record.ID
+        ws.Cells(row, "C").Value = record.Temperature
+        ws.Cells(row, "D").Value = record.Location
+        ws.Cells(row, "E").Value = record.DateValue
+        ws.Cells(row, "F").Value = record.TemperatureValue
+        ws.Cells(row, "G").Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Data written successfully to " & ws.name
     Exit Sub
 
@@ -167,7 +167,7 @@ End Sub
 Public Sub WriteSelectedValuesToOutputSheet_Change240604(templateSheetName As String, sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -187,15 +187,15 @@ Public Sub WriteSelectedValuesToOutputSheet_Change240604(templateSheetName As St
     row = 2
 
     ' データを書き込み
-    For Each Record In specificValues
-        ws.Range("A" & row).Value = Record.ID
-        ws.Range("B" & row).Value = Record.Temperature
-        ws.Range("C" & row).Value = Record.Location
-        ws.Range("D" & row).Value = Record.DateValue
-        ws.Range("E" & row).Value = Record.TemperatureValue
-        ws.Range("F" & row).Value = Record.Force
+    For Each record In specificValues
+        ws.Range("A" & row).Value = record.ID
+        ws.Range("B" & row).Value = record.Temperature
+        ws.Range("C" & row).Value = record.Location
+        ws.Range("D" & row).Value = record.DateValue
+        ws.Range("E" & row).Value = record.TemperatureValue
+        ws.Range("F" & row).Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
@@ -208,7 +208,7 @@ End Sub
 Public Sub WriteSelectedValuesToRstlSheet_Change240604(templateSheetName As String, sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -226,20 +226,20 @@ Public Sub WriteSelectedValuesToRstlSheet_Change240604(templateSheetName As Stri
     row = 2
 
     ' データを書き込み前にコレクションの内容を確認
-    For Each Record In specificValues
-        Debug.Print "Record ID: " & Record.ID & ", Temp: " & Record.Temperature & ", Location: " & Record.Location & ", Date: " & Record.DateValue & ", TempValue: " & Record.TemperatureValue & ", Force: " & Record.Force
-    Next Record
+    For Each record In specificValues
+        Debug.Print "Record ID: " & record.ID & ", Temp: " & record.Temperature & ", Location: " & record.Location & ", Date: " & record.DateValue & ", TempValue: " & record.TemperatureValue & ", Force: " & record.Force
+    Next record
 
     ' データを書き込み
-    For Each Record In specificValues
-        ws.Range("B" & row).Value = Record.ID
-        ws.Range("C" & row).Value = Record.Temperature
-        ws.Range("D" & row).Value = Record.Location
-        ws.Range("E" & row).Value = Record.DateValue
-        ws.Range("F" & row).Value = Record.TemperatureValue
-        ws.Range("G" & row).Value = Record.Force
+    For Each record In specificValues
+        ws.Range("B" & row).Value = record.ID
+        ws.Range("C" & row).Value = record.Temperature
+        ws.Range("D" & row).Value = record.Location
+        ws.Range("E" & row).Value = record.DateValue
+        ws.Range("F" & row).Value = record.TemperatureValue
+        ws.Range("G" & row).Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
@@ -253,7 +253,7 @@ End Sub
 Public Sub WriteSelectedValuesToSideSheet_Change240604(templateSheetName As String, sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -271,20 +271,20 @@ Public Sub WriteSelectedValuesToSideSheet_Change240604(templateSheetName As Stri
     row = 2
 
     ' データを書き込み前にコレクションの内容を確認
-    For Each Record In specificValues
-        Debug.Print "Record ID: " & Record.ID & ", Temp: " & Record.Temperature & ", Location: " & Record.Location & ", Date: " & Record.DateValue & ", TempValue: " & Record.TemperatureValue & ", Force: " & Record.Force
-    Next Record
+    For Each record In specificValues
+        Debug.Print "Record ID: " & record.ID & ", Temp: " & record.Temperature & ", Location: " & record.Location & ", Date: " & record.DateValue & ", TempValue: " & record.TemperatureValue & ", Force: " & record.Force
+    Next record
 
     ' データを書き込み
-    For Each Record In specificValues
-        ws.Range("B" & row).Value = Record.ID
-        ws.Range("C" & row).Value = Record.Temperature
-        ws.Range("D" & row).Value = Record.Location
-        ws.Range("E" & row).Value = Record.DateValue
-        ws.Range("F" & row).Value = Record.TemperatureValue
-        ws.Range("G" & row).Value = Record.Force
+    For Each record In specificValues
+        ws.Range("B" & row).Value = record.ID
+        ws.Range("C" & row).Value = record.Temperature
+        ws.Range("D" & row).Value = record.Location
+        ws.Range("E" & row).Value = record.DateValue
+        ws.Range("F" & row).Value = record.TemperatureValue
+        ws.Range("G" & row).Value = record.Force
         row = row + 1
-    Next Record
+    Next record
     Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub
 
@@ -298,7 +298,7 @@ End Sub
 Public Sub WriteSelectedValuesToResultTempSheet_Change240604(sheetName As String, specificValues As Collection)
     Dim ws As Worksheet
     Dim row As Integer
-    Dim Record As Variant
+    Dim record As Variant
 
     On Error GoTo ErrorHandler
 
@@ -318,15 +318,15 @@ Public Sub WriteSelectedValuesToResultTempSheet_Change240604(sheetName As String
     row = 2
 
     ' データを書き込み
-    For Each Record In specificValues
-        ws.Range("A" & row).Value = Record.ID
-        ws.Range("B" & row).Value = Record.Temperature
-        ws.Range("C" & row).Value = Record.Location
-        ws.Range("D" & row).Value = Record.DateValue
-        ws.Range("E" & row).Value = Record.TemperatureValue
-        ws.Range("F" & row).Value = Record.Force
+    For Each record In specificValues
+        ws.Range("A" & row).Value = record.ID
+        ws.Range("B" & row).Value = record.Temperature
+        ws.Range("C" & row).Value = record.Location
+        ws.Range("D" & row).Value = record.DateValue
+        ws.Range("E" & row).Value = record.TemperatureValue
+        ws.Range("F" & row).Value = record.Force
         row = row + 1
-    Next Record
+    Next record
 
     Debug.Print "Class: Data written successfully to " & ws.name
     Exit Sub

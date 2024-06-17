@@ -93,21 +93,7 @@ Public Sub Initialize( _
     Me.penetrationResult = penetrationResult
     Me.testSection = testSection
 End Sub
-Public Sub LoadData_Test(ByVal ws As Worksheet, ByVal row As Integer)
-    On Error GoTo ErrorHandler
 
-    ID = ws.Cells(row, 2).Value ' IDが第1列にあると仮定
-    testTemp = ws.Cells(row, 7).Value ' 温度が第2列にあると仮定
-    testPart = ws.Cells(row, 5).Value ' 位置情報が第3列にあると仮定
-    testDate = ws.Cells(row, 6).Value ' 日付が第4列にあると仮定
-    sampleWeight = ws.Cells(row, 13).Value ' 温度値が第5列にあると仮定
-    maxValue = ws.Cells(row, 8).Value ' 力が第6列にあると仮定
-
-    Exit Sub
-
-ErrorHandler:
-    Debug.Print "Error loading data at column: " & Err.Source & " Row: " & row & " Error #" & Err.number & ": " & Err.Description
-End Sub
 
 ' データをロードし、分類およびグループ化を行うメソッド
 Public Sub LoadData(ByVal ws As Worksheet, ByVal row As Integer)
@@ -152,4 +138,55 @@ Public Sub LoadData(ByVal ws As Worksheet, ByVal row As Integer)
         Case Else
             groupID = parts(0) & "." & parts(1) & "." & parts(3) & "." & parts(2)
     End Select
+End Sub
+
+' Record クラスに追加
+Public Function Equals(other As record) As Boolean
+    Equals = (Me.sampleID = other.sampleID) And (Me.groupID = other.groupID) And (Me.sheetType = other.sheetType)
+End Function
+
+' Recordクラスの'Clone'メソッド
+'Public Function Clone() As record
+'    Dim newRecord As New record
+'
+'    ' 各プロパティを新しいインスタンスにコピー
+'    newRecord.ID = Me.ID
+'    newRecord.sampleID = Me.sampleID
+'    newRecord.itemNum = Me.itemNum
+'    newRecord.testPart = Me.testPart
+'    newRecord.testDate = Me.testDate
+'    newRecord.testTemp = Me.testTemp
+'    newRecord.maxValue = Me.maxValue
+'    newRecord.timeOfMax = Me.timeOfMax
+'    newRecord.duration49kN = Me.duration49kN
+'    newRecord.duration73kN = Me.duration73kN
+'    newRecord.preProcess = Me.preProcess
+'    newRecord.sampleWeight = Me.sampleWeight
+'    newRecord.sampleTop = Me.sampleTop
+'    newRecord.sampleColor = Me.sampleColor
+'    newRecord.sampleLotNum = Me.sampleLotNum
+'    newRecord.sampleHelLot = Me.sampleHelLot
+'    newRecord.sampleBandLot = Me.sampleBandLot
+'    newRecord.structureResult = Me.structureResult
+'    newRecord.penetrationResult = Me.penetrationResult
+'    newRecord.testSection = Me.testSection
+'
+'    Set Clone = newRecord
+'End Function
+
+
+Public Sub LoadData_Test(ByVal ws As Worksheet, ByVal row As Integer)
+    On Error GoTo ErrorHandler
+
+    ID = ws.Cells(row, 2).Value ' IDが第1列にあると仮定
+    testTemp = ws.Cells(row, 7).Value ' 温度が第2列にあると仮定
+    testPart = ws.Cells(row, 5).Value ' 位置情報が第3列にあると仮定
+    testDate = ws.Cells(row, 6).Value ' 日付が第4列にあると仮定
+    sampleWeight = ws.Cells(row, 13).Value ' 温度値が第5列にあると仮定
+    maxValue = ws.Cells(row, 8).Value ' 力が第6列にあると仮定
+
+    Exit Sub
+
+ErrorHandler:
+    Debug.Print "Error loading data at column: " & Err.Source & " Row: " & row & " Error #" & Err.number & ": " & Err.Description
 End Sub
