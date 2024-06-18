@@ -140,11 +140,43 @@ Public Sub LoadData(ByVal ws As Worksheet, ByVal row As Integer)
     End Select
 End Sub
 
-' Record クラスに追加
-Public Function Equals(other As record) As Boolean
-    Equals = (Me.sampleID = other.sampleID) And (Me.groupID = other.groupID) And (Me.sheetType = other.sheetType)
-End Function
 
+
+
+Public Sub LoadData_ForDebug(ByVal ws As Worksheet, ByVal row As Integer)
+    ID = ws.Cells(row, 2).Value
+    sampleID = ws.Cells(row, 3).Value
+    itemNum = ws.Cells(row, 4).Value
+    testPart = ws.Cells(row, 5).Value
+    testDate = ws.Cells(row, 6).Value
+    testTemp = ws.Cells(row, 7).Value
+    maxValue = ws.Cells(row, 8).Value
+    timeOfMax = ws.Cells(row, 9).Value
+    duration49kN = ws.Cells(row, 10).Value
+    duration73kN = ws.Cells(row, 11).Value
+    preProcess = ws.Cells(row, 12).Value
+    sampleWeight = ws.Cells(row, 13).Value
+    sampleTop = ws.Cells(row, 14).Value
+    sampleColor = ws.Cells(row, 15).Value
+    sampleLotNum = ws.Cells(row, 16).Value
+    sampleHelLot = ws.Cells(row, 17).Value
+    sampleBandLot = ws.Cells(row, 18).Value
+    structureResult = ws.Cells(row, 19).Value
+    penetrationResult = ws.Cells(row, 20).Value
+    testSection = ws.Cells(row, 21).Value
+
+    ' デバッグ出力で各フィールドを確認
+    Debug.Print "Loaded Record - ID: " & ID & ", sampleID: " & sampleID & ", itemNum: " & itemNum & ", testPart: " & testPart
+    Debug.Print "testDate: " & testDate & ", testTemp: " & testTemp & ", maxValue: " & maxValue & ", timeOfMax: " & timeOfMax
+    Debug.Print "duration49kN: " & duration49kN & ", duration73kN: " & duration73kN & ", preProcess: " & preProcess
+    Debug.Print "sampleWeight: " & sampleWeight & ", sampleTop: " & sampleTop & ", sampleColor: " & sampleColor
+    Debug.Print "sampleLotNum: " & sampleLotNum & ", sampleHelLot: " & sampleHelLot & ", sampleBandLot: " & sampleBandLot
+    Debug.Print "structureResult: "
+End Sub
+'' Record クラスに追加
+'Public Function Equals_20240617(other As record) As Boolean
+'    Equals = (Me.sampleID = other.sampleID) And (Me.groupID = other.groupID) And (Me.sheetType = other.sheetType)
+'End Function
 ' Recordクラスの'Clone'メソッド
 'Public Function Clone() As record
 '    Dim newRecord As New record

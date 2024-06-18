@@ -4405,81 +4405,255 @@ NextIteration:
     Set wsDest = Nothing
 End Sub
 
-
-groupedRecords is initialilzed.
+Processing Record -ID:01-396-天-Hot-White, GroupID: 01.396.Hot.天, SheetType:Single, SampleColor:白
 Added new group for sheetType: Single
-Current count for Single:1
-Record added to sheet:申請_飛来_01for groupID:01
-Record added to sheet:定期_飛来_01for groupID:01
-groupedRecords is initialilzed.
-Current count for Single:4
-Record added to sheet:申請_飛来_02for groupID:02
-Record added to sheet:定期_飛来_02for groupID:02
-groupedRecords is initialilzed.
+Before Adding to group: sheetType=Single groupID=01.396.Hot.天
+Adding record: ID=01-396-天-Hot-White, GroupID=01.396.Hot.天, SheetType=Single
+After adding to group: ID= SheetType=Single GroupID=01.396.Hot.天
+Processing Record -ID:02-396-天-Cold-White, GroupID: 02.396.Cold.天, SheetType:Single, SampleColor:白
+Before Adding to group: sheetType=Single groupID=02.396.Cold.天
+Comparing: newRecord=02-396-天-Cold-White,02.396.Cold.天,Single with rec=02-396-天-Cold-White, 02.396.Cold.天,Single
+Equals comparison: Me.testDate=2024/02/21, other.testDate=2024/02/21
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=02.396.Cold.天, other.groupID=02.396.Cold.天
+Equals comparison: Me.sheetType=Single, other.sheetType=Single
+Equals result: True
+Duplicate found: ID=02-396-天-Cold-White, GroupID=02.396.Cold.天, SheetType=Single
+After adding to group: ID= SheetType=Single GroupID=02.396.Cold.天
+Processing Record -ID:03-396F-天-Hot-OthClr, GroupID: 03.396F.Hot.天, SheetType:Multi, SampleColor:ロイヤル
 Added new group for sheetType: Multi
-Current count for Multi:1
-Record added to sheet:申請_墜落_03for groupID:03
-Record added to sheet:定期_墜落_03for groupID:03
-groupedRecords is initialilzed.
-Current count for Multi:4
-Record added to sheet:申請_墜落_04for groupID:04
-Record added to sheet:定期_墜落_04for groupID:04
-groupedRecords is initialilzed.
-Current count for Multi:7
-Record added to sheet:申請_墜落_01for groupID:01
-Record added to sheet:定期_墜落_01for groupID:01
-groupedRecords is initialilzed.
-Current count for Multi:10
-Record added to sheet:申請_墜落_02for groupID:02
-Record added to sheet:定期_墜落_02for groupID:02
-groupedRecords is initialilzed.
-Current count for Multi:13
-Record added to sheet:申請_墜落_01for groupID:01
-Record added to sheet:定期_墜落_01for groupID:01
-groupedRecords is initialilzed.
-Current count for Multi:16
-Record added to sheet:申請_墜落_02for groupID:02
-Record added to sheet:定期_墜落_02for groupID:02
-groupedRecords is initialilzed.
-Current count for Multi:19
-Record added to sheet:申請_墜落_01for groupID:01
-Record added to sheet:定期_墜落_01for groupID:01
-groupedRecords is initialilzed.
-Current count for Multi:22
-Record added to sheet:申請_墜落_02for groupID:02
-Record added to sheet:定期_墜落_02for groupID:02
-groupedRecords is initialilzed.
-Current count for Multi:25
-Record added to sheet:申請_墜落_03for groupID:03
-Record added to sheet:定期_墜落_03for groupID:03
-key: Single, count: 6
-key: Multi, count: 27
-key: Single, count: 6
+Before Adding to group: sheetType=Multi groupID=03.396F.Hot.天
+Adding record: ID=03-396F-天-Hot-OthClr, GroupID=03.396F.Hot.天, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=03.396F.Hot.天
+Processing Record -ID:04-396F-天-Cold-OthClr, GroupID: 04.396F.Cold.天, SheetType:Multi, SampleColor:ピンク
+Before Adding to group: sheetType=Multi groupID=04.396F.Cold.天
+Comparing: newRecord=04-396F-天-Cold-OthClr,04.396F.Cold.天,Multi with rec=04-396F-天-Cold-OthClr, 04.396F.Cold.天,Multi
+Equals comparison: Me.testDate=2024/02/21, other.testDate=2024/02/21
+Equals comparison: Me.sampleColor=ピンク, other.sampleColor=ピンク
+Equals comparison: Me.groupID=04.396F.Cold.天, other.groupID=04.396F.Cold.天
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=04-396F-天-Cold-OthClr, GroupID=04.396F.Cold.天, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=04.396F.Cold.天
+Processing Record -ID:01-350F-天-Hot-White, GroupID: 01.350F.Hot.天, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=01.350F.Hot.天
+Comparing: newRecord=01-350F-天-Hot-White,01.350F.Hot.天,Multi with rec=01-350F-天-Hot-White, 01.350F.Hot.天,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=01.350F.Hot.天, other.groupID=01.350F.Hot.天
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=01-350F-天-Hot-White, GroupID=01.350F.Hot.天, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=01.350F.Hot.天
+Processing Record -ID:02-350F-天-Cold-White, GroupID: 02.350F.Cold.天, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=02.350F.Cold.天
+Comparing: newRecord=02-350F-天-Cold-White,02.350F.Cold.天,Multi with rec=02-350F-天-Cold-White, 02.350F.Cold.天,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=02.350F.Cold.天, other.groupID=02.350F.Cold.天
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=02-350F-天-Cold-White, GroupID=02.350F.Cold.天, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=02.350F.Cold.天
+Processing Record -ID:01-350F-前-Hot-White, GroupID: 01.350F.Hot.前, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=01.350F.Hot.前
+Comparing: newRecord=01-350F-前-Hot-White,01.350F.Hot.前,Multi with rec=01-350F-前-Hot-White, 01.350F.Hot.前,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=01.350F.Hot.前, other.groupID=01.350F.Hot.前
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=01-350F-前-Hot-White, GroupID=01.350F.Hot.前, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=01.350F.Hot.前
+Processing Record -ID:02-350F-前-Cold-White, GroupID: 02.350F.Cold.前, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=02.350F.Cold.前
+Comparing: newRecord=02-350F-前-Cold-White,02.350F.Cold.前,Multi with rec=02-350F-前-Cold-White, 02.350F.Cold.前,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=02.350F.Cold.前, other.groupID=02.350F.Cold.前
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=02-350F-前-Cold-White, GroupID=02.350F.Cold.前, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=02.350F.Cold.前
+Processing Record -ID:01-350F-後-Hot-White, GroupID: 01.350F.Hot.後, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=01.350F.Hot.後
+Comparing: newRecord=01-350F-後-Hot-White,01.350F.Hot.後,Multi with rec=01-350F-後-Hot-White, 01.350F.Hot.後,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=01.350F.Hot.後, other.groupID=01.350F.Hot.後
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=01-350F-後-Hot-White, GroupID=01.350F.Hot.後, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=01.350F.Hot.後
+Processing Record -ID:02-350F-後-Cold-White, GroupID: 02.350F.Cold.後, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=02.350F.Cold.後
+Comparing: newRecord=02-350F-後-Cold-White,02.350F.Cold.後,Multi with rec=02-350F-後-Cold-White, 02.350F.Cold.後,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=02.350F.Cold.後, other.groupID=02.350F.Cold.後
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=02-350F-後-Cold-White, GroupID=02.350F.Cold.後, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=02.350F.Cold.後
+Processing Record -ID:03-350F-後-Wet-White, GroupID: 03.350F.Wet.後, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=03.350F.Wet.後
+Comparing: newRecord=03-350F-後-Wet-White,03.350F.Wet.後,Multi with rec=03-350F-後-Wet-White, 03.350F.Wet.後,Multi
+Equals comparison: Me.testDate=2024/04/10, other.testDate=2024/04/10
+Equals comparison: Me.sampleColor=白, other.sampleColor=白
+Equals comparison: Me.groupID=03.350F.Wet.後, other.groupID=03.350F.Wet.後
+Equals comparison: Me.sheetType=Multi, other.sheetType=Multi
+Equals result: True
+Duplicate found: ID=03-350F-後-Wet-White, GroupID=03.350F.Wet.後, SheetType=Multi
+After adding to group: ID= SheetType=Multi GroupID=03.350F.Wet.後
+key: Single, count: 1
+key: Multi, count: 1
+key: Single, count: 1
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+key: Multi, count: 1
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+Total unique records: 11
+
+
+Sub TestSheetCreationAndDataWriting()
+    Call ResetSheetTypeIndex   ' インデックスをリセット
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    Dim i As Integer
+
+    Dim testValues As New Collection
+
+    Dim groupedRecords As Object
+    Set groupedRecords = CreateObject("Scripting.Dictionary")
+
+    For i = 2 To lastRow
+        Dim record As New record
+        record.LoadData ws, i
+
+        ' すべてのレコードがユニークと定義
+        testValues.Add record
+
+        ' デバッグ出力を追加
+        Debug.Print "Processing Record - ID: " & record.sampleID & ", GroupID: " & record.groupID & ", SheetType: " & record.sheetType
+
+        If Not groupedRecords.exists(record.sheetType) Then
+            groupedRecords.Add record.sheetType, New Collection
+            Debug.Print "Added new group for sheetType: " & record.sheetType
+        End If
+
+        ' レコード追加前にデバッグ出力を追加
+        Debug.Print "Before adding to group: sheetType=" & record.sheetType & ", groupID=" & record.groupID
+
+        ' コレクションを適切に渡す
+        Call AddRecordToGroup(groupedRecords(record.sheetType), record)
+
+        ' デバッグ出力を追加
+        Debug.Print "After adding to group: ID=" & record.sampleID & " SheetType=" & record.sheetType & " GroupID=" & record.groupID
+    Next i
+
+    If Not groupedRecords Is Nothing Then
+        For Each key In groupedRecords.keys
+            Debug.Print "key: " & key & ", count:"; groupedRecords(key).Count
+        Next key
+    Else
+        Debug.Print "groupedRecords is not initialized or empty."
+    End If
+
+    Call PrintGroupedRecords(groupedRecords)
+    Debug.Print "Total unique records: " & testValues.Count
+End Sub
+
+
+Processing Record -ID:01-396-天-Hot-White, GroupID: 01.396.Hot.天, SheetType:Single, SampleColor:白
+Added new group for sheetType: Single
+Before Adding to group: sheetType=Single groupID=01.396.Hot.天
+Adding record: ID=01-396-天-Hot-White, GroupID=01.396.Hot.天, SheetType=Single
+Record in group: ID=01-396-天-Hot-White SheetType=Single GroupID=01.396.Hot.天 SampleColor=白
+Processing Record -ID:02-396-天-Cold-White, GroupID: 02.396.Cold.天, SheetType:Single, SampleColor:白
+Before Adding to group: sheetType=Single groupID=02.396.Cold.天
+Adding record: ID=02-396-天-Cold-White, GroupID=02.396.Cold.天, SheetType=Single
+Record in group: ID=02-396-天-Cold-White SheetType=Single GroupID=02.396.Cold.天 SampleColor=白
+Record in group: ID=02-396-天-Cold-White SheetType=Single GroupID=02.396.Cold.天 SampleColor=白
+Processing Record -ID:03-396F-天-Hot-OthClr, GroupID: 03.396F.Hot.天, SheetType:Multi, SampleColor:ロイヤル
+Added new group for sheetType: Multi
+Before Adding to group: sheetType=Multi groupID=03.396F.Hot.天
+Adding record: ID=03-396F-天-Hot-OthClr, GroupID=03.396F.Hot.天, SheetType=Multi
+Record in group: ID=03-396F-天-Hot-OthClr SheetType=Multi GroupID=03.396F.Hot.天 SampleColor=ロイヤル
+Processing Record -ID:04-396F-天-Cold-OthClr, GroupID: 04.396F.Cold.天, SheetType:Multi, SampleColor:ピンク
+Before Adding to group: sheetType=Multi groupID=04.396F.Cold.天
+Adding record: ID=04-396F-天-Cold-OthClr, GroupID=04.396F.Cold.天, SheetType=Multi
+Record in group: ID=04-396F-天-Cold-OthClr SheetType=Multi GroupID=04.396F.Cold.天 SampleColor=ピンク
+Record in group: ID=04-396F-天-Cold-OthClr SheetType=Multi GroupID=04.396F.Cold.天 SampleColor=ピンク
+Processing Record -ID:01-350F-天-Hot-White, GroupID: 01.350F.Hot.天, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=01.350F.Hot.天
+Adding record: ID=01-350F-天-Hot-White, GroupID=01.350F.Hot.天, SheetType=Multi
+Record in group: ID=01-350F-天-Hot-White SheetType=Multi GroupID=01.350F.Hot.天 SampleColor=白
+Record in group: ID=01-350F-天-Hot-White SheetType=Multi GroupID=01.350F.Hot.天 SampleColor=白
+Record in group: ID=01-350F-天-Hot-White SheetType=Multi GroupID=01.350F.Hot.天 SampleColor=白
+Processing Record -ID:02-350F-天-Cold-White, GroupID: 02.350F.Cold.天, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=02.350F.Cold.天
+Adding record: ID=02-350F-天-Cold-White, GroupID=02.350F.Cold.天, SheetType=Multi
+Record in group: ID=02-350F-天-Cold-White SheetType=Multi GroupID=02.350F.Cold.天 SampleColor=白
+Record in group: ID=02-350F-天-Cold-White SheetType=Multi GroupID=02.350F.Cold.天 SampleColor=白
+Record in group: ID=02-350F-天-Cold-White SheetType=Multi GroupID=02.350F.Cold.天 SampleColor=白
+Record in group: ID=02-350F-天-Cold-White SheetType=Multi GroupID=02.350F.Cold.天 SampleColor=白
+Processing Record -ID:01-350F-前-Hot-White, GroupID: 01.350F.Hot.前, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=01.350F.Hot.前
+Adding record: ID=01-350F-前-Hot-White, GroupID=01.350F.Hot.前, SheetType=Multi
+Record in group: ID=01-350F-前-Hot-White SheetType=Multi GroupID=01.350F.Hot.前 SampleColor=白
+Record in group: ID=01-350F-前-Hot-White SheetType=Multi GroupID=01.350F.Hot.前 SampleColor=白
+Record in group: ID=01-350F-前-Hot-White SheetType=Multi GroupID=01.350F.Hot.前 SampleColor=白
+Record in group: ID=01-350F-前-Hot-White SheetType=Multi GroupID=01.350F.Hot.前 SampleColor=白
+Record in group: ID=01-350F-前-Hot-White SheetType=Multi GroupID=01.350F.Hot.前 SampleColor=白
+Processing Record -ID:02-350F-前-Cold-White, GroupID: 02.350F.Cold.前, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=02.350F.Cold.前
+Adding record: ID=02-350F-前-Cold-White, GroupID=02.350F.Cold.前, SheetType=Multi
+Record in group: ID=02-350F-前-Cold-White SheetType=Multi GroupID=02.350F.Cold.前 SampleColor=白
+Record in group: ID=02-350F-前-Cold-White SheetType=Multi GroupID=02.350F.Cold.前 SampleColor=白
+Record in group: ID=02-350F-前-Cold-White SheetType=Multi GroupID=02.350F.Cold.前 SampleColor=白
+Record in group: ID=02-350F-前-Cold-White SheetType=Multi GroupID=02.350F.Cold.前 SampleColor=白
+Record in group: ID=02-350F-前-Cold-White SheetType=Multi GroupID=02.350F.Cold.前 SampleColor=白
+Record in group: ID=02-350F-前-Cold-White SheetType=Multi GroupID=02.350F.Cold.前 SampleColor=白
+Processing Record -ID:01-350F-後-Hot-White, GroupID: 01.350F.Hot.後, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=01.350F.Hot.後
+Adding record: ID=01-350F-後-Hot-White, GroupID=01.350F.Hot.後, SheetType=Multi
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Record in group: ID=01-350F-後-Hot-White SheetType=Multi GroupID=01.350F.Hot.後 SampleColor=白
+Processing Record -ID:02-350F-後-Cold-White, GroupID: 02.350F.Cold.後, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=02.350F.Cold.後
+Adding record: ID=02-350F-後-Cold-White, GroupID=02.350F.Cold.後, SheetType=Multi
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Record in group: ID=02-350F-後-Cold-White SheetType=Multi GroupID=02.350F.Cold.後 SampleColor=白
+Processing Record -ID:03-350F-後-Wet-White, GroupID: 03.350F.Wet.後, SheetType:Multi, SampleColor:白
+Before Adding to group: sheetType=Multi groupID=03.350F.Wet.後
+Adding record: ID=03-350F-後-Wet-White, GroupID=03.350F.Wet.後, SheetType=Multi
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+Record in group: ID=03-350F-後-Wet-White SheetType=Multi GroupID=03.350F.Wet.後 SampleColor=白
+key: Single, count: 2
+key: Multi, count: 9
+Sheet Type: Single, Number of Records: 2
   Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
   Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-key: Multi, count: 27
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
-  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+Sheet Type: Multi, Number of Records: 9
   Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
   Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
   Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
@@ -4492,26 +4666,81 @@ key: Multi, count: 27
 Total unique records: 11
 
 
-{LOG_Helmet, DataSheet, 申請_飛来, 申請_墜落, 定期_飛来, 定期_墜落, 側面試験, 依頼試験}
+key: Single, count: 2
+key: Multi, count: 9
+dictkey:Single
+Sheet Type: Single, Number of Records: 2
+ sheet Name: 申請_飛来
+ sheet Name: 定期_飛来
+ sheet Name: 申請_飛来
+ sheet Name: 定期_飛来
+  Record ID: 01-396-天-Hot-White, Group ID: 01.396.Hot.天, Sheet Type: Single
+  Record ID: 02-396-天-Cold-White, Group ID: 02.396.Cold.天, Sheet Type: Single
+dictkey:Multi
+Sheet Type: Multi, Number of Records: 9
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+ sheet Name: 申請_墜落
+ sheet Name: 定期_墜落
+  Record ID: 03-396F-天-Hot-OthClr, Group ID: 03.396F.Hot.天, Sheet Type: Multi
+  Record ID: 04-396F-天-Cold-OthClr, Group ID: 04.396F.Cold.天, Sheet Type: Multi
+  Record ID: 01-350F-天-Hot-White, Group ID: 01.350F.Hot.天, Sheet Type: Multi
+  Record ID: 02-350F-天-Cold-White, Group ID: 02.350F.Cold.天, Sheet Type: Multi
+  Record ID: 01-350F-前-Hot-White, Group ID: 01.350F.Hot.前, Sheet Type: Multi
+  Record ID: 02-350F-前-Cold-White, Group ID: 02.350F.Cold.前, Sheet Type: Multi
+  Record ID: 01-350F-後-Hot-White, Group ID: 01.350F.Hot.後, Sheet Type: Multi
+  Record ID: 02-350F-後-Cold-White, Group ID: 02.350F.Cold.後, Sheet Type: Multi
+  Record ID: 03-350F-後-Wet-White, Group ID: 03.350F.Wet.後, Sheet Type: Multi
+Total unique records: 11
 
-396-天Hot	01-396-天-Hot-White	396	天頂	2024/2/21	23 	4
-396-天Cold	02-396-天-Cold-White	396	天頂	2024/2/21	23 	4
-F396F-天Hot	03-396F-天-Hot-OthClr	396F	天頂	2024/2/21	23 	4
-F396F-天Cold	04-396F-天-Cold-OthClr	396F	天頂	2024/2/21	23 	4
-397-天Hot	01-350F-天-Hot-White	350F	天頂	2024/4/10	23 	3
-397-天Cold	02-350F-天-Cold-White	350F	天頂	2024/4/10	23 	5
-F397F-天Hot	01-350F-前-Hot-White	350F	前頭部	2024/4/10	23 	5
-F397F-天Cold	02-350F-前-Cold-White	350F	前頭部	2024/4/10	23 	5
-397-天Hot	01-350F-後-Hot-White	350F	後頭部	2024/4/10	23 	7
-397-天Cold	02-350F-後-Cold-White	350F	後頭部	2024/4/10	23 	7
-F397F-天Hot	03-350F-後-Wet-White	350F	後頭部	2024/4/10	23 	7
-レコードは上記のテーブルの内容を読み込んでいます。問題は
+ClassifyKeys()でレコードごとにシートを生成しているのですが、これを少し発展させたいです。
+GroupID(01.396.Hot.天)の(01.396)が同じ値のレコードでグループを作りそのグループごとにシートに書き込み処理をしたい。
+もちろん最初にSheetTypeで分かれている設定は生きています。このイミディエイトウィンドウの例でいくと
+ sheet Name: 申請_飛来 Record ID:  01-396-天-Hot-White
+ sheet Name: 定期_飛来 Record ID:  01-396-天-Hot-White
+ sheet Name: 申請_飛来 Record ID:  02-396-天-Cold-White
+ sheet Name: 定期_飛来 Record ID:  02-396-天-Cold-White
+dictkey:Multi
+Sheet Type: Multi, Number of Records: 9
+ sheet Name: 申請_墜落 Record ID: 01-350F-天-Hot-White, 01-350F-前-Hot-White, 01-350F-後-Hot-White
+ sheet Name: 定期_墜落 Record ID: 01-350F-天-Hot-White, 01-350F-前-Hot-White, 01-350F-後-Hot-White
+ sheet Name: 申請_墜落 Record ID: 02-350F-天-Cold-White, 02-350F-前-Cold-White, 02-350F-後-Cold-White
+ sheet Name: 定期_墜落 Record ID: 02-350F-天-Cold-White, 02-350F-前-Cold-White, 02-350F-後-Cold-White
+ sheet Name: 定期_墜落 Record ID: 03-350F-後-Wet-White
+ sheet Name: 申請_墜落 Record ID: 03-350F-後-Wet-White
+ sheet Name: 申請_墜落 Record ID: 03-396F-天-Hot-OthClr,
+ sheet Name: 定期_墜落 Record ID: 03-396F-天-Hot-OthClr,
+ sheet Name: 申請_墜落 Record ID: 04-396F-天-Cold-OthClr
+ sheet Name: 定期_墜落 Record ID: 04-396F-天-Cold-OthClr
 
+のように分類するロジックを作りたいです。
+まずは私が十分な説明をしているかどうかを確認したいので、このロジックをもう一度あなたが日本語で私に説明してみてください。
 
-お世話になっております。https://www.sg-mark.org/mailmagazine/no76/ のページを拝見して質問があります。
-
-- CEマークは自己適合宣言ですので、 とありますが、これは業者が独自に試験を行い適合したかどうかはその独自試験の結果から判断している。 ということでしょうか？
-
-- CE認証(認証番号：BS EN1078:2012+A1:2012(Exclude clause 4.1/6/7) という表記の製品が販売されています。これはEN1078に完全に適合したという意味でしょうか？それとも4.1条、6条、7条以外の項目に適合したという意味でしょうか？
-
-突然の質問すみません。お手数をおかけしますがご回答よろしく。
+02.110.Cold.天 Sheet Type:Single
+02.170.Cold.天 Sheet Type:Single
+01.110F.Hot.天 Sheet Type:Multi
+01.110F.Hot.前 Sheet Type:Multi
+01.110F.Hot.後 Sheet Type:Multi
+03.110F.Wet.天 Sheet Type:Multi
+03.110F.Wet.前 Sheet Type:Multi
+03.110F.Wet.後 Sheet Type:Multi
+01.170F.Hot.天 Sheet Type:Multi
+01.170F.Hot.前 Sheet Type:Multi
+01.170F.Hot.後 Sheet Type:Multi
+03.170F.Wet.天 Sheet Type:Multi
+03.170F.Wet.前 Sheet Type:Multi
+03.170F.Wet.後 Sheet Type:Multi

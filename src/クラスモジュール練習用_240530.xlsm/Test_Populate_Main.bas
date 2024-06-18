@@ -11,39 +11,32 @@ Sub TestSheetCreationAndDataWriting()
     Dim i As Integer
 
     Dim testValues As New Collection
-    Dim recordIDs As Object
-    Set recordIDs = CreateObject("Scripting.Dictionary")
 
     Dim groupedRecords As Object
     Set groupedRecords = CreateObject("Scripting.Dictionary")
+    
+    Dim sheetNames As Object
+    Set sheetNames = CreateObject("Scripting.Dictionary")
 
     For i = 2 To lastRow
         Dim record As New record
         record.LoadData ws, i
 
-        Dim recordID As String
-        recordID = record.sampleID
+        testValues.Add record
 
-        If Not recordIDs.exists(recordID) Then
-            recordIDs.Add recordID, Nothing
-            testValues.Add record
-            
-            'Debug.Print "SheetType:"; Record.sheetType
-            If Not groupedRecords.exists(record.sheetType) Then
-                groupedRecords.Add record.sheetType, New Collection
-                Debug.Print "Added new group for sheetType: " & record.sheetType
-            End If
-'            groupedRecords(record.sheetType).Add record
-'            Debug.Print "Current count for " & record.sheetType & ":" & groupedRecords(record.sheetType).Count
-            Call AddRecordToGroup(groupedRecords(record.sheetType), record)
-            Call ClassifyKeys(record.sheetType, record.groupID)
-                groupedRecords(record.sheetType).Add record
-'            Debug.Print "Record loaded: ID=" & Record.sampleID & _
-'                        " SheetType=" & Record.sheetType & _
-'                        " GroupID=" & Record.GroupID
-        Else
-            Debug.Print "Duplicate record skipped: ID=" & record.sampleID
+        Call ClassifyKeys(record.sheetType, record.groupID, sheetNames)
+
+        If Not groupedRecords.exists(record.sheetType) Then
+            groupedRecords.Add record.sheetType, New Collection
         End If
+
+        Call AddRecordToGroup(groupedRecords(record.sheetType), record)
+        Dim j As Integer
+        For j = 1 To groupedRecords(record.sheetType).Count
+            Dim addedRecord As record
+            Set addedRecord = groupedRecords(record.sheetType)(j)
+            'Debug.Print "Record in group: ID=" & addedRecord.sampleID & " SheetType=" & addedRecord.sheetType & " GroupID=" & addedRecord.groupID & " SampleColor=" & addedRecord.sampleColor
+        Next j
     Next i
     If Not groupedRecords Is Nothing Then
         For Each key In groupedRecords.keys
@@ -52,13 +45,12 @@ Sub TestSheetCreationAndDataWriting()
     Else
         Debug.Print "groupedRecords is not initalized or empty."
     End If
-    
-    
-    Call PrintGroupedRecords(groupedRecords)
+       
+    Call PrintGroupedRecords(groupedRecords, sheetNames)
     Debug.Print "Total unique records: " & testValues.Count
 End Sub
 
-Sub ClassifyKeys(sheetType As String, groupID As String)
+Sub ClassifyKeys(sheetType As String, groupID As String, ByRef sheetNames As Object)
     ' レコードごとにシートネームを作成する
     Static sheetTypeIndex As Object
     If sheetTypeIndex Is Nothing Then Set sheetTypeIndex = CreateObject("Scripting.Dictionary")
@@ -79,6 +71,19 @@ Sub ClassifyKeys(sheetType As String, groupID As String)
             baseTemplateName = "その他"
             additionalTemplateName = ""
     End Select
+    
+    'シート名を保持する
+    If sheetNames Is Nothing Then Set sheetNames = CreateObject("Scripting.Dictionary")
+    If Not sheetNames.exists(sheetType) Then
+        sheetNames.Add sheetType, New Collection
+    End If
+    
+    sheetNames(sheetType).Add baseTemplateName
+    If additionalTemplateName <> "" Then
+        sheetNames(sheetType).Add additionalTemplateName
+    End If
+
+
     ' 基本テンプレートと追加テンプレートのシート処理
     Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex)
     If additionalTemplateName <> "" Then
@@ -139,35 +144,59 @@ Sub ResetSheetTypeIndex()
     Set groupSheetIndexes = Nothing ' Dictionary オブジェクトの解放
     Set groupSheetIndexes = CreateObject("Scripting.Dictionary") ' 新しい Dictionary オブジェクトの初期化
 End Sub
-' 重複チェック
-Sub AddRecordToGroup(ByRef group As Collection, ByVal newRecord As record)
-    Dim exists As Boolean
-    exists = False
+Private Sub AddRecordToGroup(groupCollection As Collection, ByVal record As record)
+    ' 新しいインスタンスを作成してから追加
+    Dim newRecord As New record
+    newRecord.ID = record.ID
+    newRecord.sampleID = record.sampleID
+    newRecord.itemNum = record.itemNum
+    newRecord.testPart = record.testPart
+    newRecord.testDate = record.testDate
+    newRecord.testTemp = record.testTemp
+    newRecord.maxValue = record.maxValue
+    newRecord.timeOfMax = record.timeOfMax
+    newRecord.duration49kN = record.duration49kN
+    newRecord.duration73kN = record.duration73kN
+    newRecord.preProcess = record.preProcess
+    newRecord.sampleWeight = record.sampleWeight
+    newRecord.sampleTop = record.sampleTop
+    newRecord.sampleColor = record.sampleColor
+    newRecord.sampleLotNum = record.sampleLotNum
+    newRecord.sampleHelLot = record.sampleHelLot
+    newRecord.sampleBandLot = record.sampleBandLot
+    newRecord.structureResult = record.structureResult
+    newRecord.penetrationResult = record.penetrationResult
+    newRecord.testSection = record.testSection
+    newRecord.groupID = record.groupID
+    newRecord.sheetType = record.sheetType
 
-    Dim rec As record
-    For Each rec In group
-        If rec.Equals(newRecord) Then
-            exists = True
-            Exit For
-        End If
-    Next rec
+    ' グループにレコードを追加
+    groupCollection.Add newRecord
 
-    If Not exists Then
-        group.Add newRecord
-    End If
+    ' デバッグ出力
+    'Debug.Print "Adding record: ID=" & newRecord.sampleID & ", GroupID=" & newRecord.groupID & ", SheetType=" & newRecord.sheetType
 End Sub
 
+
 ' -----------------------------------------------------------------------------------------------------
-Sub PrintGroupedRecords(ByRef groupedRecords As Object)
+Sub PrintGroupedRecords(ByRef groupedRecords As Object, ByRef sheetNames As Object)
     Dim dictkey As Variant
     Dim record As record
     Dim recordsCollection As Collection
     
     ' groupedRecordsの各sheetTypeをループ
     For Each dictkey In groupedRecords.keys
+        Debug.Print "dictkey:" & dictkey
         Set recordsCollection = groupedRecords(dictkey)
-        'Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & recordsCollection.Count
-        Debug.Print "key: " & dictkey & ", count:"; groupedRecords(dictkey).Count
+        Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & recordsCollection.Count
+        ' 各シート名を出力
+        If Not sheetNames Is Nothing Then
+            If sheetNames.exists(dictkey) Then
+                For Each sheetName In sheetNames(dictkey)
+                    Debug.Print " sheet Name: " & sheetName
+                Next sheetName
+            End If
+        End If
         ' 各レコードの詳細を出力
         For Each record In recordsCollection
             Debug.Print "  Record ID: " & record.sampleID & _
