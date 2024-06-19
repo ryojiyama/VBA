@@ -1,0 +1,50 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Temp_定期_飛来_02"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+''新しいコードには含まれていない。
+'Function GenerateSheetName(prefix As String, index As Integer) As String
+'    GenerateSheetName = prefix & Format(index, "00")
+'End Function
+'
+'
+'
+'
+'' Mainプロシージャ
+'Sub TestSheetCreationAndDataWriting()
+'    Dim ws As Worksheet
+'    Set ws = ThisWorkbook.Sheets("DataSheet")
+'    Dim lastRow As Long
+'    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).row
+'    Dim i As Integer
+'
+'    Dim testValues As New Collection
+'    Dim groupedRecords As Object
+'    Set groupedRecords = CreateObject("Scripting.Dictionary")
+'
+'    For i = 2 To lastRow
+'        Dim Record As New Record
+'        Record.LoadData ws, i
+'        testValues.Add Record
+'
+'        ' 分類されたグループにレコードを追加
+'        If Not groupedRecords.Exists(Record.group) Then
+'            groupedRecords.Add Record.group, New Collection
+'        End If
+'        groupedRecords(Record.group).Add Record
+'    Next i
+'
+'    ' グループの内容を確認（デバッグ用）
+'    Dim key As Variant
+'    For Each key In groupedRecords
+'        'Debug.Print "Main()_Group: " & key & ", Count: " & groupedRecords(key).Count
+'    Next key
+'
+'    ' データのグループ化とシート書き込みを行う
+'    Call PopulateGroupedSheets(groupedRecords)
+'End Sub

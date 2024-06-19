@@ -4744,3 +4744,348 @@ Sheet Type: Multi, Number of Records: 9
 03.170F.Wet.天 Sheet Type:Multi
 03.170F.Wet.前 Sheet Type:Multi
 03.170F.Wet.後 Sheet Type:Multi
+
+
+' ClassifyKeys プロシージャを修正
+Sub ClassifyKeys(sheetType As String, groupID As String, ByRef sheetNames As Object, ByRef sheetRecords As Object)
+    Static sheetTypeIndex As Object
+    If sheetTypeIndex Is Nothing Then Set sheetTypeIndex = CreateObject("Scripting.Dictionary")
+
+    groupID = Left(groupID, 2)
+
+    Dim baseTemplateName As String
+    Dim additionalTemplateName As String
+    Select Case sheetType
+        Case "Single"
+            baseTemplateName = "申請_飛来"
+            additionalTemplateName = "定期_飛来"
+        Case "Multi"
+            baseTemplateName = "申請_墜落"
+            additionalTemplateName = "定期_墜落"
+        Case Else
+            baseTemplateName = "その他"
+            additionalTemplateName = ""
+    End Select
+
+    If sheetNames Is Nothing Then Set sheetNames = CreateObject("Scripting.Dictionary")
+    If Not sheetNames.exists(sheetType) Then
+        sheetNames.Add sheetType, New Collection
+    End If
+
+    If sheetRecords Is Nothing Then Set sheetRecords = CreateObject("Scripting.Dictionary")
+    If Not sheetRecords.exists(sheetType) Then
+        sheetRecords.Add sheetType, CreateObject("Scripting.Dictionary")
+    End If
+
+    sheetNames(sheetType).Add baseTemplateName
+    If additionalTemplateName <> "" Then
+        sheetNames(sheetType).Add additionalTemplateName
+    End If
+
+    Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex, sheetRecords)
+    If additionalTemplateName <> "" Then
+        Call ProcessTemplateSheet(additionalTemplateName, sheetType, groupID, sheetTypeIndex, sheetRecords)
+    End If
+End Sub
+
+' ProcessTemplateSheet プロシージャを修正
+Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object, ByRef sheetRecords As Object)
+    Dim combinedKey As String
+    combinedKey = templateName & "_" & groupID
+
+    If Not sheetTypeIndex.exists(combinedKey) Then
+        sheetTypeIndex(combinedKey) = combinedKey
+    End If
+
+    Dim newSheetName As String
+    newSheetName = sheetTypeIndex(combinedKey)
+
+    Dim newSheet As Worksheet
+    If Not SheetExists(newSheetName) Then
+        If templateName <> "" Then
+            Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
+            Set newSheet = Worksheets(Worksheets.Count)
+            newSheet.Name = newSheetName
+            ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).Name = "Temp_" & newSheetName
+        Else
+            Debug.Print "No template found for templateName: " & templateName
+        End If
+    Else
+        Set newSheet = Worksheets(newSheetName)
+    End If
+
+    ' シート名とレコードIDを関連付ける
+    If Not sheetRecords(sheetType).exists(newSheetName) Then
+        sheetRecords(sheetType).Add newSheetName, New Collection
+    End If
+End Sub
+
+' PrintGroupedRecords プロシージャを修正
+Sub PrintGroupedRecords(ByRef groupedRecords As Object, ByRef sheetNames As Object, ByRef sheetRecords As Object)
+    Dim dictkey As Variant
+    Dim record As record
+    Dim recordsCollection As Collection
+
+    ' groupedRecordsの各sheetTypeをループ
+    For Each dictkey In groupedRecords.Keys
+        Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & groupedRecords(dictkey).Count
+
+        ' 各シート名を出力
+        If Not sheetNames Is Nothing Then
+            If sheetNames.exists(dictkey) Then
+                For Each sheetName In sheetNames(dictkey)
+                    Debug.Print "Sheet Name: " & sheetName
+
+                    ' シート名ごとのレコードIDを出力
+                    If sheetRecords(dictkey).exists(sheetName) Then
+                        For Each record In sheetRecords(dictkey)(sheetName)
+                            Debug.Print "  Record ID: " & record.sampleID
+                        Next record
+                    End If
+                Next sheetName
+            End If
+        End If
+    Next dictkey
+End Sub
+
+' TestSheetCreationAndDataWriting プロシージャを修正
+Sub TestSheetCreationAndDataWriting()
+    Call ResetSheetTypeIndex
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    Dim i As Integer
+
+    Dim testValues As New Collection
+
+    Dim groupedRecords As Object
+    Set groupedRecords = CreateObject("Scripting.Dictionary")
+
+    Dim sheetNames As Object
+    Set sheetNames = CreateObject("Scripting.Dictionary")
+
+    Dim sheetRecords As Object
+    Set sheetRecords = CreateObject("Scripting.Dictionary")
+
+    For i = 2 To lastRow
+        Dim record As New record
+        record.LoadData ws, i
+
+        testValues.Add record
+
+        Call ClassifyKeys(record.sheetType, record.groupID, sheetNames, sheetRecords)
+
+        If Not groupedRecords.exists(record.sheetType) Then
+            groupedRecords.Add record.sheetType, New Collection
+        End If
+
+        Call AddRecordToGroup(groupedRecords(record.sheetType), record)
+        If Not sheetRecords(record.sheetType).exists(record.sheetType) Then
+            sheetRecords(record.sheetType).Add record.sheetType, New Collection
+        End If
+        sheetRecords(record.sheetType)(record.sheetType).Add record
+    Next i
+
+    If Not groupedRecords Is Nothing Then
+        For Each key In groupedRecords.Keys
+            Debug.Print "key: " & key & ", count:" & groupedRecords(key).Count
+        Next key
+    Else
+        Debug.Print "groupedRecords is not initialized or empty."
+    End If
+
+    Call PrintGroupedRecords(groupedRecords, sheetNames, sheetRecords)
+    Debug.Print "Total unique records: " & testValues.Count
+End Sub
+'-----------------------------------------------------------------------------------
+```
+```VB
+Sub ClassifyKeys(sheetType As String, groupID As String, ByRef sheetNames As Object, ByRef sheetRecords As Object, ByRef record As record)
+    Static sheetTypeIndex As Object
+    If sheetTypeIndex Is Nothing Then Set sheetTypeIndex = CreateObject("Scripting.Dictionary")
+
+    groupID = Left(groupID, 2)
+
+    Dim baseTemplateName As String
+    Dim additionalTemplateName As String
+    Select Case sheetType
+        Case "Single"
+            baseTemplateName = "申請_飛来"
+            additionalTemplateName = "定期_飛来"
+        Case "Multi"
+            baseTemplateName = "申請_墜落"
+            additionalTemplateName = "定期_墜落"
+        Case Else
+            baseTemplateName = "その他"
+            additionalTemplateName = ""
+    End Select
+
+    If sheetNames Is Nothing Then Set sheetNames = CreateObject("Scripting.Dictionary")
+    If Not sheetNames.exists(sheetType) Then
+        sheetNames.Add sheetType, New Collection
+    End If
+
+    If sheetRecords Is Nothing Then Set sheetRecords = CreateObject("Scripting.Dictionary")
+    If Not sheetRecords.exists(sheetType) Then
+        sheetRecords.Add sheetType, CreateObject("Scripting.Dictionary")
+    End If
+
+    ' シート名を追加
+    If Not sheetNames(sheetType).Contains(baseTemplateName) Then
+        sheetNames(sheetType).Add baseTemplateName
+    End If
+    If additionalTemplateName <> "" And Not sheetNames(sheetType).Contains(additionalTemplateName) Then
+        sheetNames(sheetType).Add additionalTemplateName
+    End If
+
+    ' レコードをシート名に関連付けて追加
+    Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex, sheetRecords, record)
+    If additionalTemplateName <> "" Then
+        Call ProcessTemplateSheet(additionalTemplateName, sheetType, groupID, sheetTypeIndex, sheetRecords, record)
+    End If
+End Sub
+
+Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object, ByRef sheetRecords As Object, ByRef record As record)
+    Dim combinedKey As String
+    combinedKey = templateName & "_" & groupID
+
+    If Not sheetTypeIndex.exists(combinedKey) Then
+        sheetTypeIndex(combinedKey) = combinedKey
+    End If
+
+    Dim newSheetName As String
+    newSheetName = sheetTypeIndex(combinedKey)
+
+    Dim newSheet As Worksheet
+    If Not SheetExists(newSheetName) Then
+        If templateName <> "" Then
+            Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
+            Set newSheet = Worksheets(Worksheets.Count)
+            newSheet.Name = newSheetName
+            ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).Name = "Temp_" & newSheetName
+        Else
+            Debug.Print "No template found for templateName: " & templateName
+        End If
+    Else
+        Set newSheet = Worksheets(newSheetName)
+    End If
+
+    ' シート名とレコードIDを関連付ける
+    If Not sheetRecords(sheetType).exists(newSheetName) Then
+        sheetRecords(sheetType).Add newSheetName, New Collection
+    End If
+    sheetRecords(sheetType)(newSheetName).Add record
+End Sub
+
+
+Sub PrintGroupedRecords(ByRef groupedRecords As Object, ByRef sheetNames As Object, ByRef sheetRecords As Object)
+    Dim dictkey As Variant
+    Dim sheetName As Variant
+    Dim record As record
+
+    ' groupedRecordsの各sheetTypeをループ
+    For Each dictkey In groupedRecords.Keys
+        Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & groupedRecords(dictkey).Count
+
+        ' 各シート名を出力
+        If Not sheetNames Is Nothing Then
+            If sheetNames.exists(dictkey) Then
+                For Each sheetName In sheetNames(dictkey)
+                    Debug.Print "Sheet Name: " & sheetName
+
+                    ' シート名ごとのレコードIDを出力
+                    If sheetRecords(dictkey).exists(sheetName) Then
+                        For Each record In sheetRecords(dictkey)(sheetName)
+                            Debug.Print "  Record ID: " & record.sampleID
+                        Next record
+                    End If
+                Next sheetName
+            End If
+        End If
+    Next dictkey
+End Sub
+
+
+Sub TestSheetCreationAndDataWriting()
+    Call ResetSheetTypeIndex
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    Dim i As Integer
+
+    Dim testValues As New Collection
+
+    Dim groupedRecords As Object
+    Set groupedRecords = CreateObject("Scripting.Dictionary")
+
+    Dim sheetNames As Object
+    Set sheetNames = CreateObject("Scripting.Dictionary")
+
+    Dim sheetRecords As Object
+    Set sheetRecords = CreateObject("Scripting.Dictionary")
+
+    For i = 2 To lastRow
+        Dim record As New record
+        record.LoadData ws, i
+
+        testValues.Add record
+
+        Call ClassifyKeys(record.sheetType, record.groupID, sheetNames, sheetRecords, record)
+
+        If Not groupedRecords.exists(record.sheetType) Then
+            groupedRecords.Add record.sheetType, New Collection
+        End If
+
+        Call AddRecordToGroup(groupedRecords(record.sheetType), record)
+    Next i
+
+    If Not groupedRecords Is Nothing Then
+        For Each key In groupedRecords.Keys
+            Debug.Print "key: " & key & ", count:" & groupedRecords(key).Count
+        Next key
+    Else
+        Debug.Print "groupedRecords is not initialized or empty."
+    End If
+
+    Call PrintGroupedRecords(groupedRecords, sheetNames, sheetRecords)
+    Debug.Print "Total unique records: " & testValues.Count
+End Sub
+
+Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object, ByRef sheetRecords As Object, ByRef record As record)
+    Dim combinedKey As String
+    combinedKey = templateName & "_" & groupID
+
+    If Not sheetTypeIndex.exists(combinedKey) Then
+        sheetTypeIndex(combinedKey) = combinedKey
+    End If
+
+    Dim newSheetName As String
+    newSheetName = sheetTypeIndex(combinedKey)
+
+    Dim newSheet As Worksheet
+    If Not SheetExists(newSheetName) Then
+        If templateName <> "" Then
+            Worksheets(templateName).Copy After:=Worksheets(Worksheets.Count)
+            Set newSheet = Worksheets(Worksheets.Count)
+            newSheet.Name = newSheetName
+            ThisWorkbook.VBProject.VBComponents(newSheet.CodeName).Name = "Temp_" & newSheetName
+        Else
+            Debug.Print "No template found for templateName: " & templateName
+        End If
+    Else
+        Set newSheet = Worksheets(newSheetName)
+    End If
+
+    ' シート名とレコードIDを関連付ける
+    If Not sheetRecords(sheetType).exists(newSheetName) Then
+        sheetRecords(sheetType).Add newSheetName, New Collection
+    End If
+    sheetRecords(sheetType)(newSheetName).Add record
+
+    ' sheetNames辞書に新しいシート名を保存
+    If Not sheetNames(sheetType).exists(newSheetName) Then
+        sheetNames(sheetType).Add newSheetName, True
+    End If
+End Sub

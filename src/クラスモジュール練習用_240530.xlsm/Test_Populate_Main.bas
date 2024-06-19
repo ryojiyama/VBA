@@ -17,6 +17,9 @@ Sub TestSheetCreationAndDataWriting()
     
     Dim sheetNames As Object
     Set sheetNames = CreateObject("Scripting.Dictionary")
+    
+    Dim sheetRecords As Object
+    Set sheetRecords = CreateObject("Scripting.Dictionary")
 
     For i = 2 To lastRow
         Dim record As New record
@@ -24,20 +27,28 @@ Sub TestSheetCreationAndDataWriting()
 
         testValues.Add record
 
-        Call ClassifyKeys(record.sheetType, record.groupID, sheetNames)
+        Call ClassifyKeys(record.sheetType, record.groupID, sheetNames, sheetRecords, record)
 
         If Not groupedRecords.exists(record.sheetType) Then
             groupedRecords.Add record.sheetType, New Collection
         End If
-
+        
         Call AddRecordToGroup(groupedRecords(record.sheetType), record)
-        Dim j As Integer
-        For j = 1 To groupedRecords(record.sheetType).Count
-            Dim addedRecord As record
-            Set addedRecord = groupedRecords(record.sheetType)(j)
-            'Debug.Print "Record in group: ID=" & addedRecord.sampleID & " SheetType=" & addedRecord.sheetType & " GroupID=" & addedRecord.groupID & " SampleColor=" & addedRecord.sampleColor
-        Next j
     Next i
+    
+'        If Not sheetRecords(record.sheetType).exists(record.sheetType) Then
+'            sheetRecords(record.sheetType).Add record.sheetType, New Collection
+'        End If
+'        sheetRecords(record.sheetType)(record.sheetType).Add record
+
+'        Call AddRecordToGroup(groupedRecords(record.sheetType), record)
+'        Dim j As Integer
+'        For j = 1 To groupedRecords(record.sheetType).Count
+'            Dim addedRecord As record
+'            Set addedRecord = groupedRecords(record.sheetType)(j)
+'            'Debug.Print "Record in group: ID=" & addedRecord.sampleID & " SheetType=" & addedRecord.sheetType & " GroupID=" & addedRecord.groupID & " SampleColor=" & addedRecord.sampleColor
+'        Next j
+'    Next i
     If Not groupedRecords Is Nothing Then
         For Each key In groupedRecords.keys
             Debug.Print "key: " & key & ", count:"; groupedRecords(key).Count
@@ -46,11 +57,11 @@ Sub TestSheetCreationAndDataWriting()
         Debug.Print "groupedRecords is not initalized or empty."
     End If
        
-    Call PrintGroupedRecords(groupedRecords, sheetNames)
+    Call PrintGroupedRecords(groupedRecords, sheetNames, sheetRecords)
     Debug.Print "Total unique records: " & testValues.Count
 End Sub
+Sub ClassifyKeys(sheetType As String, groupID As String, ByRef sheetNames As Object, ByRef sheetRecords As Object, ByRef records As record)
 
-Sub ClassifyKeys(sheetType As String, groupID As String, ByRef sheetNames As Object)
     ' レコードごとにシートネームを作成する
     Static sheetTypeIndex As Object
     If sheetTypeIndex Is Nothing Then Set sheetTypeIndex = CreateObject("Scripting.Dictionary")
@@ -75,23 +86,38 @@ Sub ClassifyKeys(sheetType As String, groupID As String, ByRef sheetNames As Obj
     'シート名を保持する
     If sheetNames Is Nothing Then Set sheetNames = CreateObject("Scripting.Dictionary")
     If Not sheetNames.exists(sheetType) Then
-        sheetNames.Add sheetType, New Collection
+        sheetNames.Add sheetType, CreateObject("Scripting.Dictionary")
     End If
     
-    sheetNames(sheetType).Add baseTemplateName
-    If additionalTemplateName <> "" Then
-        sheetNames(sheetType).Add additionalTemplateName
+    If sheetRecords Is Nothing Then Set sheetRecords = CreateObject("Scripting.Dictionary")
+    If Not sheetRecords.exists(sheetType) Then
+        sheetRecords.Add sheetType, CreateObject("Scripting.Dictionary")
     End If
-
+    
+    ' シート名を追加
+    If Not sheetNames(sheetType).exists(baseTemplateName) Then
+        sheetNames(sheetType).Add baseTemplateName, True
+    End If
+    If additionalTemplateName <> "" And Not sheetNames(sheetType).exists(additionalTemplateName) Then
+        sheetNames(sheetType).Add additionalTemplateName, True
+    End If
+    
+'    ' シート名を追加
+'    If Not sheetNames(sheetType).Contains(baseTemplateName) Then
+'        sheetNames(sheetType).Add baseTemplateName
+'    End If
+'    If additionalTemplateName <> "" And Not sheetNames(sheetType).Contains(additionalTemplateName) Then
+'        sheetNames(sheetType).Add additionalTemplateName
+'    End If
 
     ' 基本テンプレートと追加テンプレートのシート処理
-    Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex)
+    Call ProcessTemplateSheet(baseTemplateName, sheetType, groupID, sheetTypeIndex, sheetRecords, sheetNames, records)
     If additionalTemplateName <> "" Then
-        Call ProcessTemplateSheet(additionalTemplateName, sheetType, groupID, sheetTypeIndex)
+        Call ProcessTemplateSheet(additionalTemplateName, sheetType, groupID, sheetTypeIndex, sheetRecords, sheetNames, records)
     End If
 End Sub
 
-Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object)
+Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As String, ByRef sheetTypeIndex As Object, ByRef sheetRecords As Object, ByRef sheetNames As Object, ByRef record As record)
     Dim combinedKey As String
     combinedKey = templateName & "_" & groupID
     ' シート名の決定
@@ -125,6 +151,16 @@ Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As
     
     ' レコードをシートに追加する処理（必要に応じて追加）
     ' 例：newSheet.Cells(行, 列).Value = データ
+    
+    ' シート名とレコードIDを関連付ける
+    If Not sheetRecords(sheetType).exists(newSheetName) Then
+        sheetNames(sheetType).Add newSheetName, True
+    End If
+    ' sheetNames辞書に新しいシート名を保存
+    If Not sheetRecords(sheetType).exists(newSheetName) Then
+        sheetRecords(sheetType).Add newSheetName, New Collection
+    End If
+    sheetRecords(sheetType)(newSheetName).Add record
 End Sub
 
 Function SheetExists(sheetName As String) As Boolean
@@ -179,30 +215,36 @@ End Sub
 
 
 ' -----------------------------------------------------------------------------------------------------
-Sub PrintGroupedRecords(ByRef groupedRecords As Object, ByRef sheetNames As Object)
+Sub PrintGroupedRecords(ByRef groupedRecords As Object, ByRef sheetNames As Object, ByRef sheetRecords As Object)
     Dim dictkey As Variant
+    Dim sheetNameKey As Variant
     Dim record As record
-    Dim recordsCollection As Collection
     
     ' groupedRecordsの各sheetTypeをループ
     For Each dictkey In groupedRecords.keys
-        Debug.Print "dictkey:" & dictkey
-        Set recordsCollection = groupedRecords(dictkey)
-        Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & recordsCollection.Count
+        Debug.Print "Sheet Type: " & dictkey & ", Number of Records: " & groupedRecords(dictkey).Count
+        
+        ' groupedRecords(dictkey)が正しく辞書オブジェクトを返すことを確認
+        Dim sheetsDict As Object
+        Set sheetsDict = groupedRecords(dictkey)
+        
         ' 各シート名を出力
-        If Not sheetNames Is Nothing Then
-            If sheetNames.exists(dictkey) Then
-                For Each sheetName In sheetNames(dictkey)
-                    Debug.Print " sheet Name: " & sheetName
-                Next sheetName
-            End If
+        If sheetNames.exists(dictkey) Then
+            For Each sheetNameKey In sheetNames(dictkey).keys
+                Debug.Print " sheet Name: " & sheetNameKey
+                Debug.Print "TypeName:"; TypeName(groupedRecords(dictkey))
+                ' sheetNameKeyでのレコードコレクションを取得
+                Dim recordsCollection As Collection
+                If groupedRecords(dictkey).exists(sheetNameKey) Then
+                    Set recordsCollection = groupedRecords(dictkey)(sheetNameKey)
+                    For Each record In recordsCollection
+                        Debug.Print " Record ID :" & record.sampleID
+                    Next record
+                Else
+                    Debug.Print " No records from for sheet:" & sheetNameKey
+                End If
+            Next sheetNameKey
         End If
-        ' 各レコードの詳細を出力
-        For Each record In recordsCollection
-            Debug.Print "  Record ID: " & record.sampleID & _
-                        ", Group ID: " & record.groupID & _
-                        ", Sheet Type: " & record.sheetType
-        Next record
     Next dictkey
 End Sub
 
