@@ -5089,3 +5089,232 @@ Sub ProcessTemplateSheet(templateName As String, sheetType As String, groupID As
         sheetNames(sheetType).Add newSheetName, True
     End If
 End Sub
+
+
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 申請_飛来_02
+  recordsCollection count: 1
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 定期_飛来_02
+  recordsCollection count: 1
+   Record ID: 01-350F-後-Hot-White
+Sheet Type: Multi
+ Sheet Name: 申請_墜落_03
+  recordsCollection count: 1
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 定期_墜落_03
+  recordsCollection count: 1
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 申請_墜落_04
+  recordsCollection count: 1
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 定期_墜落_04
+  recordsCollection count: 1
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 申請_墜落_01
+  recordsCollection count: 3
+   Record ID: 01-350F-後-Hot-White
+   Record ID: 01-350F-後-Hot-White
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 定期_墜落_01
+  recordsCollection count: 3
+   Record ID: 01-350F-後-Hot-White
+   Record ID: 01-350F-後-Hot-White
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 申請_墜落_02
+  recordsCollection count: 2
+   Record ID: 01-350F-後-Hot-White
+   Record ID: 01-350F-後-Hot-White
+ Sheet Name: 定期_墜落_02
+  recordsCollection count: 2
+   Record ID: 01-350F-後-Hot-White
+   Record ID: 01-350F-後-Hot-White
+Adding record to sheetRecords for sheet: 申請_墜落_02, record ID: 02-350F-後-Cold-White
+sheetRecords before adding: 3
+sheetRecords after adding: 3
+Adding record to sheetRecords for sheet: 定期_墜落_02, record ID: 02-350F-後-Cold-White
+sheetRecords before adding: 3
+sheetRecords after adding: 3
+After ProcessTemplateSheet - recordsCollection count for sheet 申請_墜落_02: 3
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+After ProcessTemplateSheet - recordsCollection count for sheet 定期_墜落_02: 3
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+No records found for sheet: 申請_飛来_02
+No records found for sheet: 定期_飛来_02
+After ClassifyKeys - recordsCollection count for sheet 申請_墜落_02: 3
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+After ClassifyKeys - recordsCollection count for sheet 定期_墜落_02: 3
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+Record ID: 02-350F-後-Cold-White
+groupCollection before AddRecordToGroup: Count=0
+groupCollection after AddRecordToGroup: Count=1
+Sheet Type: Single
+ Sheet Name: 申請_飛来_01
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 定期_飛来_01
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 申請_飛来_02
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 定期_飛来_02
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+Sheet Type: Multi
+ Sheet Name: 申請_墜落_03
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 定期_墜落_03
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 申請_墜落_04
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 定期_墜落_04
+  recordsCollection count: 1
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 申請_墜落_01
+  recordsCollection count: 3
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 定期_墜落_01
+  recordsCollection count: 3
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 申請_墜落_02
+  recordsCollection count: 3
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+ Sheet Name: 定期_墜落_02
+  recordsCollection count: 3
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+   Record ID: 02-350F-後-Cold-White
+Adding record to sheetRecords for sheet: 申請_墜落_03, record ID: 03-350F-後-Wet-White
+sheetRecords before adding: 2
+sheetRecords after adding: 2
+Adding record to sheetRecords for sheet: 定期_墜落_03, record ID: 03-350F-後-Wet-White
+sheetRecords before adding: 2
+sheetRecords after adding: 2
+After ProcessTemplateSheet - recordsCollection count for sheet 申請_墜落_03: 2
+Record ID: 03-350F-後-Wet-White
+Record ID: 03-350F-後-Wet-White
+After ProcessTemplateSheet - recordsCollection count for sheet 定期_墜落_03: 2
+Record ID: 03-350F-後-Wet-White
+Record ID: 03-350F-後-Wet-White
+No records found for sheet: 申請_飛来_03
+No records found for sheet: 定期_飛来_03
+After ClassifyKeys - recordsCollection count for sheet 申請_墜落_03: 2
+Record ID: 03-350F-後-Wet-White
+Record ID: 03-350F-後-Wet-White
+After ClassifyKeys - recordsCollection count for sheet 定期_墜落_03: 2
+Record ID: 03-350F-後-Wet-White
+Record ID: 03-350F-後-Wet-White
+groupCollection before AddRecordToGroup: Count=0
+groupCollection after AddRecordToGroup: Count=1
+Sheet Type: Single
+ Sheet Name: 申請_飛来_01
+  recordsCollection count: 1
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 定期_飛来_01
+  recordsCollection count: 1
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 申請_飛来_02
+  recordsCollection count: 1
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 定期_飛来_02
+  recordsCollection count: 1
+   Record ID: 03-350F-後-Wet-White
+Sheet Type: Multi
+ Sheet Name: 申請_墜落_03
+  recordsCollection count: 2
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 定期_墜落_03
+  recordsCollection count: 2
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 申請_墜落_04
+  recordsCollection count: 1
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 定期_墜落_04
+  recordsCollection count: 1
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 申請_墜落_01
+  recordsCollection count: 3
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 定期_墜落_01
+  recordsCollection count: 3
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 申請_墜落_02
+  recordsCollection count: 3
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+ Sheet Name: 定期_墜落_02
+  recordsCollection count: 3
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+   Record ID: 03-350F-後-Wet-White
+key: Single, count: 2
+key: Multi, count: 9
+Sheet Type: Single, Number of Records: 2
+TypeName of groupedRecords entry: Dictionary
+ sheet Name: 申請_飛来
+Checking combinedKey: 申請_飛来_Single
+ No records found for sheet: 申請_飛来_Single
+ sheet Name: 定期_飛来
+Checking combinedKey: 定期_飛来_Single
+ No records found for sheet: 定期_飛来_Single
+Sheet Type: Multi, Number of Records: 9
+TypeName of groupedRecords entry: Dictionary
+ sheet Name: 申請_墜落
+Checking combinedKey: 申請_墜落_Multi
+ No records found for sheet: 申請_墜落_Multi
+ sheet Name: 定期_墜落
+Checking combinedKey: 定期_墜落_Multi
+ No records found for sheet: 定期_墜落_Multi
+Total unique records: 11
+
+
+1レコードに1000個程度のデータが入ったテーブルがあります。これは各製品の衝撃値を毎0.01秒ごとに記録した試験結果です。そのデータを保存しかつ、レポートを作成するフローを以下に作成しました。
+1. 試験データをUSBに保存する。
+2. USBに保存したデータをPCにPythonスクリプトを使用して"グラフ作成用.xlsm"として保存する。
+3. VBAスクリプトを使用して"グラフ作成用.xlsm"で各レコードごとに"LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall"シートにグラフを作成する。
+4. VBAスクリプトを使用して各シートと"試験区分"フィールドで各レコードを分類し、"型式申請用.xlsm", "定期試験用.xlsm", "依頼試験用.xlsm"などの各ブックにシートごとコピーする。
+5. VBAスクリプトを使用してコピー先のブックで、さらにレコード事に各シートに分類する。
+6. 各シートにはレポート作成用のプロシージャが埋め込まれており、そのプロシージャを利用してレコードごとのレポートを作成する。
+
+作業者はExcelの使用には問題有りませんが、それ以上のことは難しいです。このフローが適切かどうかご意見をいただきたく思います。改善点があればぜひ教えて下さい。
+
+
+TransferDataBasedOnID():ソースシートからデータを各レポート用テンプレートに転記
+PrintSideImapceSheet():特定のシートの1ページのみ印刷
+PrintImpactSheet():特定のシートの1ページのみ印刷
+Worksheet_Activate():下記の2つのプロシージャを動かす。
+    CheckAndCopyValues():各シート用にレポートを作成するプロシージャ
+    ApplyFormattingCOndition():レポートの書式を設定。
+HelmetTestResultChartBuilder():ヘルメットのグラフ作成
+BaseBallTestResultChartBuilder():
+BicycleTestResultChartBuilder():
+FallArrestTestResultChartBuilder():
+DataMicration_GraphTOTestDB_FromGraphbook():Databaseフォルダの"試験結果_データベース.xlsm"に試験データを転記する。
+CreateID():試料用のIDを作成する。分類にも使用する
+SyncSpecSheetTOLogHel():SpecSheetに転記するプロシージャ
+
+"LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall"各シートのデータを"試験結果_データベース.xlsm"と"ヘルメットレポート作成.xlsm", "墜落制止用器具レポート作成.xlsm", "自転車帽レポート作成.xlsm", "野球帽レポート作成.xlsm"にコピーするプロシージャ
