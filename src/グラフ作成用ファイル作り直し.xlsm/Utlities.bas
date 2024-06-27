@@ -137,6 +137,241 @@ Sub HighlightDuplicateValues()
     Next sheetName
 End Sub
 
+Sub AdjustingDuplicateValues()
+    ' 対象シート名のリスト
+    Dim sheetNames As Variant
+    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
+
+    ' 変数宣言
+    Dim ws As Worksheet
+    Dim lastRow As Long, i As Long, j As Long
+    Dim valueToFind As Double
+    Dim sheetName As Variant
+    Dim newValue As Double
+    Dim randomDigit As Integer
+
+    ' シートごとに処理
+    For Each sheetName In sheetNames
+        Set ws = ThisWorkbook.Sheets(sheetName)
+        lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
+
+        For i = 2 To lastRow
+            ' セルの値が数値かどうか確認
+            If IsNumeric(ws.Cells(i, "H").value) Then
+                ' 数値として取得し、小数点以下2桁で丸める
+                valueToFind = Round(ws.Cells(i, "H").value, 2)
+
+                If ws.Cells(i, "H").Interior.colorIndex = xlNone Then
+                    For j = i + 1 To lastRow
+                        ' 重複値をチェック（数値チェックを追加）
+                        If IsNumeric(ws.Cells(j, "H").value) And Round(ws.Cells(j, "H").value, 2) = valueToFind And ws.Cells(j, "H").Interior.colorIndex = xlNone Then
+                            Debug.Print "Duplicate Row Number: " & j
+                            Do
+                                ' 1から9のランダムな数を生成
+                                randomDigit = Int((9 - 1 + 1) * Rnd + 1)
+                                ' 元の値にランダムな値を小数点以下4桁として追加
+                                newValue = valueToFind + randomDigit / 10000
+                                Debug.Print "New Value: " & newValue
+                            Loop While WorksheetFunction.CountIf(ws.Range("H:H"), newValue) > 0
+                            
+                            ' 新しい値をセルに設定
+                            ws.Cells(j, "H").value = newValue
+                        End If
+                    Next j
+                End If
+            End If
+        Next i
+    Next sheetName
+End Sub
+
+
+Sub AdjustingDuplicateValues_06270900()
+    ' 対象シート名のリスト
+    Dim sheetNames As Variant
+    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
+
+    ' 変数宣言
+    Dim ws As Worksheet
+    Dim lastRow As Long, i As Long, j As Long
+    Dim valueToFind As Variant
+    Dim sheetName As Variant
+    Dim newValue As String
+    Dim randomDigit4 As Integer
+    Dim randomDigit5 As Integer
+
+    ' シートごとに処理
+    For Each sheetName In sheetNames
+        ' シートオブジェクトを設定
+        Set ws = ThisWorkbook.Sheets(sheetName)
+
+        ' 最終行を取得
+        lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
+        Debug.Print "LastRow:"; lastRow
+        For i = 2 To lastRow
+            ' 現在のセルの値を取得
+            valueToFind = ws.Cells(i, "H").value
+
+            ' 同じ値を持つセルが既に処理されていないかチェック
+            If ws.Cells(i, "H").Interior.colorIndex = xlNone Then
+                For j = i + 1 To lastRow
+                    If ws.Cells(j, "H").value = valueToFind And ws.Cells(j, "H").Interior.colorIndex = xlNone Then
+                        Debug.Print "RowsNumber:" & i
+                        Do
+                            ' ランダムな値を生成
+                            randomDigit4 = Int((9 - 5 + 1) * Rnd + 5) ' 5から9のランダムな数
+                            randomDigit5 = Int((9 - 1 + 1) * Rnd + 1) ' 1から9のランダムな数
+
+                            ' 新しい値を作成
+                            newValue = Left(ws.Cells(j, "H").value, Len(ws.Cells(j, "H").value) - 2) & _
+                                        CStr(randomDigit4) & CStr(randomDigit5)
+                            Debug.Print "newValue:" & newValue
+
+                        ' 新しい値が既に存在する値でないことを確認
+                        Loop While WorksheetFunction.CountIf(ws.Range("H:H"), CDbl(newValue)) > 0
+
+                        ' 新しい値をセルに設定
+                        ws.Cells(j, "H").value = CDbl(newValue)
+                    End If
+                Next j
+            End If
+        Next i
+    Next sheetName
+End Sub
+
+' 各列に書式設定をする
+Public Sub CustomizeSheetFormats()
+    Dim sheetNames As Variant
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim rng As Range
+
+    ' Apply to the following sheets
+    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
+
+    ' Loop through each sheet
+    For Each sheet In sheetNames
+        Set ws = Worksheets(sheet)
+
+        ' Loop through each cell in the first row
+        For Each cell In ws.Rows(1).Cells
+            If InStr(1, cell.value, "ID") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "試料ID") > 0 Then ' String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "品番") > 0 Then ' String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "試験内容") > 0 Then ' String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "検査日") > 0 Then ' Date
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToDate(rng)
+            ElseIf InStr(1, cell.value, "温度") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumeric(rng)
+            ElseIf InStr(1, cell.value, "最大値(kN)") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumericFourDecimals(rng)
+            ElseIf InStr(1, cell.value, "最大値の時間(ms)") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumericTwoDecimals(rng)
+            ElseIf InStr(1, cell.value, "4.9kN") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumericTwoDecimals(rng)
+            ElseIf InStr(1, cell.value, "7.3kN") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumericTwoDecimals(rng)
+            ElseIf InStr(1, cell.value, "前処理") > 0 Then ' String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "重量") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumeric(rng)
+            ElseIf InStr(1, cell.value, "天頂すきま") > 0 Then ' Numeric
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToNumeric(rng)
+            ElseIf InStr(1, cell.value, "製品ロット") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "帽体ロット") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "内装ロット") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "構造検査") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "耐貫通検査") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            ElseIf InStr(1, cell.value, "試験区分") > 0 Then 'String
+                Set rng = ws.Range(cell.Offset(1, 0), ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Call ConvertToString(rng)
+            End If
+        Next cell
+    Next sheet
+End Sub
+
+Sub ConvertToNumeric(rng As Range)
+    Dim cell As Range
+    rng.NumberFormat = "0.0"
+    For Each cell In rng
+        If IsNumeric(cell.value) Then
+            cell.value = CDbl(cell.value)
+        Else
+            cell.ClearContents
+        End If
+    Next cell
+End Sub
+
+Sub ConvertToNumericTwoDecimals(rng As Range)
+    Dim cell As Range
+    rng.NumberFormat = "0.00"
+    For Each cell In rng
+        If IsNumeric(cell.value) Then
+            cell.value = CDbl(cell.value)
+        Else
+            cell.ClearContents
+        End If
+    Next cell
+End Sub
+
+Sub ConvertToNumericFourDecimals(rng As Range)
+    Dim cell As Range
+    rng.NumberFormat = "0.0000"
+    For Each cell In rng
+        If IsNumeric(cell.value) Then
+            cell.value = CDbl(cell.value)
+        Else
+            cell.ClearContents
+        End If
+    Next cell
+End Sub
+
+Sub ConvertToString(rng As Range)
+    Dim cell As Range
+    rng.NumberFormat = "@"
+    For Each cell In rng
+        cell.value = CStr(cell.value)
+    Next cell
+End Sub
+
+Sub ConvertToDate(rng As Range)
+    Dim cell As Range
+    rng.NumberFormat = "yyyy/mm/dd"  ' 日付の表示形式を設定
+    For Each cell In rng
+        If IsDate(cell.value) Then
+            cell.value = CDate(cell.value)
+        Else
+            cell.ClearContents
+        End If
+    Next cell
+End Sub
+' 空白セルに"-"を挿入
 Public Sub FillBlanksWithHyphenInMultipleSheets()
     Dim sheetNames As Variant
     Dim ws As Worksheet
@@ -167,6 +402,7 @@ Public Sub FillBlanksWithHyphenInMultipleSheets()
         For i = 2 To lastRow
             For j = ws.Cells(i, "B").Column To lastCol
                 If IsEmpty(ws.Cells(i, j).value) Then
+                    'Debug.Print "EmptyCell:" & "Cells&("; i; "," & j; ")"
                     ws.Cells(i, j).value = "-"
                 End If
             Next j

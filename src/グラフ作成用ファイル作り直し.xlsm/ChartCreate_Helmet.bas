@@ -3,7 +3,7 @@ Sub HelmetTestResultChartBuilder()
     'グラフ作成とヘルメット検査時間の表示、色付けなど
     Call CreateGraphHelmet
     Call InspectHelmetDurationTime
-    Call Utlities.HighlightDuplicateValues
+    Call Utlities.AdjustingDuplicateValues
 End Sub
 
 ' 列の終わりを決定する関数
@@ -179,9 +179,6 @@ Sub SetXAxis(ByRef chart As chart)
 End Sub
 
 
-
-
-
 Sub InspectHelmetDurationTime()
     ' ヘルメット試験において最大値の更新、最大値の時間の更新、試験内容の更新、継続時間の色分けを行う
     Dim ws As Worksheet
@@ -190,7 +187,7 @@ Sub InspectHelmetDurationTime()
     ' "LOG_Helmet" シートを指定する。
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     ' 最終行を取得する。
-    lastRow = ws.Cells(ws.Rows.Count, "T").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.Count, "U").End(xlUp).row
 
     ' 各行を処理する。
     For i = 2 To lastRow

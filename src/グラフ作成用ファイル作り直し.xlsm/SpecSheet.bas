@@ -48,7 +48,7 @@ Function ExtractNumberWithF(value As String) As String
 
     ' 正規表現オブジェクトの作成
     Set regex = CreateObject("VBScript.RegExp")
-    regex.Pattern = "d{3,6}"
+    regex.Pattern = "\d{3,6}"
     regex.Global = True
 
     ' 数字部分を抽出
@@ -87,11 +87,25 @@ Function GetColumnEValue(value As Variant) As String
         GetColumnEValue = "前"
     ElseIf InStr(value, "後頭部") > 0 Then
         GetColumnEValue = "後"
-    ElseIf InStr(value, "側頭部") > 0 Then
-        Dim pos As Integer
-        pos = InStr(value, "_")
-        If pos > 0 Then
-            GetColumnEValue = "側" & Mid(value, pos)
+    ElseIf InStr(value, "側面") > 0 Then
+        Dim parts() As String
+        parts = Split(value, "_")
+        
+        If UBound(parts) >= 1 Then
+            Dim angle As String
+            Dim direction As String
+            
+            ' 角度を抽出
+            angle = Replace(parts(0), "側面", "")
+            
+            ' 方向を抽出と整形
+            direction = parts(1)
+            direction = Replace(direction, "前", "前")
+            direction = Replace(direction, "後", "後")
+            direction = Replace(direction, "左", "左")
+            direction = Replace(direction, "右", "右")
+            
+            GetColumnEValue = "側" & angle & direction
         Else
             GetColumnEValue = "側"
         End If
@@ -99,6 +113,7 @@ Function GetColumnEValue(value As Variant) As String
         GetColumnEValue = "?"
     End If
 End Function
+
 
 
 
@@ -141,10 +156,8 @@ Sub SyncSpecSheetToLogHel()
 
     Call ProcessSheetPairs          ' 転記処理をするプロシージャ
     Call CustomizeSheetFormats      ' 各列に書式設定をする
-    Call TransformIDs               ' B列にIDを作成する。
-    Call Utlities.FillBlanksWithHyphenInMultipleSheets
+    Call CreateID              ' B列にIDを作成する。
 End Sub
-
 Function HighlightDuplicateValues() As Boolean
     ' SyncSpecSheetToLogHelのサブプロシージャ
     Dim sheetName As String
@@ -168,20 +181,24 @@ Function HighlightDuplicateValues() As Boolean
 
     ' H列の2行目から最終行までループ
     For i = 2 To lastRow
-        For j = i + 1 To lastRow
-            If ws.Cells(i, "H").value = ws.Cells(j, "H").value And ws.Cells(i, "H").value <> "" Then
-                ' 同値を持つセルが見つかった場合、フラグをTrueに設定し、セルに色を塗る
-                foundDuplicate = True
-                ws.Cells(i, "H").Interior.colorIndex = colorIndex
-                ws.Cells(j, "H").Interior.colorIndex = colorIndex
-                ws.Cells(i, "H").Interior.colorIndex = colorIndex ' 同値が見つかったセルに色を塗る
+        ' M列の値をチェックし、"依頼"が含まれる場合はフラグをFalseに設定
+        If InStr(ws.Cells(i, "M").value, "依頼") > 0 Then
+            foundDuplicate = False
+        Else
+            For j = i + 1 To lastRow
+                If ws.Cells(i, "H").value = ws.Cells(j, "H").value And ws.Cells(i, "H").value <> "" Then
+                    ' 同値を持つセルが見つかった場合、フラグをTrueに設定し、セルに色を塗る
+                    foundDuplicate = True
+                    ws.Cells(i, "H").Interior.colorIndex = colorIndex
+                    ws.Cells(j, "H").Interior.colorIndex = colorIndex
+                End If
+            Next j
+            ' 同値が見つかった場合、次の色に変更
+            If foundDuplicate And ws.Cells(i, "H").Interior.colorIndex <> xlNone Then
+                colorIndex = colorIndex + 1
+                ' 色インデックスの最大値を超えないようにチェック
+                If colorIndex > 56 Then colorIndex = 3 ' 色インデックスをリセット
             End If
-        Next j
-        ' 同値が見つかった場合、次の色に変更
-        If foundDuplicate And ws.Cells(i, "H").Interior.colorIndex <> xlNone Then
-            colorIndex = colorIndex + 1
-            ' 色インデックスの最大値を超えないようにチェック
-            If colorIndex > 56 Then colorIndex = 3 ' 色インデックスをリセット
         End If
     Next i
 
@@ -195,7 +212,6 @@ Function HighlightDuplicateValues() As Boolean
     ' 同値が見つかったかどうかに基づいて結果を返す
     HighlightDuplicateValues = foundDuplicate
 End Function
-
 Function LocateEmptySpaces() As Boolean
     ' SyncSpecSheetToLogHelのサブプロシージャ
     Dim sheetName As String
@@ -245,7 +261,6 @@ Function LocateEmptySpaces() As Boolean
                     cell.Interior.colorIndex = 6 ' 黄色に色付け
                     errorMsg = errorMsg & "数値に変換したセル: " & cell.Address(False, False) & vbNewLine
                 End If
-                cell.NumberFormat = "General"
             End If
 
             ' 列N、O、Pで文字列の確認
@@ -268,6 +283,9 @@ Function LocateEmptySpaces() As Boolean
         LocateEmptySpaces = True
     End If
 End Function
+
+
+
 
 ' 転記処理をするプロシージャ
 Sub ProcessSheetPairs()
@@ -451,155 +469,8 @@ Function GetHeaderPairs(sheetNameLog As String, sheetNameSpec As String) As Vari
     GetHeaderPairs = headerPairs
 End Function
 
-' 各列に書式設定をする
-Sub CustomizeSheetFormats()
 
-    Dim sheetNames As Variant
-    Dim ws As Worksheet
-    Dim cell As Range
-    Dim rng As Range
-    Dim col As Range
 
-    ' Apply to the following sheets
-    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
-
-    ' Loop through each sheet
-    For Each sheet In sheetNames
-        Set ws = Worksheets(sheet)
-
-        ' Loop through each cell in the first row
-        For Each cell In ws.Rows(1).Cells
-            If InStr(1, cell.value, "最大値(kN)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.00 ""kN"""
-            ElseIf InStr(1, cell.value, "最大値(G)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0 ""G"""
-            ElseIf InStr(1, cell.value, "時間") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""ms"""
-            ElseIf InStr(1, cell.value, "温度") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""℃"""
-            ElseIf InStr(1, cell.value, "重量") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""g"""
-            ElseIf InStr(1, cell.value, "ロット") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "@"
-            ElseIf InStr(1, cell.value, "天頂すきま") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""mm"""
-            End If
-        Next cell
-    Next sheet
-End Sub
-' B列にIDを作成する。
-Sub TransformIDs()
-    Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    Dim cellValue As String
-    Dim newID As String
-    
-    ' LOG_Helmetシートを設定
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-    
-    ' 最終行を取得
-    lastRow = ws.Cells(ws.Rows.Count, "C").End(xlUp).row
-    
-    ' 2行目から最終行までループ（1行目はヘッダーと仮定）
-    For i = 2 To lastRow
-        cellValue = ws.Cells(i, "C").value
-        
-        ' IDを変換
-        newID = GenerateNewID(cellValue)
-        
-        ' 新しいIDをセルにセット
-        ws.Cells(i, "B").value = newID
-    Next i
-End Sub
-
-Function GenerateNewID(cellValue As String) As String
-    'TransformIDsのサブプロシージャ
-    Dim numPart As String
-    Dim otherPart As String
-    Dim newID As String
-    Dim matches As Object
-    Dim reNum As Object
-    Dim reOther As Object
-    Dim startIndex As Long
-    
-    ' 数値部分の正規表現オブジェクトを作成
-    Set reNum = CreateObject("VBScript.RegExp")
-    reNum.Global = False
-    reNum.IgnoreCase = False
-    reNum.Pattern = "d{3,5}F?"
-    
-    ' 数値部分を抽出
-    If reNum.Test(cellValue) Then
-        Set matches = reNum.Execute(cellValue)
-        numPart = ExtractNumberPart(matches(0).value)
-        newID = numPart
-        
-        ' 特定の文字列に続く部分を抽出
-        otherPart = ExtractOtherPart(cellValue, reNum.Execute(cellValue)(0).FirstIndex + 1)
-        
-        ' デバッグ用の出力
-        Debug.Print numPart
-        Debug.Print otherPart
-        
-        ' 新しいIDを結合
-        GenerateNewID = newID & otherPart
-    Else
-        ' 数値部分が見つからない場合は元の値を返す
-        GenerateNewID = cellValue
-    End If
-End Function
-
-Function ExtractNumberPart(numPart As String) As String
-        'TransformIDsのサブプロシージャ
-    Dim hasF As Boolean
-    ' 数字部分の末尾がFの場合
-    hasF = Right(numPart, 1) = "F"
-    If hasF Then
-        ' 末尾のFを除去して数値部分を取得
-        numPart = Left(numPart, Len(numPart) - 1)
-        ' 新しいIDを生成（前後にFを追加）
-        ExtractNumberPart = "F" & numPart & "F"
-    Else
-        ' 末尾にFがない場合はそのまま使用
-        ExtractNumberPart = numPart
-    End If
-End Function
-
-Function ExtractOtherPart(cellValue As String, startIndex As Long) As String
-    'TransformIDsのサブプロシージャ
-    Dim reOther As Object
-    Dim matches As Object
-    Dim otherPart As String
-    Dim endIndex As Long
-    
-    ' 特定の文字列に続く部分を抽出するための正規表現
-    Set reOther = CreateObject("VBScript.RegExp")
-    reOther.Global = False
-    reOther.IgnoreCase = False
-    reOther.Pattern = "-(天|前|後|側)"
-    
-    If reOther.Test(cellValue) Then
-        startIndex = reOther.Execute(cellValue)(0).FirstIndex + 1
-        otherPart = Mid(cellValue, startIndex)
-        
-        ' 最後の'-'以降の文字を取り除く
-        endIndex = InStrRev(otherPart, "-")
-        If endIndex > 0 Then
-            otherPart = Left(otherPart, endIndex - 1)
-        End If
-        ExtractOtherPart = otherPart
-    Else
-        ExtractOtherPart = ""
-    End If
-End Function
 
 
 

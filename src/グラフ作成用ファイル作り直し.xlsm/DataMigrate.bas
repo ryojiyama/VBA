@@ -152,3 +152,72 @@ Function GetNewID(ByVal currentID As String, ByVal IDPrefix As String, ByVal num
     Set GetNewID = newIDCollection
     ' Debug.Print "Generated " & numRecords & " new IDs starting from " & currentNumber - numRecords + 1
 End Function
+' B列の値を参考に"LOG"シートを他ブックに移動する。
+Sub CopySheetsToOtherWorkbooks()
+    Dim sheetNames As Variant
+    Dim folderNames As Variant
+    Dim sheetName As Variant
+    Dim folderName As Variant
+    Dim ws As Worksheet
+    Dim destWb As Workbook
+    Dim destFile As String
+    Dim destDir As String
+    Dim file As String
+    Dim fileCount As Integer
+    Dim copySheetName As String
+    
+    Application.ScreenUpdating = False
+
+    ' 対象シート名とフォルダ名のリスト
+    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
+    folderNames = Array("Helmet", "FallArrest", "Bicycle", "BaseBall")
+
+    ' シートごとに処理
+    For i = LBound(sheetNames) To UBound(sheetNames)
+        sheetName = sheetNames(i)
+        folderName = folderNames(i)
+        
+        ' 対象シートのオブジェクトを設定
+        Set ws = ThisWorkbook.Sheets(sheetName)
+
+        ' B2セルが空かどうか確認
+        If ws.Range("B2").value <> "" Then
+            ' コピー先ディレクトリを設定
+            destDir = ThisWorkbook.Path & "\" & folderName & "\"
+            
+            ' コピー先ファイルをループで開く
+            file = Dir(destDir & "*.xls*")
+            Do While file <> ""
+                destFile = destDir & file
+                Set destWb = Workbooks.Open(destFile)
+                
+                ' 連番をつけてコピー
+                fileCount = 1
+                copySheetName = sheetName & "-" & fileCount
+                Do While SheetExists(copySheetName, destWb)
+                    fileCount = fileCount + 1
+                    copySheetName = sheetName & "-" & fileCount
+                Loop
+                
+                ' シートをコピー
+                ws.Copy After:=destWb.Sheets(destWb.Sheets.Count)
+                destWb.Sheets(destWb.Sheets.Count).Name = copySheetName
+                destWb.Close SaveChanges:=True
+                
+                ' 次のファイルへ
+                file = Dir
+            Loop
+        End If
+    Next i
+    Application.ScreenUpdating = True
+End Sub
+
+' シートが存在するかチェックする関数
+Function SheetExists(sheetName As String, wb As Workbook) As Boolean
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = wb.Sheets(sheetName)
+    On Error GoTo 0
+    SheetExists = Not ws Is Nothing
+End Function
+

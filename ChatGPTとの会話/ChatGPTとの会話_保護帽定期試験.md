@@ -5318,3 +5318,5 @@ CreateID():試料用のIDを作成する。分類にも使用する
 SyncSpecSheetTOLogHel():SpecSheetに転記するプロシージャ
 
 "LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall"各シートのデータを"試験結果_データベース.xlsm"と"ヘルメットレポート作成.xlsm", "墜落制止用器具レポート作成.xlsm", "自転車帽レポート作成.xlsm", "野球帽レポート作成.xlsm"にコピーするプロシージャ
+
+
