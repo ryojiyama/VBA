@@ -14,7 +14,7 @@ Sub MultiplyValues()
 
     ' 開始列と終了列を設定
     Dim startColumn As Integer: startColumn = 22 ' V列
-    Dim endColumn As Integer: endColumn = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column ' 最終列
+    Dim endColumn As Integer: endColumn = ws.Cells(1, ws.Columns.count).End(xlToLeft).Column ' 最終列
 
     ' 列ごとにループ
     Dim i As Integer
@@ -44,22 +44,22 @@ Sub FormatCells()
         ' Loop through each cell in the first row
         For Each cell In ws.Rows(1).Cells
             If InStr(1, cell.value, "最大値(kN)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.00 ""kN"""
             ElseIf InStr(1, cell.value, "最大値(G)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0 ""G"""
             ElseIf InStr(1, cell.value, "時間") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""ms"""
             ElseIf InStr(1, cell.value, "温度") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""℃"""
             ElseIf InStr(1, cell.value, "重量") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""g"""
             ElseIf InStr(1, cell.value, "ロット") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "@"
             End If
         Next cell

@@ -55,11 +55,11 @@ Sub CopyData(ByRef sourceSheet As Worksheet, ByRef targetSheet As Worksheet, ByV
     Dim currentID As String
 
     ' 転記元のシートの最終行と最終列を取得
-    lastRow = sourceSheet.Cells(sourceSheet.Rows.Count, "B").End(xlUp).row
-    lastColumn = sourceSheet.Cells(1, sourceSheet.Columns.Count).End(xlToLeft).Column
+    lastRow = sourceSheet.Cells(sourceSheet.Rows.count, "B").End(xlUp).row
+    lastColumn = sourceSheet.Cells(1, sourceSheet.Columns.count).End(xlToLeft).Column
 
     ' 転記先のシートの最終行を取得
-    targetLastRow = targetSheet.Cells(targetSheet.Rows.Count, "C").End(xlUp).row + 1
+    targetLastRow = targetSheet.Cells(targetSheet.Rows.count, "C").End(xlUp).row + 1
 
     For IDGenRow = 2 To lastRow
         ' 新しいIDを生成して転記先のシートのC列にセット
@@ -113,7 +113,7 @@ Function GetNewID(ByVal targetSheet As Worksheet, ByVal IDPrefix As String) As S
     Dim currentID As String
     Dim currentNumber As Integer
 
-    lastRow = targetSheet.Cells(targetSheet.Rows.Count, "C").End(xlUp).row
+    lastRow = targetSheet.Cells(targetSheet.Rows.count, "C").End(xlUp).row
     If lastRow > 1 Then
         currentID = targetSheet.Cells(lastRow, "C").value
         currentNumber = Val(Mid(currentID, Len(IDPrefix) + 1)) + 1

@@ -109,7 +109,7 @@ Sub ColorCells(ws As Worksheet)
     Dim cellColor As Long
 
     ' A列の最終行を取得します
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "A").End(xlUp).row
 
     ' A列の2行目から最終行までの範囲を定義します
     Set rng = ws.Range("A2:A" & lastRow)
@@ -139,10 +139,10 @@ Sub ColorCells(ws As Worksheet)
     Next cell
 End Sub
 
-Sub ColorAndFont(rng As Range, color As Long)
+Sub ColorAndFont(rng As Range, Color As Long)
     'ColorCellsの関数
-    rng.Interior.color = color
-    rng.Font.color = RGB(255, 255, 255)
+    rng.Interior.Color = Color
+    rng.Font.Color = RGB(255, 255, 255)
     rng.Font.Bold = True
 End Sub
 
@@ -160,7 +160,7 @@ Sub FillColumnsQtoS()
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
 
     ' 最終行を取得
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
 
     ' 上から最終行までループ
     For i = 2 To lastRow
@@ -184,7 +184,7 @@ Sub CustomSort_Helmet()
 
     ' データの範囲を指定します。1行目は無視するので2から始まります。
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
     Dim rng As Range
     Set rng = ws.Range("B2:B" & lastRow)
     
@@ -205,7 +205,7 @@ Sub CustomSort_Helmet()
     
     ' 全ての列（A列から最後の列まで）でソートします。
     Dim lastCol As Long
-    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    lastCol = ws.Cells(1, ws.Columns.count).End(xlToLeft).Column
     ws.Range(ws.Cells(2, 1), ws.Cells(lastRow, lastCol)).Sort Key1:=ws.Range("C2"), Order1:=xlAscending, Header:=xlNo
     
     ' ソートに使用した列を削除します。
@@ -232,12 +232,12 @@ Sub GenerateSampleID()
     Set dic = CreateObject("Scripting.Dictionary")
 
     ' データ範囲を指定する
-    Set rng = ws.Range("D2:P" & ws.Cells(ws.Rows.Count, "D").End(xlUp).row)
+    Set rng = ws.Range("D2:P" & ws.Cells(ws.Rows.count, "D").End(xlUp).row)
 
     ' 接頭辞を設定する
     prefix = "_Hel"
 
-    For i = 1 To rng.Rows.Count
+    For i = 1 To rng.Rows.count
         ' D列、M列、N列、O列、L列(前処理)の値を結合してキーを作成する
         key = ws.Cells(i + 1, "D").value & "_" & ws.Cells(i + 1, "M").value & "_" & ws.Cells(i + 1, "N").value & "_" & ws.Cells(i + 1, "O").value & "_" & ws.Cells(i + 1, "L").value
 

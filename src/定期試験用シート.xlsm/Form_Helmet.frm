@@ -35,16 +35,16 @@ Private Sub RunButton_Click()
 
     ' TextBox_IDが空でなければ、そのIDがある行を探し、なければ最終行を選択
     If TextBox_ID.value <> "" Then
-        Set rng = ws.Range("B2:B" & ws.Cells(ws.Rows.Count, "B").End(xlUp).row).Find(TextBox_ID.value, LookIn:=xlValues)
+        Set rng = ws.Range("B2:B" & ws.Cells(ws.Rows.count, "B").End(xlUp).row).Find(TextBox_ID.value, LookIn:=xlValues)
         If Not rng Is Nothing Then
             iRow = rng.row
         Else
-            iRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row + 1
+            iRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row + 1
             ws.Cells(iRow, "B").value = TextBox_ID.value  'TextBox_IDが見つからなかった場合はB列にTextBox_IDの値を記入
         End If
     Else
         ' 最終行を取得
-        iRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row + 1
+        iRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row + 1
     End If
 
     ' Captionを格納する変数を定義

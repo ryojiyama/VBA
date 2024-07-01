@@ -24,13 +24,13 @@ Attribute VB_Exposed = False
 
 Private the_date As Date
 Private clndr_date As Date
-Private color As Long
+Private Color As Long
 
 Public Function ShowCalender(color_date As Date, Optional title As String = "", Optional theme_color As Long = 0)
 
     If title <> "" Then Me.Caption = title
     the_date = color_date
-    color = theme_color
+    Color = theme_color
     Call UserForm_Initialize
     Me.Show
     ShowCalender = clndr_date
@@ -91,7 +91,7 @@ Private Sub clndr_set() 'カレンダーの作成と表示
     Me("Label" & i + n).Caption = i '日を入れる
     If CDate(yy & "/" & mm & "/" & i) = the_date Then       'TextBoxの日と同じなら色をつける
         Me("Label" & i + n).ForeColor = RGB(255, 255, 255)
-        Me("Label" & i + n).BackColor = color
+        Me("Label" & i + n).BackColor = Color
     End If
   Next i
 End Sub
@@ -290,170 +290,170 @@ Private Sub Label42_Click()
 End Sub
 
 Private Sub Label1_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label1").Caption <> "" And Me("Label1").BackColor <> color Then Me("Label1").BackColor = RGB(221, 222, 211)     '選択色
+    If Me("Label1").Caption <> "" And Me("Label1").BackColor <> Color Then Me("Label1").BackColor = RGB(221, 222, 211)     '選択色
 End Sub
 
 Private Sub Label2_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label2").Caption <> "" And Me("Label2").BackColor <> color Then Me("Label2").BackColor = RGB(221, 222, 211)
+    If Me("Label2").Caption <> "" And Me("Label2").BackColor <> Color Then Me("Label2").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label3_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label3").Caption <> "" And Me("Label3").BackColor <> color Then Me("Label3").BackColor = RGB(221, 222, 211)
+    If Me("Label3").Caption <> "" And Me("Label3").BackColor <> Color Then Me("Label3").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label4_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label4").Caption <> "" And Me("Label4").BackColor <> color Then Me("Label4").BackColor = RGB(221, 222, 211)
+    If Me("Label4").Caption <> "" And Me("Label4").BackColor <> Color Then Me("Label4").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label5_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label5").Caption <> "" And Me("Label5").BackColor <> color Then Me("Label5").BackColor = RGB(221, 222, 211)
+    If Me("Label5").Caption <> "" And Me("Label5").BackColor <> Color Then Me("Label5").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label6_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label6").Caption <> "" And Me("Label6").BackColor <> color Then Me("Label6").BackColor = RGB(221, 222, 211)
+    If Me("Label6").Caption <> "" And Me("Label6").BackColor <> Color Then Me("Label6").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label7_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label7").Caption <> "" And Me("Label7").BackColor <> color Then Me("Label7").BackColor = RGB(221, 222, 211)
+    If Me("Label7").Caption <> "" And Me("Label7").BackColor <> Color Then Me("Label7").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label8_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label8").Caption <> "" And Me("Label8").BackColor <> color Then Me("Label8").BackColor = RGB(221, 222, 211)
+    If Me("Label8").Caption <> "" And Me("Label8").BackColor <> Color Then Me("Label8").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label9_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label9").Caption <> "" And Me("Label9").BackColor <> color Then Me("Label9").BackColor = RGB(221, 222, 211)
+    If Me("Label9").Caption <> "" And Me("Label9").BackColor <> Color Then Me("Label9").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label10_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label10").Caption <> "" And Me("Label10").BackColor <> color Then Me("Label10").BackColor = RGB(221, 222, 211)
+    If Me("Label10").Caption <> "" And Me("Label10").BackColor <> Color Then Me("Label10").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label11_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label11").Caption <> "" And Me("Label11").BackColor <> color Then Me("Label11").BackColor = RGB(221, 222, 211)
+    If Me("Label11").Caption <> "" And Me("Label11").BackColor <> Color Then Me("Label11").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label12_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label12").Caption <> "" And Me("Label12").BackColor <> color Then Me("Label12").BackColor = RGB(221, 222, 211)
+    If Me("Label12").Caption <> "" And Me("Label12").BackColor <> Color Then Me("Label12").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label13_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label13").Caption <> "" And Me("Label13").BackColor <> color Then Me("Label13").BackColor = RGB(221, 222, 211)
+    If Me("Label13").Caption <> "" And Me("Label13").BackColor <> Color Then Me("Label13").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label14_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label14").Caption <> "" And Me("Label14").BackColor <> color Then Me("Label14").BackColor = RGB(221, 222, 211)
+    If Me("Label14").Caption <> "" And Me("Label14").BackColor <> Color Then Me("Label14").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label15_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label15").Caption <> "" And Me("Label15").BackColor <> color Then Me("Label15").BackColor = RGB(221, 222, 211)
+    If Me("Label15").Caption <> "" And Me("Label15").BackColor <> Color Then Me("Label15").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label16_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label16").Caption <> "" And Me("Label16").BackColor <> color Then Me("Label16").BackColor = RGB(221, 222, 211)
+    If Me("Label16").Caption <> "" And Me("Label16").BackColor <> Color Then Me("Label16").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label17_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label17").Caption <> "" And Me("Label17").BackColor <> color Then Me("Label17").BackColor = RGB(221, 222, 211)
+    If Me("Label17").Caption <> "" And Me("Label17").BackColor <> Color Then Me("Label17").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label18_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label18").Caption <> "" And Me("Label18").BackColor <> color Then Me("Label18").BackColor = RGB(221, 222, 211)
+    If Me("Label18").Caption <> "" And Me("Label18").BackColor <> Color Then Me("Label18").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label19_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label19").Caption <> "" And Me("Label19").BackColor <> color Then Me("Label19").BackColor = RGB(221, 222, 211)
+    If Me("Label19").Caption <> "" And Me("Label19").BackColor <> Color Then Me("Label19").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label20_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label20").Caption <> "" And Me("Label20").BackColor <> color Then Me("Label20").BackColor = RGB(221, 222, 211)
+    If Me("Label20").Caption <> "" And Me("Label20").BackColor <> Color Then Me("Label20").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label21_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label21").Caption <> "" And Me("Label21").BackColor <> color Then Me("Label21").BackColor = RGB(221, 222, 211)
+    If Me("Label21").Caption <> "" And Me("Label21").BackColor <> Color Then Me("Label21").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label22_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label22").Caption <> "" And Me("Label22").BackColor <> color Then Me("Label22").BackColor = RGB(221, 222, 211)
+    If Me("Label22").Caption <> "" And Me("Label22").BackColor <> Color Then Me("Label22").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label23_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label23").Caption <> "" And Me("Label23").BackColor <> color Then Me("Label23").BackColor = RGB(221, 222, 211)
+    If Me("Label23").Caption <> "" And Me("Label23").BackColor <> Color Then Me("Label23").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label24_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label24").Caption <> "" And Me("Label24").BackColor <> color Then Me("Label24").BackColor = RGB(221, 222, 211)
+    If Me("Label24").Caption <> "" And Me("Label24").BackColor <> Color Then Me("Label24").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label25_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label25").Caption <> "" And Me("Label25").BackColor <> color Then Me("Label25").BackColor = RGB(221, 222, 211)
+    If Me("Label25").Caption <> "" And Me("Label25").BackColor <> Color Then Me("Label25").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label26_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label26").Caption <> "" And Me("Label26").BackColor <> color Then Me("Label26").BackColor = RGB(221, 222, 211)
+    If Me("Label26").Caption <> "" And Me("Label26").BackColor <> Color Then Me("Label26").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label27_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label27").Caption <> "" And Me("Label27").BackColor <> color Then Me("Label27").BackColor = RGB(221, 222, 211)
+    If Me("Label27").Caption <> "" And Me("Label27").BackColor <> Color Then Me("Label27").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label28_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label28").Caption <> "" And Me("Label28").BackColor <> color Then Me("Label28").BackColor = RGB(221, 222, 211)
+    If Me("Label28").Caption <> "" And Me("Label28").BackColor <> Color Then Me("Label28").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label29_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label29").Caption <> "" And Me("Label29").BackColor <> color Then Me("Label29").BackColor = RGB(221, 222, 211)
+    If Me("Label29").Caption <> "" And Me("Label29").BackColor <> Color Then Me("Label29").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label30_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label30").Caption <> "" And Me("Label30").BackColor <> color Then Me("Label30").BackColor = RGB(221, 222, 211)
+    If Me("Label30").Caption <> "" And Me("Label30").BackColor <> Color Then Me("Label30").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label31_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label31").Caption <> "" And Me("Label31").BackColor <> color Then Me("Label31").BackColor = RGB(221, 222, 211)
+    If Me("Label31").Caption <> "" And Me("Label31").BackColor <> Color Then Me("Label31").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label32_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label32").Caption <> "" And Me("Label32").BackColor <> color Then Me("Label32").BackColor = RGB(221, 222, 211)
+    If Me("Label32").Caption <> "" And Me("Label32").BackColor <> Color Then Me("Label32").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label33_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label33").Caption <> "" And Me("Label33").BackColor <> color Then Me("Label33").BackColor = RGB(221, 222, 211)
+    If Me("Label33").Caption <> "" And Me("Label33").BackColor <> Color Then Me("Label33").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label34_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label34").Caption <> "" And Me("Label34").BackColor <> color Then Me("Label34").BackColor = RGB(221, 222, 211)
+    If Me("Label34").Caption <> "" And Me("Label34").BackColor <> Color Then Me("Label34").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label35_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label35").Caption <> "" And Me("Label35").BackColor <> color Then Me("Label35").BackColor = RGB(221, 222, 211)
+    If Me("Label35").Caption <> "" And Me("Label35").BackColor <> Color Then Me("Label35").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label36_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label36").Caption <> "" And Me("Label36").BackColor <> color Then Me("Label36").BackColor = RGB(221, 222, 211)
+    If Me("Label36").Caption <> "" And Me("Label36").BackColor <> Color Then Me("Label36").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label37_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label37").Caption <> "" And Me("Label37").BackColor <> color Then Me("Label37").BackColor = RGB(221, 222, 211)
+    If Me("Label37").Caption <> "" And Me("Label37").BackColor <> Color Then Me("Label37").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label38_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label38").Caption <> "" And Me("Label38").BackColor <> color Then Me("Label38").BackColor = RGB(221, 222, 211)
+    If Me("Label38").Caption <> "" And Me("Label38").BackColor <> Color Then Me("Label38").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label39_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label39").Caption <> "" And Me("Label39").BackColor <> color Then Me("Label39").BackColor = RGB(221, 222, 211)
+    If Me("Label39").Caption <> "" And Me("Label39").BackColor <> Color Then Me("Label39").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label40_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label40").Caption <> "" And Me("Label40").BackColor <> color Then Me("Label40").BackColor = RGB(221, 222, 211)
+    If Me("Label40").Caption <> "" And Me("Label40").BackColor <> Color Then Me("Label40").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label41_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label41").Caption <> "" And Me("Label41").BackColor <> color Then Me("Label41").BackColor = RGB(221, 222, 211)
+    If Me("Label41").Caption <> "" And Me("Label41").BackColor <> Color Then Me("Label41").BackColor = RGB(221, 222, 211)
 End Sub
 
 Private Sub Label42_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
-    If Me("Label42").Caption <> "" And Me("Label42").BackColor <> color Then Me("Label42").BackColor = RGB(221, 222, 211)
+    If Me("Label42").Caption <> "" And Me("Label42").BackColor <> Color Then Me("Label42").BackColor = RGB(221, 222, 211)
 End Sub
 

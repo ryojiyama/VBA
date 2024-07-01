@@ -10,7 +10,7 @@ Sub VisualizeSelectedData_HelmetGraph()
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
 
     Dim chartColors As Variant
     chartColors = Array(RGB(47, 85, 151), RGB(241, 88, 84), RGB(111, 178, 85), _
@@ -35,7 +35,7 @@ Sub VisualizeSelectedData_HelmetGraph()
     Dim maxVal As Double
 
     For i = 2 To lastRow
-        If ws.Cells(i, "B").Interior.color = RGB(252, 228, 214) Then
+        If ws.Cells(i, "B").Interior.Color = RGB(252, 228, 214) Then
             maxVal = Application.WorksheetFunction.Max(ws.Range(colStart & i & ":" & colEnd & i))
 
             If Not chartObj Is Nothing Then
@@ -68,7 +68,7 @@ Sub VisualizeSelectedData_HelmetGraph()
         ' Y軸の TickLabels を設定
         With yAxis.TickLabels
             .NumberFormatLocal = "0.0""kN"""
-            .Font.color = RGB(89, 89, 89)
+            .Font.Color = RGB(89, 89, 89)
             .Font.Size = 8
         End With
 
@@ -82,7 +82,7 @@ Sub VisualizeSelectedData_HelmetGraph()
         ' X軸の TickLabels を設定
         With xAxis.TickLabels
             .NumberFormatLocal = "0.00""ms"""
-            .Font.color = RGB(89, 89, 89)
+            .Font.Color = RGB(89, 89, 89)
             .Font.Size = 8
         End With
             
@@ -117,8 +117,8 @@ Sub CreateGraphHelmet()
 
     Dim lastRow As Long
     Dim lastCol As Long
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
-    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
+    lastCol = ws.Cells(1, ws.Columns.count).End(xlToLeft).Column
 
     Dim colStart As String
     Dim colEnd As String
@@ -191,7 +191,7 @@ Sub SetYAxis(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long)
 
     With yAxis.TickLabels
         .NumberFormatLocal = "0.0""kN"""
-        .Font.color = RGB(89, 89, 89)
+        .Font.Color = RGB(89, 89, 89)
         .Font.Size = 8
     End With
 End Sub
@@ -227,7 +227,7 @@ Sub SetXAxis(ByRef chart As chart)
 
     With xAxis.TickLabels
         .NumberFormatLocal = "0.00""ms"""
-        .Font.color = RGB(89, 89, 89)
+        .Font.Color = RGB(89, 89, 89)
         .Font.Size = 8
     End With
 End Sub
@@ -244,7 +244,7 @@ Sub InspectHelmetDurationTime()
     ' "LOG_Helmet" シートを指定する。
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     ' 最終行を取得する。
-    lastRow = ws.Cells(ws.Rows.Count, "T").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "T").End(xlUp).row
 
     ' 各行を処理する。
     For i = 2 To lastRow
@@ -265,16 +265,16 @@ Sub UpdateMaxValueInRow(ByRef ws As Worksheet, ByVal row As Long)
     Dim maxValueColumn As Long
 
     ' 行内の範囲をセットする。
-    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.Count).End(xlToLeft))
+    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.count).End(xlToLeft))
     ' 最大値を取得する。
     MaxValue = Application.WorksheetFunction.Max(rng)
     ws.Cells(row, "H").value = MaxValue
 
     ' 最大値の位置を見つける。
-    For j = 1 To rng.Columns.Count
+    For j = 1 To rng.Columns.count
         If rng(1, j).value = MaxValue Then
             maxValueColumn = j
-            rng(1, j).Interior.color = RGB(250, 150, 0)  ' 色を設定する。
+            rng(1, j).Interior.Color = RGB(250, 150, 0)  ' 色を設定する。
             Exit For
         End If
     Next j
@@ -316,14 +316,14 @@ Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal thr
     Dim timeDifference As Double
 
     ' 行の範囲をセットする。
-    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.Count).End(xlToLeft))
+    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.count).End(xlToLeft))
 
     ' 閾値を超えるセルの範囲を見つける。
     For Each cell In rng
         If cell.value >= threshold Then
             If startRange = 0 Then startRange = cell.Column
             endRange = cell.Column
-            cell.Interior.color = IIf(threshold = 4.9, RGB(255, 111, 56), RGB(234, 67, 53))
+            cell.Interior.Color = IIf(threshold = 4.9, RGB(255, 111, 56), RGB(234, 67, 53))
         Else
             If startRange > 0 And endRange > 0 Then
                 rangeCollection.Add Array(startRange, endRange)
@@ -335,13 +335,13 @@ Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal thr
 
     If startRange > 0 And endRange > 0 Then rangeCollection.Add Array(startRange, endRange)
 
-    For Each Item In rangeCollection
-        If (Item(1) - Item(0) + 1) > maxRange Then
-            maxRange = Item(1) - Item(0) + 1
-            startRange = Item(0)
-            endRange = Item(1)
+    For Each item In rangeCollection
+        If (item(1) - item(0) + 1) > maxRange Then
+            maxRange = item(1) - item(0) + 1
+            startRange = item(0)
+            endRange = item(1)
         End If
-    Next Item
+    Next item
 
     If startRange > 0 And endRange > 0 Then
         timeDifference = ws.Cells(1, endRange).value - ws.Cells(1, startRange).value
@@ -356,7 +356,7 @@ Sub FillEmptyCells(ByRef ws As Worksheet, ByVal lastRow As Long)
     Dim cellRng As Range
 
     ' B列の最後の行を取得する。
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
 
     ' 空のセルを"-"で埋める。
     For Each cellRng In ws.Range("F2:P" & lastRow)
@@ -381,7 +381,7 @@ Sub HighlightDuplicateValues()
     Set ws = ThisWorkbook.Sheets(sheetName)
     
     ' 最終行を取得
-    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "H").End(xlUp).row
     
     ' 色のインデックスを初期化
     colorIndex = 3 ' Excelの色インデックスは3から始まる

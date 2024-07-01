@@ -47,7 +47,7 @@ Sub ImportCSVsAndSortSheets()
     
     Do While myFile <> ""
         csvFile = myPath & myFile
-        Set ws = wb.Sheets.Add(After:=wb.Sheets(wb.Sheets.Count))
+        Set ws = wb.Sheets.Add(After:=wb.Sheets(wb.Sheets.count))
         ws.name = Left(myFile, InStr(myFile, ".") - 1)
         ImportCSVToSheet ws, csvFile
         sheetNames.Add ws.name
@@ -81,19 +81,19 @@ Sub SortSheetsByOrder(ByRef wb As Workbook, ByVal sheetNames As Collection, ByVa
     Dim sheetOrder() As String
     Dim i As Integer
     
-    If sheetNames.Count = 0 Then
+    If sheetNames.count = 0 Then
         Exit Sub
     End If
     
-    ReDim sheetOrder(0 To sheetNames.Count - 1)
-    For i = 1 To sheetNames.Count
+    ReDim sheetOrder(0 To sheetNames.count - 1)
+    For i = 1 To sheetNames.count
         sheetOrder(i - 1) = sheetNames(i)
     Next i
 
     Call BubbleSort(sheetOrder)
 
     For i = 1 To UBound(sheetOrder) + 1
-        Sheets(sheetOrder(i - 1)).Move After:=Sheets(wb.Sheets.Count)
+        Sheets(sheetOrder(i - 1)).Move After:=Sheets(wb.Sheets.count)
     Next i
 
     For i = LBound(defaultOrder) To UBound(defaultOrder)
@@ -166,7 +166,7 @@ Sub ImportCSVsAndSortSheets_0926Before()
         csvFile = myPath & myFile
 
         ' Create a new worksheet with the name of the file (without extension)
-        Set ws = wb.Sheets.Add(After:=wb.Sheets(wb.Sheets.Count))
+        Set ws = wb.Sheets.Add(After:=wb.Sheets(wb.Sheets.count))
         ws.name = Left(myFile, InStr(myFile, ".") - 1)
 
         ' Import the CSV file into the new worksheet
@@ -210,8 +210,8 @@ Sub ImportCSVsAndSortSheets_0926Before()
         Sheets(sheetOrder(X)).Move Before:=Sheets(1)
     Next X
 
-    For X = 1 To sheetNames.Count
-        Sheets(sheetNames(X)).Move After:=Sheets(5 + sheetNames.Count - X)
+    For X = 1 To sheetNames.count
+        Sheets(sheetNames(X)).Move After:=Sheets(5 + sheetNames.count - X)
     Next X
 
     Application.ScreenUpdating = True
@@ -232,7 +232,7 @@ Sub Shapig_CSVData()
     Dim lastColumn As Long
 
     ' ワークブック内のシートを逆順に処理します。'Setting'と'LOG'シートは無視します。
-    For i = ThisWorkbook.Sheets.Count To 1 Step -1
+    For i = ThisWorkbook.Sheets.count To 1 Step -1
         Set ws = ThisWorkbook.Sheets(i)
 
             ' シート名が"Setting"と異なり、"LOG"を含まず、"SpecSheet"を含まないシートに対してのみ処理を行う
@@ -253,7 +253,7 @@ Sub Shapig_CSVData()
             End If
 
             ' 処理中のシート名をLOGシートの最後の行に追加します。
-            lastRow = logSheet.Cells(logSheet.Rows.Count, "B").End(xlUp).row + 1
+            lastRow = logSheet.Cells(logSheet.Rows.count, "B").End(xlUp).row + 1
             logSheet.Cells(lastRow, "B").value = ws.name
 
             ' 処理中のシートからデータをコピーします。
@@ -264,7 +264,7 @@ Sub Shapig_CSVData()
             logSheet.Cells(lastRow, "G").PasteSpecial xlPasteAll
 
             ' B列から9行目までの内容を列と行を変換してO列から並べ直します。
-            lastRowInWs = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+            lastRowInWs = ws.Cells(ws.Rows.count, "B").End(xlUp).row
             Set dataRange = ws.Range("B9:B" & lastRowInWs)
             Set targetRange = logSheet.Cells(lastRow, "P")
 
@@ -272,13 +272,13 @@ Sub Shapig_CSVData()
             targetRange.PasteSpecial Paste:=xlPasteAll, Transpose:=True
 
             ' 貼り付けたデータの最終列を見つけます。
-            lastColumn = logSheet.Cells(lastRow, logSheet.Columns.Count).End(xlToLeft).Column
+            lastColumn = logSheet.Cells(lastRow, logSheet.Columns.count).End(xlToLeft).Column
 
             ' 数値を標準形式で表示します。
             logSheet.Range(logSheet.Cells(lastRow, "P"), logSheet.Cells(lastRow, lastColumn)).NumberFormat = "0.0000"
         
             ' ログシートのG列からO列までのデータを削除します。
-            logSheet.Range("G2:O" & logSheet.Rows.Count).ClearContents
+            logSheet.Range("G2:O" & logSheet.Rows.count).ClearContents
         End If
 
 NextSheet:

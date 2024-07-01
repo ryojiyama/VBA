@@ -40,7 +40,7 @@ Sub CreateInspectionSheetIDs_0410Before()
 
     ' D列の最終行を取得
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "D").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "D").End(xlUp).row
 
     Dim i As Long
     For i = 2 To lastRow
@@ -74,7 +74,7 @@ Sub CreateInspectionSheetIDs()
     Set wsSetting = ThisWorkbook.Sheets("Setting")
 
     Dim lastRow As Long
-    lastRow = wsSpecSheet.Cells(wsSpecSheet.Rows.Count, "D").End(xlUp).row
+    lastRow = wsSpecSheet.Cells(wsSpecSheet.Rows.count, "D").End(xlUp).row
 
     Dim i As Long, j As Long
     Dim foundMatch As Boolean
@@ -85,7 +85,7 @@ Sub CreateInspectionSheetIDs()
             id = wsSpecSheet.Cells(i, "D").value & "-" & wsSpecSheet.Cells(i, "S").value & "-" & Left(wsSpecSheet.Cells(i, "E").value, 1)
 
             foundMatch = False
-            For j = 2 To wsSetting.Cells(wsSetting.Rows.Count, "H").End(xlUp).row
+            For j = 2 To wsSetting.Cells(wsSetting.Rows.count, "H").End(xlUp).row
                 If wsSpecSheet.Cells(i, "D").value = wsSetting.Cells(j, "H").value Then
                     foundMatch = True
                     If InStr(wsSetting.Cells(j, "J").value, "x") > 0 Then
@@ -122,7 +122,7 @@ Sub InsertXLookupAndUpdateKColumn()
     Set wsSetting = ThisWorkbook.Sheets("Setting")
     
     ' D列の最終行を探索
-    lastRow = wsHelSpecSheet.Cells(wsHelSpecSheet.Rows.Count, "D").End(xlUp).row
+    lastRow = wsHelSpecSheet.Cells(wsHelSpecSheet.Rows.count, "D").End(xlUp).row
     
     ' D列を探索し、値がある各行に対して処理を実行
     For i = 2 To lastRow
@@ -163,7 +163,7 @@ Function HighlightDuplicateValues() As Boolean
     Set ws = ThisWorkbook.Sheets(sheetName)
     
     ' 最終行を取得
-    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "H").End(xlUp).row
     
     ' 色のインデックスを初期化
     Dim colorIndex As Integer
@@ -191,7 +191,7 @@ Function HighlightDuplicateValues() As Boolean
     ' 同値が一つも見つからなかった場合、H列のセルの色を白に設定
     If Not foundDuplicate Then
         For i = 2 To lastRow
-            ws.Cells(i, "H").Interior.color = xlNone
+            ws.Cells(i, "H").Interior.Color = xlNone
         Next i
     End If
     
@@ -206,7 +206,7 @@ Function LocateEmptySpaces() As String
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Hel_SpecSheet")
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
     Dim lastCol As Long
     lastCol = ws.Columns("S").Column
     Dim errorMsg As String
@@ -252,9 +252,9 @@ Sub CopyDataBasedOnCondition()
     Set helSpec = ThisWorkbook.Worksheets("Hel_SpecSheet")
 
     ' LOG_Helmetの最終行を取得
-    lastRowLog = logSheet.Cells(logSheet.Rows.Count, "H").End(xlUp).row
+    lastRowLog = logSheet.Cells(logSheet.Rows.count, "H").End(xlUp).row
     ' Hel_SpecSheetの最終行を取得
-    lastRowSpec = helSpec.Cells(helSpec.Rows.Count, "H").End(xlUp).row
+    lastRowSpec = helSpec.Cells(helSpec.Rows.count, "H").End(xlUp).row
 
     ' LOG_HelmetのH列の値を整える
 '    For i = 2 To lastRowLog
@@ -324,25 +324,25 @@ Sub CustomizeSheetFormats()
         ' Loop through each cell in the first row
         For Each cell In ws.Rows(1).Cells
             If InStr(1, cell.value, "最大値(kN)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.00 ""kN"""
             ElseIf InStr(1, cell.value, "最大値(G)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0 ""G"""
             ElseIf InStr(1, cell.value, "時間") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""ms"""
             ElseIf InStr(1, cell.value, "温度") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""℃"""
             ElseIf InStr(1, cell.value, "重量") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""g"""
             ElseIf InStr(1, cell.value, "ロット") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "@"
             ElseIf InStr(1, cell.value, "天頂すきま") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.Count, cell.Column).End(xlUp))
+                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
                 rng.NumberFormat = "0.0 ""mm"""
             End If
 
