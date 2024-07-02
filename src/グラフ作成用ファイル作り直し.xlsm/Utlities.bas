@@ -71,13 +71,13 @@ Sub UniformizeLineGraphAxes()
         ' Check if there are any charts in the current sheet
         If ws.ChartObjects.Count > 0 Then
             ' Loop through all the charts in the current sheet
-            Dim ChartObj As ChartObject
-            For Each ChartObj In ws.ChartObjects
-                With ChartObj.chart.Axes(xlValue)
+            Dim chartObj As ChartObject
+            For Each chartObj In ws.ChartObjects
+                With chartObj.chart.Axes(xlValue)
                     ' Set the Y-axis maximum value
                     .MaximumScale = MaxValue
                 End With
-            Next ChartObj
+            Next chartObj
         End If
     Next ws
 

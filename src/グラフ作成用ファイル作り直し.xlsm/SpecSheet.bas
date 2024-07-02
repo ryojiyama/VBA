@@ -1,6 +1,6 @@
 Attribute VB_Name = "SpecSheet"
  ' ☆品番、試験箇所などに応じたIDを作成する
-Sub CreateID()
+Sub createID()
    
     Dim lastRow As Long
     Dim ws As Worksheet
@@ -115,8 +115,6 @@ Function GetColumnEValue(value As Variant) As String
 End Function
 
 
-
-
 Function GetColumnIValue(value As Variant) As String
 ' GenerateIDのサブ関数
     Select Case value
@@ -156,7 +154,7 @@ Sub SyncSpecSheetToLogHel()
 
     Call ProcessSheetPairs          ' 転記処理をするプロシージャ
     Call CustomizeSheetFormats      ' 各列に書式設定をする
-    Call CreateID              ' B列にIDを作成する。
+    Call createID              ' B列にIDを作成する。
 End Sub
 Function HighlightDuplicateValues() As Boolean
     ' SyncSpecSheetToLogHelのサブプロシージャ
@@ -285,8 +283,6 @@ Function LocateEmptySpaces() As Boolean
 End Function
 
 
-
-
 ' 転記処理をするプロシージャ
 Sub ProcessSheetPairs()
     Dim sheetPairs As Variant
@@ -403,6 +399,8 @@ Sub CopyDataBasedOnCondition(sheetNameLog As String, sheetNameSpec As String)
                 For k = 1 To columnsToCopy.Count
                     logSheet.Cells(i, columnsToCopy(k)(0)).value = helSpec.Cells(j, columnsToCopy(k)(1)).value
                 Next k
+                ' C列の値もB列にコピー
+                logSheet.Cells(i, "B").value = logSheet.Cells(i, "C").value
             End If
         Next j
 

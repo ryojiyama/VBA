@@ -52,10 +52,10 @@ Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLef
     maxVal = Application.WorksheetFunction.Max(ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd)))
     ws.Cells(i, "H").value = maxVal
     
-    Dim ChartObj As ChartObject
-    Set ChartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=chartSize(0), Top:=chartTop, Height:=chartSize(1))
+    Dim chartObj As ChartObject
+    Set chartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=chartSize(0), Top:=chartTop, Height:=chartSize(1))
     Dim chart As chart
-    Set chart = ChartObj.chart
+    Set chart = chartObj.chart
     
     With chart
         .ChartType = xlLine
@@ -74,7 +74,7 @@ Sub ConfigureChart(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long,
     chart.SetSourceData Source:=ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))
     chart.SeriesCollection(1).XValues = ws.Range(ws.Cells(1, colStart), ws.Cells(1, colEnd))
     chart.HasTitle = True
-    chart.ChartTitle.Text = ws.Cells(i, "B").value
+    chart.chartTitle.Text = ws.Cells(i, "B").value
     chart.SetElement msoElementLegendNone
     chart.SeriesCollection(1).Format.Line.Weight = 0.75  '0.75
 

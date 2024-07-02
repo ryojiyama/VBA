@@ -45,8 +45,8 @@ Function GetChartSize(ByVal graphType As String) As Variant
     
     Select Case graphType
         Case "定期試験用"
-            size(0) = 250  ' Width
-            size(1) = 300  ' Height
+            size(0) = 400  ' Width
+            size(1) = 200  ' Height
         Case "型式申請試験用"
             size(0) = 300  ' Width
             size(1) = 350  ' Height
@@ -87,18 +87,17 @@ Sub CreateGraphHelmet()
 End Sub
 
 
-
 ' CreateGraphHelmet_個別のグラフを設定・追加するサブプロシージャ
 Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLeft As Long, ByVal chartTop As Long, ByVal colStart As String, ByVal colEnd As String, ByVal chartSize As Variant)
     Dim maxVal As Double
     maxVal = Application.WorksheetFunction.Max(ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd)))
     ws.Cells(i, "H").value = maxVal
-    
-    Dim ChartObj As ChartObject
-    Set ChartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=chartSize(0), Top:=chartTop, Height:=chartSize(1))
+
+    Dim chartObj As ChartObject
+    Set chartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=chartSize(0), Top:=chartTop, Height:=chartSize(1))
     Dim chart As chart
-    Set chart = ChartObj.chart
-    
+    Set chart = chartObj.chart
+
     With chart
         .ChartType = xlLine
         .SeriesCollection.NewSeries
@@ -106,9 +105,34 @@ Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLef
         .SeriesCollection(1).Values = ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))  ' Y軸のデータ範囲を設定
         .SeriesCollection(1).Name = "Data Series " & i
     End With
-    
+
+    ' IDを作成してグラフタイトルに設定
+    Dim recordID As String
+    recordID = CreateChartID(ws.Cells(i, "B"))
+    Debug.Print "recordID:" & recordID
+    chartObj.Name = recordID
     ConfigureChart chart, ws, i, colStart, colEnd, maxVal
 End Sub
+
+Function CreateChartID(cell As Range) As String
+    Dim parts() As String
+    Dim createID As String
+
+    ' B列の値が空の場合は"00000"を返す
+    If IsEmpty(cell) Or cell.value = "" Then
+        createID = "00000"
+    Else
+        ' B列の値をSplit関数で分割し、Part(0) & Part(1)の形式でIDを作成
+        parts = Split(cell.value, " ")
+        If UBound(parts) >= 1 Then
+            createID = parts(0) & parts(1)
+        Else
+            createID = cell.value
+        End If
+    End If
+    CreateChartID = createID
+End Function
+
 ' CreateGraphHelmet_グラフの書式設定をするサブプロシージャ
 Sub ConfigureChart(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long, ByVal colStart As String, ByVal colEnd As String, ByVal maxVal As Double)
     'このプロシージャでX軸とY軸の目盛線を追加する。そうしないとうまくいかない。
@@ -116,7 +140,7 @@ Sub ConfigureChart(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long,
     chart.SetSourceData Source:=ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))
     chart.SeriesCollection(1).XValues = ws.Range(ws.Cells(1, colStart), ws.Cells(1, colEnd))
     chart.HasTitle = True
-    chart.ChartTitle.Text = ws.Cells(i, "B").value
+    chart.chartTitle.Text = ws.Cells(i, "B").value
     chart.SetElement msoElementLegendNone
     chart.SeriesCollection(1).Format.Line.Weight = 1#
 
@@ -292,5 +316,43 @@ Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal thr
     Else
         ws.Cells(row, columnToWrite).value = 0
     End If
+End Sub
+
+' アクティブシートのチャートオブジェクトをDebug.Printで表示する。
+Sub ListChartNamesAndTitles()
+    Dim chartObj As ChartObject
+    Dim chartTitle As String
+
+    ' アクティブシートのチャートオブジェクトをループ処理
+    For Each chartObj In ActiveSheet.ChartObjects
+        ' グラフにタイトルがあるかどうかをチェック
+        If chartObj.chart.HasTitle Then
+            chartTitle = chartObj.chart.chartTitle.Text
+        Else
+            chartTitle = "No Title"  ' タイトルがない場合
+        End If
+
+        ' イミディエイトウィンドウにグラフの名前とタイトルを表示
+        Debug.Print "Chart Name: " & chartObj.Name & "; Title: " & chartTitle
+    Next chartObj
+End Sub
+
+
+' TestCode---------------------------------------------------------------------------------------------
+Sub TestCreateChartID()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")  ' テストするワークシート名を指定
+    Dim testRange As Range
+    Dim cell As Range
+    Dim outputID As String
+
+    ' テスト対象のセル範囲を指定
+    Set testRange = ws.Range("B2:B6")  ' B1からB5までのセルをテスト対象とする
+
+    ' 各セルに対してCreateChartID関数を適用し、結果をイミディエイトウィンドウに出力
+    For Each cell In testRange
+        outputID = CreateChartID(cell)
+        Debug.Print "Cell " & cell.Address & " Value: '" & cell.value & "' -> ID: '" & outputID & "'"
+    Next cell
 End Sub
 
