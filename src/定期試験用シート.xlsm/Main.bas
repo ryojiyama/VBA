@@ -26,45 +26,6 @@ End Sub
 
 
 
-' 各列に書式設定をする
-Sub FormatCells()
-    Dim sheetNames As Variant
-    Dim ws As Worksheet
-    Dim cell As Range
-    Dim rng As Range
-    Dim col As Range
-    
-    ' Apply to the following sheets
-    sheetNames = Array("LOG_Helmet", "LOG_BaseBall", "LOG_Bicycle", "LOG_FallArrest")
-
-    ' Loop through each sheet
-    For Each sheet In sheetNames
-        Set ws = Worksheets(sheet)
-        
-        ' Loop through each cell in the first row
-        For Each cell In ws.Rows(1).Cells
-            If InStr(1, cell.value, "最大値(kN)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.00 ""kN"""
-            ElseIf InStr(1, cell.value, "最大値(G)") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0 ""G"""
-            ElseIf InStr(1, cell.value, "時間") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""ms"""
-            ElseIf InStr(1, cell.value, "温度") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""℃"""
-            ElseIf InStr(1, cell.value, "重量") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
-                rng.NumberFormat = "0.0 ""g"""
-            ElseIf InStr(1, cell.value, "ロット") > 0 Then
-                Set rng = ws.Range(cell, ws.Cells(Rows.count, cell.Column).End(xlUp))
-                rng.NumberFormat = "@"
-            End If
-        Next cell
-    Next sheet
-End Sub
 
 
 
