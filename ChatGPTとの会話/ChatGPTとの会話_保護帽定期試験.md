@@ -5320,3 +5320,117 @@ SyncSpecSheetTOLogHel():SpecSheetに転記するプロシージャ
 "LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall"各シートのデータを"試験結果_データベース.xlsm"と"ヘルメットレポート作成.xlsm", "墜落制止用器具レポート作成.xlsm", "自転車帽レポート作成.xlsm", "野球帽レポート作成.xlsm"にコピーするプロシージャ
 
 
+ExcelVBAのユーザーフォームに
+ComboBox "ComboBox_Type" と CommandButton "RunButton" が設置されている。
+Comboboxで{定期試験用、型式申請試験用、その他}, の項目を選び、RunButtonを押すことで下記のマクロを走らせたい。
+' グラフを作成するメインのサブプロシージャ
+Sub CreateGraphHelmet(userInput as String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
+    Dim chartLeft As Long
+    Dim chartTop As Long
+    Dim colStart As String
+    Dim colEnd As String
+    Dim chartSize As Variant
+
+    colStart = "GY"  ' 開始列を初期設定
+    chartTop = ws.Rows(lastRow + 1).Top + 10
+    chartLeft = 250
+
+    For i = 2 To lastRow
+        colEnd = GetColumnEnd(ws, i)
+        chartSize = GetChartSize(userInput)
+        CreateIndividualChart ws, i, chartLeft, chartTop, colStart, colEnd, chartSize
+        chartLeft = chartLeft + 10 ' 次のグラフの左位置を調整
+    Next i
+
+End Sub
+```
+
+上記コードにユーザーフォームを使用した機能を追加したい。
+# 追加機能
+ExcelVBAのユーザーフォーム"Form_Tenki"上に
+Button_Teiki
+Button_Katashiki
+Button_Irai
+の3つのボタンがある。
+
+ユーザーフォーム上のボタンが選ばれた状態で"RunButton"が押された場合に
+Button_Teiki:定期の文字を含むファイル
+Button_Katashiki:型式の文字を含むファイル
+Button_Irai:依頼の文字を含むファイル
+のペアで対象シートのコピー先を管理したい。コードを示してください。
+
+{Impact_top, Impact_Front, Impact_Back, Impact_Side01}
+
+C列の値から作成する'matchName'とシートのマッチングの処理を見直したい。
+現在C列の値は"04-300F-天-Hot-OthClr"で構成されており、これを
+Function ParseHelmetData(value As String) As helmetData
+    Dim parts() As String
+    parts = Split(value, "-")
+    Dim result As New helmetData
+
+    If UBound(parts) >= 4 Then
+        result.GroupNumber = parts(0)
+        result.ProductName = parts(1)
+        result.ImpactPosition = parts(2)
+        result.ImpactTemp = parts(3)
+        result.Color = parts(4)
+    End If
+
+    Set ParseHelmetData = result
+End Function
+で分割し、parts(2)の値が"天"の場合、転記するシート名は"Impact_Top"
+parts(2)の値が"前"の場合、転記するシート名は"Impact_Front"
+parts(2)の値が"後"の場合、転記するシート名は"Impact_Back"に振り分けたい。
+まずはDebug.Printで正しくグループ分けをできているかを確認したいのでそのコードを生成してください。
+
+# 転記するシート名が"Impact_Top"のグループ
+読み込んだレコードparts(0)を比較し、値が小さい順に並べる
+parts(0)-1
+parts(0)-2
+parts(0)-3
+...
+parts(0)-1かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのC6に転記する。
+parts(0)-2かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのC8に転記する。
+parts(0)-3かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのC10に転記する。
+parts(0)-4かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのE6に転記する。
+parts(0)-5かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのE8に転記する。
+parts(0)-6かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのE10に転記する。
+parts(0)-7かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのG6に転記する。
+parts(0)-8かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのG8に転記する。
+parts(0)-9かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"を探索し、その列のレコードを転記先シートのG10に転記する。
+
+# 転記するシート名が"Impact_Front"のグループ
+読み込んだレコードparts(0)を比較し、値が小さい順に並べる
+parts(0)-1
+parts(0)-2
+parts(0)-3
+...
+parts(0)-1かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのC6,D6,D7に転記する。
+parts(0)-2かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのC9,D9,D10に転記する。
+parts(0)-3かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのC12,D12,D13に転記する。
+parts(0)-4かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのE6,F6,F7に転記する。
+parts(0)-5かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのE9,F9,F10に転記する。
+parts(0)-6かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのE12,F12,F13に転記する。
+parts(0)-7かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG6,H6,H7に転記する。
+parts(0)-8かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG9,H9,H10に転記する。
+parts(0)-9かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG12,H12,H13に転記する。
+
+# 転記するシート名が"Impact_Back"のグループ
+読み込んだレコードparts(0)を比較し、値が小さい順に並べる
+parts(0)-1
+parts(0)-2
+parts(0)-3
+...
+parts(0)-1かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのC6,D6,D7に転記する。
+parts(0)-2かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのC9,D9,D10に転記する。
+parts(0)-3かつparts(3)が"Hot"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのC12,D12,D13に転記する。
+parts(0)-4かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのE6,F6,F7に転記する。
+parts(0)-5かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのE9,F9,F10に転記する。
+parts(0)-6かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのE12,F12,F13に転記する。
+parts(0)-7かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG6,H6,H7に転記する。
+parts(0)-8かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG9,H9,H10に転記する。
+parts(0)-9かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG12,H12,H13に転記する。
