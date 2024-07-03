@@ -6,6 +6,7 @@ Sub InspectionSheet_Make()
     Call TransferDataToDynamicSheets
     Call ImpactValueJudgement
     Call FormatNonContinuousCells
+    Call DistributeChartsToSheets
 End Sub
 
 Sub FilterAndGroupDataByF()
@@ -494,4 +495,66 @@ Sub FormatRange(rng As Range, fontName As String, fontSize As Integer, isBold As
         .Borders(xlInsideVertical).LineStyle = xlContinuous
         .Borders(xlInsideHorizontal).LineStyle = xlContinuous
     End With
+End Sub
+' チャートを各シートに分配する。
+Sub DistributeChartsToSheets()
+    Dim chartObj As ChartObject
+    Dim chartTitle As String
+    Dim sheetName As String
+    Dim parts() As String
+    Dim groups As Object
+    Dim ws As Worksheet
+    Dim targetSheet As Worksheet
+    
+    Set groups = CreateObject("Scripting.Dictionary")
+    
+    ' "LOG_Helmet"シートを対象にする
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    
+    ' "LOG_Helmet"シートのチャートオブジェクトをグループ分け
+    For Each chartObj In ws.ChartObjects
+        If chartObj.chart.HasTitle Then
+            chartTitle = chartObj.chart.chartTitle.text
+        Else
+            chartTitle = "No Title"
+        End If
+        
+        ' chartNameを"-"で分割し、sheetNameを取得
+        parts = Split(chartObj.name, "-")
+        If UBound(parts) >= 1 Then
+            sheetName = parts(0) & "-" & parts(1)
+        Else
+            sheetName = parts(0)
+        End If
+        
+        If Not groups.Exists(sheetName) Then
+            groups.Add sheetName, New Collection
+        End If
+        
+        groups(sheetName).Add chartObj
+    Next chartObj
+    
+    ' グループごとにチャートを対応するシートに移動
+    Dim key As Variant
+    For Each key In groups.Keys
+        ' シートの存在を確認
+        On Error Resume Next
+        Set targetSheet = ThisWorkbook.Sheets(key)
+        On Error GoTo 0
+        
+        ' シートが存在しない場合、チャートを移動しない
+        If Not targetSheet Is Nothing Then
+            Debug.Print "NewSheetName: " & key
+            
+            ' チャートの移動
+            Dim chart As ChartObject
+            For Each chart In groups(key)
+                chart.chart.Location Where:=xlLocationAsObject, name:=targetSheet.name
+            Next chart
+            
+            Set targetSheet = Nothing
+        Else
+            Debug.Print "Sheet " & key & " does not exist. Charts not moved."
+        End If
+    Next key
 End Sub

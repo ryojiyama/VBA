@@ -123,9 +123,11 @@ Function CreateChartID(cell As Range) As String
         createID = "00000"
     Else
         ' B列の値をSplit関数で分割し、Part(0) & Part(1)の形式でIDを作成
-        parts = Split(cell.value, " ")
+        parts = Split(cell.value, "-")
+'        Debug.Print "Cell value: " & cell.value  ' デバッグ: セルの値を出力
+'        Debug.Print "Parts count: " & UBound(parts) + 1  ' デバッグ: 分割された部分の数を出力
         If UBound(parts) >= 1 Then
-            createID = parts(0) & parts(1)
+            createID = parts(0) & "-" & parts(1) & "-" & parts(2)
         Else
             createID = cell.value
         End If
@@ -299,13 +301,13 @@ Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal thr
 
     If startRange > 0 And endRange > 0 Then rangeCollection.Add Array(startRange, endRange)
 
-    For Each Item In rangeCollection
-        If (Item(1) - Item(0) + 1) > maxRange Then
-            maxRange = Item(1) - Item(0) + 1
-            startRange = Item(0)
-            endRange = Item(1)
+    For Each item In rangeCollection
+        If (item(1) - item(0) + 1) > maxRange Then
+            maxRange = item(1) - item(0) + 1
+            startRange = item(0)
+            endRange = item(1)
         End If
-    Next Item
+    Next item
     
     If startRange > 0 And endRange > 0 Then
         timeDifference = ws.Cells(1, endRange).value - ws.Cells(1, startRange).value
@@ -317,6 +319,49 @@ Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal thr
         ws.Cells(row, columnToWrite).value = 0
     End If
 End Sub
+
+
+' TestCode---------------------------------------------------------------------------------------------
+Sub GroupAndListChartNamesAndTitles()
+    Dim chartObj As ChartObject
+    Dim chartTitle As String
+    Dim part0 As String
+    Dim groups As Object
+    Set groups = CreateObject("Scripting.Dictionary")
+
+    ' アクティブシートのチャートオブジェクトをループ処理
+    For Each chartObj In ActiveSheet.ChartObjects
+        ' グラフにタイトルがあるかどうかをチェック
+        If chartObj.chart.HasTitle Then
+            chartTitle = chartObj.chart.chartTitle.Text
+        Else
+            chartTitle = "No Title"  ' タイトルがない場合
+        End If
+
+        ' chartNameを"-"で分割し、part(0)を取得
+        part0 = Split(chartObj.Name, "-")(0)
+
+        ' グループがまだ存在しない場合、新規作成
+        If Not groups.Exists(part0) Then
+            groups.Add part0, New Collection
+        End If
+
+        ' グループにチャート名とタイトルを追加
+        groups(part0).Add "Chart Name: " & chartObj.Name & "; Title: " & chartTitle
+    Next chartObj
+
+    ' 各グループの内容をイミディエイトウィンドウに出力
+    Dim key As Variant
+    For Each key In groups.Keys
+        Debug.Print "Group: " & key
+        Dim item As Variant
+        For Each item In groups(key)
+            Debug.Print item
+        Next item
+    Next key
+End Sub
+
+
 
 ' アクティブシートのチャートオブジェクトをDebug.Printで表示する。
 Sub ListChartNamesAndTitles()
@@ -337,8 +382,7 @@ Sub ListChartNamesAndTitles()
     Next chartObj
 End Sub
 
-
-' TestCode---------------------------------------------------------------------------------------------
+' CreateChartIDが機能しているか確認するテストコード
 Sub TestCreateChartID()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")  ' テストするワークシート名を指定
@@ -347,7 +391,7 @@ Sub TestCreateChartID()
     Dim outputID As String
 
     ' テスト対象のセル範囲を指定
-    Set testRange = ws.Range("B2:B6")  ' B1からB5までのセルをテスト対象とする
+    Set testRange = ws.Range("B2:B12")  ' B1からB5までのセルをテスト対象とする
 
     ' 各セルに対してCreateChartID関数を適用し、結果をイミディエイトウィンドウに出力
     For Each cell In testRange

@@ -160,7 +160,7 @@ Sub ConfigureChart(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long,
     chart.SetSourceData Source:=ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))
     chart.SeriesCollection(1).XValues = ws.Range(ws.Cells(1, colStart), ws.Cells(1, colEnd))
     chart.HasTitle = True
-    chart.ChartTitle.text = ws.Cells(i, "B").value
+    chart.chartTitle.text = ws.Cells(i, "B").value
     chart.SetElement msoElementLegendNone
     chart.SeriesCollection(1).Format.Line.Weight = 0.75
 
