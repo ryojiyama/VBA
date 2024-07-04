@@ -1,4 +1,5 @@
-Attribute VB_Name = "CopyToTypeApplication"
+Attribute VB_Name = "XX_ReferenceCode"
+' 参考にしたコードの名残
 Sub InspectionSheet_Make()
     Call FilterAndGroupDataByF
     Call TransferDataToAppropriateSheets
@@ -29,19 +30,19 @@ Sub FilterAndGroupDataByF()
         Dim cellValue As String
         cellValue = ws.Cells(i, 3).value
 
-        Dim helmetData As New helmetData
-        Set helmetData = ParseHelmetData(cellValue)
+        Dim HelmetData As New HelmetData
+        Set HelmetData = ParseHelmetData(cellValue)
 
         Dim productNameKey As String
-        productNameKey = helmetData.GroupNumber & "-" & helmetData.ProductName
+        productNameKey = HelmetData.GroupNumber & "-" & HelmetData.ProductName
 
-        If Right(helmetData.ProductName, 1) = "F" Then
-            If Not groupedDataF.Exists(helmetData.GroupNumber) Then
-                groupedDataF.Add helmetData.GroupNumber, New Collection
+        If Right(HelmetData.ProductName, 1) = "F" Then
+            If Not groupedDataF.Exists(HelmetData.GroupNumber) Then
+                groupedDataF.Add HelmetData.GroupNumber, New Collection
             End If
-            groupedDataF(helmetData.GroupNumber).Add helmetData
+            groupedDataF(HelmetData.GroupNumber).Add HelmetData
 
-            If helmetData.ImpactPosition = "天" Then
+            If HelmetData.ImpactPosition = "天" Then
                 If Not copiedSheets.Exists(productNameKey) Then
                     ThisWorkbook.Sheets("InspectionSheet").Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
                     ActiveSheet.name = CreateUniqueName(productNameKey)
@@ -50,10 +51,10 @@ Sub FilterAndGroupDataByF()
                 End If
             End If
         Else
-            If Not groupedDataNonF.Exists(helmetData.GroupNumber) Then
-                groupedDataNonF.Add helmetData.GroupNumber, New Collection
+            If Not groupedDataNonF.Exists(HelmetData.GroupNumber) Then
+                groupedDataNonF.Add HelmetData.GroupNumber, New Collection
             End If
-            groupedDataNonF(helmetData.GroupNumber).Add helmetData
+            groupedDataNonF(HelmetData.GroupNumber).Add HelmetData
 
             If Not copiedSheets.Exists(productNameKey) Then
                 ThisWorkbook.Sheets("InspectionSheet").Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
@@ -70,10 +71,10 @@ Sub FilterAndGroupDataByF()
     PrintGroupedData groupedDataNonF
     SaveCopiedSheetNames copiedSheetNames
 End Sub
-Function ParseHelmetData(value As String) As helmetData
+Function ParseHelmetData(value As String) As HelmetData
     Dim parts() As String
     parts = Split(value, "-")
-    Dim result As New helmetData
+    Dim result As New HelmetData
     
     If UBound(parts) >= 4 Then
         result.GroupNumber = parts(0)
@@ -97,17 +98,17 @@ Function CreateUniqueName(baseName As String) As String
     Wend
     CreateUniqueName = uniqueName ' 正しい戻り値の設定
 End Function
-Function SheetExists(sheetName As String) As Boolean
+Function SheetExists(SheetName As String) As Boolean
     Dim sheet As Worksheet
     On Error Resume Next
-    Set sheet = ThisWorkbook.Sheets(sheetName)
+    Set sheet = ThisWorkbook.Sheets(SheetName)
     On Error GoTo 0
     SheetExists = Not sheet Is Nothing ' 正しい戻り値の設定
 End Function
 
 
 Private Sub PrintGroupedData(groupedData As Object)
-    Dim key As Variant, item As helmetData
+    Dim key As Variant, item As HelmetData
     For Each key In groupedData.Keys
         Debug.Print "GroupNumber: " & key
         For Each item In groupedData(key)
@@ -327,7 +328,7 @@ Sub ImpactValueJudgement()
     'CopiedSheetNamesシートのA列に基づいて各検査票シートの衝撃値を判定する
     Dim wsSource As Worksheet
     Dim lastRow As Long, i As Long
-    Dim sheetName As String
+    Dim SheetName As String
     Dim resultE11 As Boolean, resultE14 As Boolean, resultE19 As Boolean
     Dim targetSheets As Collection
     
@@ -336,9 +337,9 @@ Sub ImpactValueJudgement()
     
     ' 対象のシート名に基づいて処理を行う
     For i = 1 To targetSheets.count
-        sheetName = targetSheets(i)
+        SheetName = targetSheets(i)
         ' 対象のシートを設定
-        Set wsTarget = ThisWorkbook.Sheets(sheetName)
+        Set wsTarget = ThisWorkbook.Sheets(SheetName)
         
         ' D11, D14, D19の値を基に判定
         resultE11 = wsTarget.Range("E11").value <= 4.9
@@ -373,7 +374,7 @@ End Function
 Sub FormatNonContinuousCells()
     Dim wsTarget As Worksheet
     Dim i As Long
-    Dim sheetName As String
+    Dim SheetName As String
     Dim targetSheets As Collection
     Dim rng As Range
     Dim cell As Range
@@ -383,11 +384,11 @@ Sub FormatNonContinuousCells()
     
     ' 対象のシート名に基づいて処理を行う
     For i = 1 To targetSheets.count
-        sheetName = targetSheets(i)
+        SheetName = targetSheets(i)
         
         ' ワークシートが存在するかチェック
         On Error Resume Next
-        Set wsTarget = ThisWorkbook.Sheets(sheetName)
+        Set wsTarget = ThisWorkbook.Sheets(SheetName)
         On Error GoTo 0
 
         ' ワークシートが存在すれば、指定したセル範囲に書式を設定
@@ -463,13 +464,13 @@ Sub FormatSpecificEndStrings(rng As Range, fontName As String, fontSize As Integ
             If Right(text, 2) = "高温" Or Right(text, 2) = "低温" Then
                 With cell.Characters(Start:=textLength - 1, Length:=2).Font
                     .name = fontName
-                    .Size = fontSize
+                    .size = fontSize
                     .Bold = isBold
                 End With
             ElseIf textLength >= 3 And Right(text, 3) = "浸せき" Then
                 With cell.Characters(Start:=textLength - 2, Length:=3).Font
                     .name = fontName
-                    .Size = fontSize
+                    .size = fontSize
                     .Bold = isBold
                 End With
             End If
@@ -481,7 +482,7 @@ Sub FormatRange(rng As Range, fontName As String, fontSize As Integer, isBold As
     ' 範囲に書式を適用するためのサブプロシージャ
     With rng
         .Font.name = fontName
-        .Font.Size = fontSize
+        .Font.size = fontSize
         .Font.Bold = isBold
         If Not IsMissing(bgColor) Then
             .Interior.Color = bgColor
@@ -500,7 +501,7 @@ End Sub
 Sub DistributeChartsToSheets()
     Dim chartObj As ChartObject
     Dim chartTitle As String
-    Dim sheetName As String
+    Dim SheetName As String
     Dim parts() As String
     Dim groups As Object
     Dim ws As Worksheet
@@ -522,16 +523,16 @@ Sub DistributeChartsToSheets()
         ' chartNameを"-"で分割し、sheetNameを取得
         parts = Split(chartObj.name, "-")
         If UBound(parts) >= 1 Then
-            sheetName = parts(0) & "-" & parts(1)
+            SheetName = parts(0) & "-" & parts(1)
         Else
-            sheetName = parts(0)
+            SheetName = parts(0)
         End If
         
-        If Not groups.Exists(sheetName) Then
-            groups.Add sheetName, New Collection
+        If Not groups.Exists(SheetName) Then
+            groups.Add SheetName, New Collection
         End If
         
-        groups(sheetName).Add chartObj
+        groups(SheetName).Add chartObj
     Next chartObj
     
     ' グループごとにチャートを対応するシートに移動

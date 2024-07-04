@@ -4,7 +4,7 @@ Sub ShowFormInspectionType()
     Form_InspectionType.Show
 End Sub
 Sub ShowFormTenki()
-    ' ユーザーフォーム "Form_" を表示
+    ' ユーザーフォーム "Form_Tenki" を表示
     Form_Tenki.Show
 End Sub
 

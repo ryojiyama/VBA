@@ -5,7 +5,30 @@ Sub HelmetTestResultChartBuilder()
     Call InspectHelmetDurationTime
     Call Utlities.AdjustingDuplicateValues
 End Sub
+' グラフを作成するメインのサブプロシージャ
+Sub CreateGraphHelmet(userInput As String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    Dim chartLeft As Long
+    Dim chartTop As Long
+    Dim colStart As String
+    Dim colEnd As String
+    Dim chartSize As Variant
 
+    colStart = "GY"  ' 開始列を初期設定
+    chartTop = ws.Rows(lastRow + 1).Top + 10
+    chartLeft = 250
+
+    For i = 2 To lastRow
+        colEnd = GetColumnEnd(ws, i)
+        chartSize = GetChartSize(userInput)
+        CreateIndividualChart ws, i, chartLeft, chartTop, colStart, colEnd, chartSize
+        chartLeft = chartLeft + 10 ' 次のグラフの左位置を調整
+    Next i
+
+End Sub
 ' 列の終わりを決定する関数
 Function GetColumnEnd(ByRef ws As Worksheet, ByVal rowNumber As Long) As String
     Dim lastCol As Long
@@ -57,32 +80,6 @@ Function GetChartSize(ByVal graphType As String) As Variant
     
     GetChartSize = size
 End Function
-
-' グラフを作成するメインのサブプロシージャ
-Sub CreateGraphHelmet(userInput As String)
-    Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-    Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
-    Dim chartLeft As Long
-    Dim chartTop As Long
-    Dim colStart As String
-    Dim colEnd As String
-    Dim chartSize As Variant
-
-    colStart = "GY"  ' 開始列を初期設定
-    chartTop = ws.Rows(lastRow + 1).Top + 10
-    chartLeft = 250
-
-    For i = 2 To lastRow
-        colEnd = GetColumnEnd(ws, i)
-        chartSize = GetChartSize(userInput)
-        CreateIndividualChart ws, i, chartLeft, chartTop, colStart, colEnd, chartSize
-        chartLeft = chartLeft + 10 ' 次のグラフの左位置を調整
-    Next i
-
-End Sub
-
 
 ' CreateGraphHelmet_個別のグラフを設定・追加するサブプロシージャ
 Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLeft As Long, ByVal chartTop As Long, ByVal colStart As String, ByVal colEnd As String, ByVal chartSize As Variant)
@@ -210,7 +207,7 @@ Sub InspectHelmetDurationTime()
     ' "LOG_Helmet" シートを指定する。
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     ' 最終行を取得する。
-    lastRow = ws.Cells(ws.Rows.Count, "U").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row '最大値の列を参照
 
     ' 各行を処理する。
     For i = 2 To lastRow

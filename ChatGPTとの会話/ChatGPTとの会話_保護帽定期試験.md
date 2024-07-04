@@ -5434,3 +5434,25 @@ parts(0)-6かつparts(3)が"Cold"の場合:"LOG_Helmet"のヘッダー(1行目)�
 parts(0)-7かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG6,H6,H7に転記する。
 parts(0)-8かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG9,H9,H10に転記する。
 parts(0)-9かつparts(3)が"Wet"の場合:"LOG_Helmet"のヘッダー(1行目)の値が"最大値(kN)"、"4.9kNの継続時間"、"7.3kNの継続時間"を探索し、その列のレコードをそれぞれ転記先シートのG12,H12,H13に転記する。
+
+
+Group: 天
+Chart Name: 04-300F-天; Title: 04-300F-天-Hot-OthClr
+Chart Name: 05-300F-天; Title: 05-300F-天-Cold-OthClr
+Chart Name: 06-300F-天; Title: 06-300F-天-Wet-OthClr
+
+Group: 前
+Chart Name: 04-300F-前; Title: 04-300F-前-Hot-OthClr
+Chart Name: 05-300F-前; Title: 05-300F-前-Cold-OthClr
+Chart Name: 06-300F-前; Title: 06-300F-前-Wet-OthClr
+
+Group: 後
+Chart Name: 04-300F-後; Title: 04-300F-後-Hot-OthClr
+Chart Name: 05-300F-後; Title: 05-300F-後-Cold-OthClr
+
+
+Group: 天 -> シート名:Impact_Top
+Group: 前 -> シート名:Impact_Front
+Group: 後 -> シート名:Impact_Back
+
+シート名にSideを含むシート中のチャートの大きさを

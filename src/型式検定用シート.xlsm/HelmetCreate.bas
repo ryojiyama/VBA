@@ -1,190 +1,177 @@
 Attribute VB_Name = "HelmetCreate"
-Public Sub Create_HelmetGraph()
+'グラフを消してしまったとき用
+Sub HelmetTestResultChartBuilder()
+    'グラフ作成とヘルメット検査時間の表示、色付けなど
     Call CreateGraphHelmet
     Call InspectHelmetDurationTime
-    Call HighlightDuplicateValues
 End Sub
-Sub VisualizeSelectedData_HelmetGraph()
 
-    Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-    
-    Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
+' 列の終わりを決定する関数
+Function GetColumnEnd(ByRef ws As Worksheet, ByVal rowNumber As Long) As String
+    Dim lastCol As Long
+    Dim col As Long
+    Dim found As Boolean
+    found = False
 
-    Dim chartColors As Variant
-    chartColors = Array(RGB(47, 85, 151), RGB(241, 88, 84), RGB(111, 178, 85), _
-                    RGB(250, 194, 58), RGB(158, 82, 143), RGB(255, 127, 80), _
-                    RGB(250, 159, 137), RGB(72, 61, 139))
-                        
-    Dim colorIndex As Integer
-    colorIndex = 0
-
-    Dim chartLeft As Long
-    Dim chartTop As Long
-    chartLeft = 250
-    chartTop = 100
-
-    Dim colStart As String
-    Dim colEnd As String
-    colStart = ColNumToLetter(16 + 52) 'ExcelのラベルはBP
-    colEnd = ColNumToLetter(16 + 850) 'ExcelのラベルはAGH
-
-    Dim chartObj As ChartObject
-    Dim chart As chart
-    Dim maxVal As Double
-
-    For i = 2 To lastRow
-        If ws.Cells(i, "B").Interior.Color = RGB(252, 228, 214) Then
-            maxVal = Application.WorksheetFunction.Max(ws.Range(colStart & i & ":" & colEnd & i))
-
-            If Not chartObj Is Nothing Then
-                Dim series As series
-                Set series = chart.SeriesCollection.NewSeries
-                series.Values = ws.Range(colStart & i & ":" & colEnd & i)
-                series.XValues = ws.Range(colStart & "1:" & colEnd & "1")
-                series.Format.Line.ForeColor.RGB = chartColors(colorIndex)
-                series.name = ws.Cells(i, "D").value & " - " & ws.Cells(i, "L").value
-            Else
-                Set chartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=425, Top:=chartTop, Height:=225)
-                Set chart = chartObj.chart
-                
-                chart.ChartType = xlLine
-                chart.SetSourceData Source:=ws.Range(colStart & i & ":" & colEnd & i)
-                chart.SeriesCollection(1).Format.Line.ForeColor.RGB = chartColors(colorIndex)
-                chart.SeriesCollection(1).XValues = ws.Range(colStart & "1:" & colEnd & "1")
-                chart.SeriesCollection(1).name = ws.Cells(i, "D").value & " - " & ws.Cells(i, "L").value
-            End If
-            
-        ' 線の太さを設定
-        chart.SeriesCollection(1).Format.Line.Weight = 1#
-
-        ' Y軸の設定
-        Dim yAxis As Axis
-        Set yAxis = chart.Axes(xlValue, xlPrimary)
-
-        yAxis.MinimumScale = -1 ' Y軸の最低値を0に設定します。
-
-        ' Y軸の TickLabels を設定
-        With yAxis.TickLabels
-            .NumberFormatLocal = "0.0""kN"""
-            .Font.Color = RGB(89, 89, 89)
-            .Font.Size = 8
-        End With
-
-        ' X軸の設定
-        Dim xAxis As Axis
-        Set xAxis = chart.Axes(xlCategory, xlPrimary)
-        xAxis.TickLabelSpacing = 100
-        xAxis.TickMarkSpacing = 25
-
-
-        ' X軸の TickLabels を設定
-        With xAxis.TickLabels
-            .NumberFormatLocal = "0.00""ms"""
-            .Font.Color = RGB(89, 89, 89)
-            .Font.Size = 8
-        End With
-            
-            colorIndex = (colorIndex + 1) Mod UBound(chartColors)
-
+    ' 列の最後から開始して値が1.0を超える最後の列番号を探す
+    For col = ws.Cells(rowNumber, ws.Columns.count).End(xlToLeft).Column To 1 Step -1
+        If ws.Cells(rowNumber, col).value > 1# Then
+            lastCol = col
+            found = True
+            Exit For
         End If
-    Next i
+    Next col
 
-End Sub
-'----------------------------------------------------------------------------------
-Function ColNumToLetter(colNum As Integer) As String
-    'CreateGraphHelmetに使用する関数。
-    Dim d As Integer, m As Integer, name As String
-    d = colNum
-    name = ""
-    While d > 0
-        m = (d - 1) Mod 26
-        name = Chr(65 + m) & name
-        d = Int((d - m) / 26)
-    Wend
-    ColNumToLetter = name
+    ' 値が1.0を超える列から100列後を計算
+    If found Then
+        lastCol = lastCol + 100
+        If lastCol > ws.Columns.count Then lastCol = ws.Columns.count ' 列数の最大値を超えないように調整
+    Else
+        ' 1.0を超える値が見つからない場合は、適当なデフォルト値を設定するか、エラー処理を行う
+        lastCol = 150
+    End If
+
+    ' 列番号から列のアドレスを取得し、行番号を削除
+    Dim fullAddress As String
+    fullAddress = ws.Cells(1, lastCol).Address(False, False)  ' 絶対参照を避ける
+    GetColumnEnd = Replace(fullAddress, "1", "")  ' 行番号を削除
 End Function
 
+
+
+' グラフのサイズを決定する関数
+Function GetChartSize(ByVal graphType As String) As Variant
+    Dim size(1) As Long
+    
+    Select Case graphType
+        Case "定期試験用"
+            size(0) = 400  ' Width
+            size(1) = 200  ' Height
+        Case "型式申請試験用"
+            size(0) = 300  ' Width
+            size(1) = 350  ' Height
+        Case Else
+            size(0) = 400  ' Default Width
+            size(1) = 250  ' Default Height
+    End Select
+    
+    GetChartSize = size
+End Function
+
+' グラフを作成するメインのサブプロシージャ
 Sub CreateGraphHelmet()
-
-    Const START_OFFSET As Long = 16
-    Const START_EXTENSION As Long = 52
-    Const END_EXTENSION As Long = 850
-
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-
     Dim lastRow As Long
-    Dim lastCol As Long
     lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
-    lastCol = ws.Cells(1, ws.Columns.count).End(xlToLeft).Column
-
-    Dim colStart As String
-    Dim colEnd As String
-
-    colStart = ColNumToLetter(START_OFFSET + START_EXTENSION)
-    colEnd = ColNumToLetter(START_OFFSET + END_EXTENSION)
-
     Dim chartLeft As Long
     Dim chartTop As Long
-    chartTop = ws.Rows(lastRow).Height - 20
+    Dim colStart As String
+    Dim colEnd As String
+    Dim chartSize As Variant
+
+    colStart = "GY"  ' 開始列を初期設定
+    chartTop = ws.Rows(lastRow + 1).Top + 10
     chartLeft = 250
 
     For i = 2 To lastRow
-        CreateIndividualChart ws, i, chartLeft, chartTop, colStart, colEnd
-        chartLeft = chartLeft + 10
+        colEnd = GetColumnEnd(ws, i)
+        chartSize = GetChartSize("型式申請試験用")
+        CreateIndividualChart ws, i, chartLeft, chartTop, colStart, colEnd, chartSize
+        chartLeft = chartLeft + 10 ' 次のグラフの左位置を調整
     Next i
 
 End Sub
 
-Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLeft As Long, ByVal chartTop As Long, ByVal colStart As String, ByVal colEnd As String)
-    ' CreateGraphHelmetのサブプロシージャ
+
+' CreateGraphHelmet_個別のグラフを設定・追加するサブプロシージャ
+Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLeft As Long, ByVal chartTop As Long, ByVal colStart As String, ByVal colEnd As String, ByVal chartSize As Variant)
     Dim maxVal As Double
     maxVal = Application.WorksheetFunction.Max(ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd)))
-
     ws.Cells(i, "H").value = maxVal
 
     Dim chartObj As ChartObject
-    Set chartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=445, Top:=chartTop, Height:=225) '型式試験用にサイズ変更
+    Set chartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=chartSize(0), Top:=chartTop, Height:=chartSize(1))
     Dim chart As chart
     Set chart = chartObj.chart
 
-    ConfigureChart chart, ws, i, colStart, colEnd, maxVal
+    With chart
+        .ChartType = xlLine
+        .SeriesCollection.NewSeries
+        .SeriesCollection(1).XValues = ws.Range(ws.Cells(1, colStart), ws.Cells(1, colEnd))  ' X軸の範囲を1行目から設定
+        .SeriesCollection(1).Values = ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))  ' Y軸のデータ範囲を設定
+        .SeriesCollection(1).name = "Data Series " & i
+    End With
 
+    ' IDを作成してグラフタイトルに設定
+    Dim recordID As String
+    recordID = CreateChartID(ws.Cells(i, "B"))
+    Debug.Print "recordID:" & recordID
+    chartObj.name = recordID
+    ConfigureChart chart, ws, i, colStart, colEnd, maxVal
 End Sub
 
+Function CreateChartID(cell As Range) As String
+    Dim parts() As String
+    Dim createID As String
+
+    ' B列の値が空の場合は"00000"を返す
+    If IsEmpty(cell) Or cell.value = "" Then
+        createID = "00000"
+    Else
+        ' B列の値をSplit関数で分割し、Part(0) & Part(1)の形式でIDを作成
+        parts = Split(cell.value, "-")
+'        Debug.Print "Cell value: " & cell.value  ' デバッグ: セルの値を出力
+'        Debug.Print "Parts count: " & UBound(parts) + 1  ' デバッグ: 分割された部分の数を出力
+        If UBound(parts) >= 1 Then
+            createID = parts(0) & "-" & parts(1) & "-" & parts(2)
+        Else
+            createID = cell.value
+        End If
+    End If
+    CreateChartID = createID
+End Function
+
+' CreateGraphHelmet_グラフの書式設定をするサブプロシージャ
 Sub ConfigureChart(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long, ByVal colStart As String, ByVal colEnd As String, ByVal maxVal As Double)
-    'CreateIndividualChartのサブプロシージャ
+    'このプロシージャでX軸とY軸の目盛線を追加する。そうしないとうまくいかない。
     chart.ChartType = xlLine
     chart.SetSourceData Source:=ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))
     chart.SeriesCollection(1).XValues = ws.Range(ws.Cells(1, colStart), ws.Cells(1, colEnd))
     chart.HasTitle = True
     chart.chartTitle.text = ws.Cells(i, "B").value
     chart.SetElement msoElementLegendNone
-    chart.SeriesCollection(1).Format.Line.Weight = 0.75
+    chart.SeriesCollection(1).Format.Line.Weight = 1#
 
-    SetYAxis chart, ws, i
+    SetYAxis chart, ws, i, maxVal
     SetXAxis chart
 
+    ' Y軸目盛線を追加
+    With chart.Axes(xlValue, xlPrimary)
+        .HasMajorGridlines = True
+        .MajorGridlines.Format.Line.Weight = 0.25
+        .MajorGridlines.Format.Line.DashStyle = msoLineDashDot
+    End With
+
+    ' X軸目盛線を追加
+    With chart.Axes(xlCategory, xlPrimary)
+        .HasMajorGridlines = True
+        .MajorGridlines.Format.Line.Weight = 0.25
+        .MajorGridlines.Format.Line.DashStyle = msoLineDashDot
+    End With
 End Sub
 
-Sub SetYAxis(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long)
-    'ConfigureChartで使用する関数
-    '保護帽定期試験に合わせて天頂の試験かそうでないかで判断するようにした。
+' CreateGraphHelmet_Y軸の書式設定
+Sub SetYAxis(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long, ByVal maxVal As Double)
     Dim yAxis As Axis
     Set yAxis = chart.Axes(xlValue, xlPrimary)
 
-    Dim eValue As String
-    eValue = ws.Cells(i, "E").value ' E列の値を取得
-    'Debug.Print eValue
-
-    If eValue = "天頂" Then
-        yAxis.MaximumScale = 5
-        yAxis.MajorUnit = 1# '1.0刻み
-    Else
+    If maxVal >= 5# Then
         yAxis.MaximumScale = 10
         yAxis.MajorUnit = 2# '2.0刻み
+    Else
+        yAxis.MaximumScale = 5
+        yAxis.MajorUnit = 1# '1.0刻み
     End If
 
     yAxis.MinimumScale = 0
@@ -192,59 +179,38 @@ Sub SetYAxis(ByRef chart As chart, ByRef ws As Worksheet, ByVal i As Long)
     With yAxis.TickLabels
         .NumberFormatLocal = "0.0""kN"""
         .Font.Color = RGB(89, 89, 89)
-        .Font.Size = 8
+        .Font.size = 8
     End With
+
 End Sub
 
 
-'Sub SetYAxis(ByRef chart As chart, ByVal maxVal As Double)
-'    Dim yAxis As Axis
-'    Set yAxis = chart.Axes(xlValue, xlPrimary)
-'
-'    If maxVal <= 4.95 Then
-'        yAxis.MaximumScale = 5
-'    ElseIf maxVal <= 9.81 Then
-'        yAxis.MaximumScale = 10
-'    Else
-'        yAxis.MaximumScale = Int(maxVal) + 1
-'    End If
-'
-'    yAxis.MinimumScale = -1
-'
-'    With yAxis.TickLabels
-'        .NumberFormatLocal = "0.0""kN"""
-'        .Font.color = RGB(89, 89, 89)
-'        .Font.Size = 8
-'    End With
-'End Sub
-
+'CreateGraphHelmet_X軸の書式設定
 Sub SetXAxis(ByRef chart As chart)
-    'ConfigureChartで使用する関数
     Dim xAxis As Axis
     Set xAxis = chart.Axes(xlCategory, xlPrimary)
+
     xAxis.TickLabelSpacing = 100
-    xAxis.TickMarkSpacing = 25
+    xAxis.TickMarkSpacing = 100
 
     With xAxis.TickLabels
-        .NumberFormatLocal = "0.00""ms"""
+        .NumberFormatLocal = "0.0""ms"""
         .Font.Color = RGB(89, 89, 89)
-        .Font.Size = 8
+        .Font.size = 8
     End With
+
 End Sub
-'----------------------------------------------------------------------------------
-
-
-
 
 
 Sub InspectHelmetDurationTime()
+    ' ヘルメット試験において最大値の更新、最大値の時間の更新、試験内容の更新、継続時間の色分けを行う
     Dim ws As Worksheet
     Dim lastRow As Long
 
     ' "LOG_Helmet" シートを指定する。
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     ' 最終行を取得する。
-    lastRow = ws.Cells(ws.Rows.count, "T").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "U").End(xlUp).row
 
     ' 各行を処理する。
     For i = 2 To lastRow
@@ -254,25 +220,24 @@ Sub InspectHelmetDurationTime()
         UpdateRangeForThresholds ws, i, 7.35, "K"
     Next i
 
-    ' 空のセルを埋める。
-    FillEmptyCells ws, lastRow
 End Sub
 
+'InspectHelmetDurationTime()内のプロシージャ_行内の最大値を更新し、最大値を記録した時刻のセルに色をつける。
 Sub UpdateMaxValueInRow(ByRef ws As Worksheet, ByVal row As Long)
-    'InspectHelmetDurationTime()内のプロシージャ_行内の最大値を更新する
+    
     Dim rng As Range
-    Dim maxValue As Double
+    Dim MaxValue As Double
     Dim maxValueColumn As Long
 
     ' 行内の範囲をセットする。
     Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.count).End(xlToLeft))
     ' 最大値を取得する。
-    maxValue = Application.WorksheetFunction.Max(rng)
-    ws.Cells(row, "H").value = maxValue
+    MaxValue = Application.WorksheetFunction.Max(rng)
+    ws.Cells(row, "H").value = MaxValue
 
     ' 最大値の位置を見つける。
     For j = 1 To rng.Columns.count
-        If rng(1, j).value = maxValue Then
+        If rng(1, j).value = MaxValue Then
             maxValueColumn = j
             rng(1, j).Interior.Color = RGB(250, 150, 0)  ' 色を設定する。
             Exit For
@@ -283,10 +248,9 @@ Sub UpdateMaxValueInRow(ByRef ws As Worksheet, ByVal row As Long)
         ws.Cells(row, "I").value = ws.Cells(1, "V").Offset(0, maxValueColumn - 1).value
     End If
 End Sub
-
+ 'InspectHelmetDurationTime()内のプロシージャ_ヘルメットの試験箇所を更新する
 Sub UpdatePartOfHelmet(ByRef ws As Worksheet, ByVal row As Long)
-    'InspectHelmetDurationTime()内のプロシージャ_ヘルメットの試験箇所を更新する
-    '最初に参照するのはB列の値
+
     Dim cellValue As String
     cellValue = ws.Cells(row, "B").value
     
@@ -297,7 +261,6 @@ Sub UpdatePartOfHelmet(ByRef ws As Worksheet, ByVal row As Long)
     ' ヘルメットの部分に基づいて値を設定する。ただし、"天頂"や"頭部"がすでに含まれている場合は変更しない。
     ' 条件節では最初にE列の値をチェックする。
     If InStr(existingValue, "天頂") > 0 Or InStr(existingValue, "頭部") > 0 Then
-        ' 変更しない
     ElseIf InStr(cellValue, "HEL_TOP") > 0 Then
         ws.Cells(row, "E").value = "天頂"
     ElseIf InStr(cellValue, "HEL_ZENGO") > 0 Then
@@ -307,9 +270,9 @@ Sub UpdatePartOfHelmet(ByRef ws As Worksheet, ByVal row As Long)
     End If
 End Sub
 
-
+'InspectHelmetDurationTime()から4.9、7.35の範囲値の色付けと衝撃時間を記入する。
 Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal threshold As Double, ByVal columnToWrite As String)
-    'InspectHelmetDurationTime()から4.9、7.35の範囲値の色付けと衝撃時間を記入する。
+
     Dim rng As Range, cell As Range
     Dim startRange As Long, endRange As Long, maxRange As Long
     Dim rangeCollection As New Collection
@@ -342,100 +305,94 @@ Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal thr
             endRange = item(1)
         End If
     Next item
-
+    
     If startRange > 0 And endRange > 0 Then
         timeDifference = ws.Cells(1, endRange).value - ws.Cells(1, startRange).value
+        If timeDifference < 0 Then
+            timeDifference = 0
+        End If
         ws.Cells(row, columnToWrite).value = timeDifference
     Else
-        ws.Cells(row, columnToWrite).value = "-"
+        ws.Cells(row, columnToWrite).value = 0
     End If
 End Sub
 
-Sub FillEmptyCells(ByRef ws As Worksheet, ByVal lastRow As Long)
-    'InspectHelmetDurationTime()内のプロシージャ_空欄に-を入れる。
-    Dim cellRng As Range
 
-    ' B列の最後の行を取得する。
-    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
+' TestCode---------------------------------------------------------------------------------------------
+Sub GroupAndListChartNamesAndTitles()
+    Dim chartObj As ChartObject
+    Dim chartTitle As String
+    Dim part0 As String
+    Dim groups As Object
+    Set groups = CreateObject("Scripting.Dictionary")
 
-    ' 空のセルを"-"で埋める。
-    For Each cellRng In ws.Range("F2:P" & lastRow)
-        If IsEmpty(cellRng) Then
-            cellRng.value = "-"
+    ' アクティブシートのチャートオブジェクトをループ処理
+    For Each chartObj In ActiveSheet.ChartObjects
+        ' グラフにタイトルがあるかどうかをチェック
+        If chartObj.chart.HasTitle Then
+            chartTitle = chartObj.chart.chartTitle.text
+        Else
+            chartTitle = "No Title"  ' タイトルがない場合
         End If
-    Next cellRng
+
+        ' chartNameを"-"で分割し、part(0)を取得
+        part0 = Split(chartObj.name, "-")(0)
+
+        ' グループがまだ存在しない場合、新規作成
+        If Not groups.Exists(part0) Then
+            groups.Add part0, New Collection
+        End If
+
+        ' グループにチャート名とタイトルを追加
+        groups(part0).Add "Chart Name: " & chartObj.name & "; Title: " & chartTitle
+    Next chartObj
+
+    ' 各グループの内容をイミディエイトウィンドウに出力
+    Dim key As Variant
+    For Each key In groups.Keys
+        Debug.Print "Group: " & key
+        Dim item As Variant
+        For Each item In groups(key)
+            Debug.Print item
+        Next item
+    Next key
 End Sub
 
-Sub HighlightDuplicateValues()
-    ' 衝撃値が被る場合があるのでそれをチェックするプロシージャ
-    Dim sheetName As String
-    sheetName = "LOG_Helmet"
-    
-    ' 変数宣言
+
+
+' アクティブシートのチャートオブジェクトをDebug.Printで表示する。
+Sub ListChartNamesAndTitles()
+    Dim chartObj As ChartObject
+    Dim chartTitle As String
+
+    ' アクティブシートのチャートオブジェクトをループ処理
+    For Each chartObj In ActiveSheet.ChartObjects
+        ' グラフにタイトルがあるかどうかをチェック
+        If chartObj.chart.HasTitle Then
+            chartTitle = chartObj.chart.chartTitle.text
+        Else
+            chartTitle = "No Title"  ' タイトルがない場合
+        End If
+
+        ' イミディエイトウィンドウにグラフの名前とタイトルを表示
+        Debug.Print "Chart Name: " & chartObj.name & "; Title: " & chartTitle
+    Next chartObj
+End Sub
+
+' CreateChartIDが機能しているか確認するテストコード
+Sub TestCreateChartID()
     Dim ws As Worksheet
-    Dim lastRow As Long, i As Long, j As Long
-    Dim valueToFind As Variant
-    Dim colorIndex As Integer
-    
-    ' シートオブジェクトを設定
-    Set ws = ThisWorkbook.Sheets(sheetName)
-    
-    ' 最終行を取得
-    lastRow = ws.Cells(ws.Rows.count, "H").End(xlUp).row
-    
-    ' 色のインデックスを初期化
-    colorIndex = 3 ' Excelの色インデックスは3から始まる
-    
-    ' H列の2行目から最終行までループ
-    For i = 2 To lastRow
-        ' 現在のセルの値を取得
-        valueToFind = ws.Cells(i, "H").value
-        
-        ' 同じ値を持つセルが既に色付けされていないかチェック
-        If ws.Cells(i, "H").Interior.colorIndex = xlNone Then
-            ' 現在のセルの値と同じ値を持つセルを探索
-            For j = i + 1 To lastRow
-                If ws.Cells(j, "H").value = valueToFind And ws.Cells(j, "H").Interior.colorIndex = xlNone Then
-                    ' 同じ値を持つセルを見つけた場合、色を塗る
-                    ws.Cells(i, "H").Interior.colorIndex = colorIndex
-                    ws.Cells(j, "H").Interior.colorIndex = colorIndex
-                End If
-            Next j
-            
-            ' 色インデックスを更新して次の色に変更
-            colorIndex = colorIndex + 1
-            ' Excelの色インデックスの最大値を超えないようにチェック
-            If colorIndex > 56 Then colorIndex = 3 ' 色インデックスをリセット
-        End If
-    Next i
-End Sub
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")  ' テストするワークシート名を指定
+    Dim testRange As Range
+    Dim cell As Range
+    Dim outputID As String
 
+    ' テスト対象のセル範囲を指定
+    Set testRange = ws.Range("B2:B12")  ' B1からB5までのセルをテスト対象とする
 
-
-' アクティブシート内のグラフを削除
-Sub DeleteAllChartsInActiveSheet()
-    Dim chart As ChartObject
-    
-    For Each chart In ActiveSheet.ChartObjects
-        chart.Delete
-    Next chart
-End Sub
-
-
-
-Sub UpdatePartOfHelmet_231013SyuuseiMae(ByRef ws As Worksheet, ByVal row As Long)
-    'InspectHelmetDurationTime()内のプロシージャ_ヘルメットの試験箇所を更新する
-    Dim cellValue As String
-    cellValue = ws.Cells(row, "B").value
-
-    ' ヘルメットの部分に基づいて値を設定する。
-    If InStr(cellValue, "TOP") > 0 Then
-        ws.Cells(row, "E").value = "天頂"
-    ElseIf InStr(cellValue, "MAE") > 0 Then
-        ws.Cells(row, "E").value = "前頭部"
-    ElseIf InStr(cellValue, "USHIRO") > 0 Then
-        ws.Cells(row, "E").value = "後頭部"
-    Else
-        ws.Cells(row, "E").value = "前後頭部"
-    End If
+    ' 各セルに対してCreateChartID関数を適用し、結果をイミディエイトウィンドウに出力
+    For Each cell In testRange
+        outputID = CreateChartID(cell)
+        Debug.Print "Cell " & cell.Address & " Value: '" & cell.value & "' -> ID: '" & outputID & "'"
+    Next cell
 End Sub

@@ -1,6 +1,5 @@
 Attribute VB_Name = "Utliteis"
 
-
 ' 転記した15行目以下を削除する。
 Sub ClearTransferData()
     Dim ws As Worksheet
@@ -32,5 +31,18 @@ Sub ClearTransferData()
             Set ws = Nothing
         End If
     Next i
+End Sub
+
+Public Sub DeleteAllChartsOnLOG_Helmet()
+    Dim ws As Worksheet
+    Dim chartObj As ChartObject
+    
+    ' "LOG_Helmet"シートを取得
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    
+    ' シート上のすべてのグラフオブジェクトをループ
+    For Each chartObj In ws.ChartObjects
+        chartObj.Delete
+    Next chartObj
 End Sub
 
