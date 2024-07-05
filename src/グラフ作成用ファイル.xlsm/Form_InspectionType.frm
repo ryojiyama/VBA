@@ -38,6 +38,8 @@ Private Sub RunButton_Click()
     End If
     
     CreateGraphHelmet selectedType
+    Call InspectHelmetDurationTime
+    Call Utlities.AdjustingDuplicateValues
 End Sub
 
 

@@ -1,16 +1,15 @@
-Attribute VB_Name = "ChartCreate_Helmet"
+Attribute VB_Name = "HelmetCreate"
 Sub HelmetTestResultChartBuilder()
     'グラフ作成とヘルメット検査時間の表示、色付けなど
     Call CreateGraphHelmet
     Call InspectHelmetDurationTime
-    Call Utlities.AdjustingDuplicateValues
 End Sub
 ' グラフを作成するメインのサブプロシージャ
-Sub CreateGraphHelmet(userInput As String)
+Sub CreateGraphHelmet()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "B").End(xlUp).row
     Dim chartLeft As Long
     Dim chartTop As Long
     Dim colStart As String
@@ -23,7 +22,7 @@ Sub CreateGraphHelmet(userInput As String)
 
     For i = 2 To lastRow
         colEnd = GetColumnEnd(ws, i)
-        chartSize = GetChartSize(userInput)
+        chartSize = GetChartSize("定期試験用")
         CreateIndividualChart ws, i, chartLeft, chartTop, colStart, colEnd, chartSize
         chartLeft = chartLeft + 10 ' 次のグラフの左位置を調整
     Next i
@@ -37,7 +36,7 @@ Function GetColumnEnd(ByRef ws As Worksheet, ByVal rowNumber As Long) As String
     found = False
 
     ' 列の最後から開始して値が1.0を超える最後の列番号を探す
-    For col = ws.Cells(rowNumber, ws.Columns.Count).End(xlToLeft).Column To 1 Step -1
+    For col = ws.Cells(rowNumber, ws.Columns.count).End(xlToLeft).Column To 1 Step -1
         If ws.Cells(rowNumber, col).value > 1# Then
             lastCol = col
             found = True
@@ -48,7 +47,7 @@ Function GetColumnEnd(ByRef ws As Worksheet, ByVal rowNumber As Long) As String
     ' 値が1.0を超える列から100列後を計算
     If found Then
         lastCol = lastCol + 100
-        If lastCol > ws.Columns.Count Then lastCol = ws.Columns.Count ' 列数の最大値を超えないように調整
+        If lastCol > ws.Columns.count Then lastCol = ws.Columns.count ' 列数の最大値を超えないように調整
     Else
         ' 1.0を超える値が見つからない場合は、適当なデフォルト値を設定するか、エラー処理を行う
         lastCol = 150
@@ -97,14 +96,14 @@ Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLef
         .SeriesCollection.NewSeries
         .SeriesCollection(1).XValues = ws.Range(ws.Cells(1, colStart), ws.Cells(1, colEnd))  ' X軸の範囲を1行目から設定
         .SeriesCollection(1).Values = ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd))  ' Y軸のデータ範囲を設定
-        .SeriesCollection(1).Name = "Data Series " & i
+        .SeriesCollection(1).name = "Data Series " & i
     End With
 
     ' IDを作成してグラフタイトルに設定
     Dim recordID As String
     recordID = CreateChartID(ws.Cells(i, "B"))
     Debug.Print "recordID:" & recordID
-    chartObj.Name = recordID
+    chartObj.name = recordID
     ConfigureChart chart, ws, i, colStart, colEnd, maxVal
 End Sub
 
@@ -198,16 +197,16 @@ Sub SetXAxis(ByRef chart As chart)
 
 End Sub
 
-' ヘルメット試験において最大値の更新、最大値の時間の更新、試験内容の更新、継続時間の色分けを行う
-Sub InspectHelmetDurationTime()
 
+Sub InspectHelmetDurationTime()
+    ' ヘルメット試験において最大値の更新、最大値の時間の更新、試験内容の更新、継続時間の色分けを行う
     Dim ws As Worksheet
     Dim lastRow As Long
 
     ' "LOG_Helmet" シートを指定する。
     Set ws = ThisWorkbook.Sheets("LOG_Helmet")
     ' 最終行を取得する。
-    lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row '最大値の列を参照
+    lastRow = ws.Cells(ws.Rows.count, "H").End(xlUp).row '最大値の列を参照
 
     ' 各行を処理する。
     For i = 2 To lastRow
@@ -219,21 +218,21 @@ Sub InspectHelmetDurationTime()
 
 End Sub
 
-
+'InspectHelmetDurationTime()内のプロシージャ_行内の最大値を更新し、最大値を記録した時刻のセルに色をつける。
 Sub UpdateMaxValueInRow(ByRef ws As Worksheet, ByVal row As Long)
-  'InspectHelmetDurationTime()内のプロシージャ_行内の最大値を更新し、最大値を記録した時刻のセルに色をつける。
+    
     Dim rng As Range
     Dim MaxValue As Double
     Dim maxValueColumn As Long
 
     ' 行内の範囲をセットする。
-    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.Count).End(xlToLeft))
+    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.count).End(xlToLeft))
     ' 最大値を取得する。
     MaxValue = Application.WorksheetFunction.Max(rng)
     ws.Cells(row, "H").value = MaxValue
 
     ' 最大値の位置を見つける。
-    For j = 1 To rng.Columns.Count
+    For j = 1 To rng.Columns.count
         If rng(1, j).value = MaxValue Then
             maxValueColumn = j
             rng(1, j).Interior.Color = RGB(250, 150, 0)  ' 色を設定する。
@@ -245,9 +244,9 @@ Sub UpdateMaxValueInRow(ByRef ws As Worksheet, ByVal row As Long)
         ws.Cells(row, "I").value = ws.Cells(1, "V").Offset(0, maxValueColumn - 1).value
     End If
 End Sub
-
-Sub UpdatePartOfHelmet(ByRef ws As Worksheet, ByVal row As Long)
  'InspectHelmetDurationTime()内のプロシージャ_ヘルメットの試験箇所を更新する
+Sub UpdatePartOfHelmet(ByRef ws As Worksheet, ByVal row As Long)
+
     Dim cellValue As String
     cellValue = ws.Cells(row, "B").value
     
@@ -267,16 +266,16 @@ Sub UpdatePartOfHelmet(ByRef ws As Worksheet, ByVal row As Long)
     End If
 End Sub
 
-
-Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal threshold As Double, ByVal columnToWrite As String)
 'InspectHelmetDurationTime()から4.9、7.35の範囲値の色付けと衝撃時間を記入する。
+Sub UpdateRangeForThresholds(ByRef ws As Worksheet, ByVal row As Long, ByVal threshold As Double, ByVal columnToWrite As String)
+
     Dim rng As Range, cell As Range
     Dim startRange As Long, endRange As Long, maxRange As Long
     Dim rangeCollection As New Collection
     Dim timeDifference As Double
 
     ' 行の範囲をセットする。
-    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.Count).End(xlToLeft))
+    Set rng = ws.Range(ws.Cells(row, "V"), ws.Cells(row, ws.Columns.count).End(xlToLeft))
 
     ' 閾値を超えるセルの範囲を見つける。
     For Each cell In rng
@@ -333,7 +332,7 @@ Sub GroupAndListChartNamesAndTitles()
         End If
 
         ' chartNameを"-"で分割し、part(0)を取得
-        part0 = Split(chartObj.Name, "-")(0)
+        part0 = Split(chartObj.name, "-")(0)
 
         ' グループがまだ存在しない場合、新規作成
         If Not groups.Exists(part0) Then
@@ -341,7 +340,7 @@ Sub GroupAndListChartNamesAndTitles()
         End If
 
         ' グループにチャート名とタイトルを追加
-        groups(part0).Add "Chart Name: " & chartObj.Name & "; Title: " & chartTitle
+        groups(part0).Add "Chart Name: " & chartObj.name & "; Title: " & chartTitle
     Next chartObj
 
     ' 各グループの内容をイミディエイトウィンドウに出力
@@ -372,7 +371,7 @@ Sub ListChartNamesAndTitles()
         End If
 
         ' イミディエイトウィンドウにグラフの名前とタイトルを表示
-        Debug.Print "Chart Name: " & chartObj.Name & "; Title: " & chartTitle
+        Debug.Print "Chart Name: " & chartObj.name & "; Title: " & chartTitle
     Next chartObj
 End Sub
 
@@ -393,4 +392,5 @@ Sub TestCreateChartID()
         Debug.Print "Cell " & cell.Address & " Value: '" & cell.value & "' -> ID: '" & outputID & "'"
     Next cell
 End Sub
+
 

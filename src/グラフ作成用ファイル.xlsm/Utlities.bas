@@ -158,40 +158,60 @@ Sub AdjustingDuplicateValues()
     Dim sheetName As Variant
     Dim newValue As Double
     Dim randomDigit As Integer
+    Dim roundedValue As Double
+    Dim maxCol As Long
 
     ' シートごとに処理
     For Each sheetName In sheetNames
         Set ws = ThisWorkbook.Sheets(sheetName)
         lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
+        
+        ' "最大値"を含むヘッダーがある列を検索
+        maxCol = 0
+        For i = 1 To ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+            If InStr(ws.Cells(1, i).value, "最大値") > 0 Then
+                maxCol = i
+                Exit For
+            End If
+        Next i
+        
+        ' "最大値"列が見つからなければ次のシートへ
+        If maxCol = 0 Then
+            MsgBox "シート " & sheetName & " には '最大値' を含む列が見つかりません。"
+            GoTo NextSheet
+        End If
 
         For i = 2 To lastRow
             ' セルの値が数値かどうか確認
-            If IsNumeric(ws.Cells(i, "H").value) Then
+            If IsNumeric(ws.Cells(i, maxCol).value) Then
                 ' 数値として取得し、小数点以下2桁で丸める
-                valueToFind = Round(ws.Cells(i, "H").value, 2)
+                roundedValue = Round(ws.Cells(i, maxCol).value, 2)
 
-                If ws.Cells(i, "H").Interior.colorIndex = xlNone Then
+                If ws.Cells(i, maxCol).Interior.colorIndex = xlNone Then
                     For j = i + 1 To lastRow
                         ' 重複値をチェック（数値チェックを追加）
-                        If IsNumeric(ws.Cells(j, "H").value) And Round(ws.Cells(j, "H").value, 2) = valueToFind And ws.Cells(j, "H").Interior.colorIndex = xlNone Then
+                        If IsNumeric(ws.Cells(j, maxCol).value) And Round(ws.Cells(j, maxCol).value, 2) = roundedValue And ws.Cells(j, maxCol).Interior.colorIndex = xlNone Then
                             Debug.Print "Duplicate Row Number: " & j
                             Do
                                 ' 1から9のランダムな数を生成
                                 randomDigit = Int((9 - 1 + 1) * Rnd + 1)
-                                ' 元の値にランダムな値を小数点以下4桁として追加
-                                newValue = valueToFind + randomDigit / 10000
+                                ' 元の値にランダムな値を小数点以下4桁として追加（小数点以下2桁は維持）
+                                newValue = roundedValue + randomDigit / 10000
                                 Debug.Print "New Value: " & newValue
-                            Loop While WorksheetFunction.CountIf(ws.Range("H:H"), newValue) > 0
+                            Loop While WorksheetFunction.CountIf(ws.Range(ws.Cells(2, maxCol), ws.Cells(lastRow, maxCol)), newValue) > 0
                             
                             ' 新しい値をセルに設定
-                            ws.Cells(j, "H").value = newValue
+                            ws.Cells(j, maxCol).value = newValue
                         End If
                     Next j
                 End If
             End If
         Next i
+NextSheet:
     Next sheetName
 End Sub
+
+
 
 
 Sub AdjustingDuplicateValues_06270900()
@@ -423,3 +443,4 @@ NextSheet:
         Set ws = Nothing
     Next sheetName
 End Sub
+

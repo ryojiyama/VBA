@@ -37,41 +37,55 @@ Sub ClearCopiedSheetNames()
         ws.Cells.ClearContents
     End If
 End Sub
-
-Sub PrintFirstPageOfUniqueListedSheets()
-    ' 指定された検査票の1ページ目を、重複なく1回ずつ印刷するプロシージャ
-    Dim wsSource As Worksheet
-    Dim wsTarget As Worksheet
-    Dim printedSheets As Collection
-    Dim lastRow As Long
-    Dim i As Long
-    Dim sheetName As String
-
-    ' CopiedSheetNames シートを設定
-    Set wsSource = ThisWorkbook.Sheets("CopiedSheetNames")
-    Set printedSheets = New Collection ' 印刷されたシート名を追跡するコレクション
-
-    ' A列の最終行を取得
-    lastRow = wsSource.Cells(wsSource.Rows.count, "A").End(xlUp).row
-
-    ' A列の値をループ
-    For i = 1 To lastRow
-        sheetName = wsSource.Cells(i, 1).value
-
-        On Error Resume Next
-        ' コレクションに同じ名前が既に存在するかチェック
-        printedSheets.Add sheetName, sheetName
-        If Err.number = 0 Then ' 追加が成功した場合、シートはまだ印刷されていない
-            Set wsTarget = ThisWorkbook.Sheets(sheetName)
-            If Not wsTarget Is Nothing Then
-                wsTarget.PrintOut From:=1, To:=1 ' シートの1ページ目のみを印刷
-            End If
-        End If
-        On Error GoTo 0 ' エラーハンドリングをリセット
-
-        Set wsTarget = Nothing
-    Next i
+' "LOG_Helmet上のグラフを削除する
+Public Sub DeleteAllChartsOnLOG_Helmet()
+    Dim ws As Worksheet
+    Dim chartObj As ChartObject
+    
+    ' "LOG_Helmet"シートを取得
+    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    
+    ' シート上のすべてのグラフオブジェクトをループ
+    For Each chartObj In ws.ChartObjects
+        chartObj.Delete
+    Next chartObj
 End Sub
+
+Sub PrintMatchingSheetsFirstPage()
+    Dim ws As Worksheet
+    Dim copiedSheetNames As Worksheet
+    Dim sheetName As String
+    Dim cell As Range
+    Dim foundSheet As Worksheet
+    
+    ' CopiedSheetNamesシートを設定
+    Set copiedSheetNames = ThisWorkbook.Sheets("CopiedSheetNames")
+    
+    ' A列の値をループ
+    For Each cell In copiedSheetNames.Range("A1:A" & copiedSheetNames.Cells(copiedSheetNames.Rows.count, "A").End(xlUp).row)
+        sheetName = cell.value
+        
+        ' 一致するシートを検索
+        On Error Resume Next
+        Set foundSheet = ThisWorkbook.Sheets(sheetName)
+        On Error GoTo 0
+        
+        ' シートが存在する場合、1ページ目を印刷
+        If Not foundSheet Is Nothing Then
+            With foundSheet
+                ' 印刷領域を設定
+                .PageSetup.PrintArea = ""
+                ' シートを1ページ目のみ印刷
+                .PrintOut Preview:=False
+            End With
+            ' foundSheetをクリア
+            Set foundSheet = Nothing
+        End If
+    Next cell
+End Sub
+
+
+
 
 'Sub DeleteAllChartsAndSheets()
 '    ' シート中のグラフと余計なシートを削除

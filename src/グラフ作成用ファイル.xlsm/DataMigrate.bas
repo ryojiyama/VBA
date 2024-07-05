@@ -36,9 +36,7 @@ Sub DataMigration_GraphToTestDB_FromGraphbook()
 
     ' データの転記処理を実行
     MigrateData sourceWorkbook, targetWorkbook
-
     Application.ScreenUpdating = True
-
     Exit Sub
 
 ErrorHandler:
@@ -153,7 +151,7 @@ Function GetNewID(ByVal currentID As String, ByVal IDPrefix As String, ByVal num
     ' Debug.Print "Generated " & numRecords & " new IDs starting from " & currentNumber - numRecords + 1
 End Function
 ' B列の値を参考に"LOG"シートを他ブックに移動する。
-Sub CopySheetsToOtherWorkbooks(selectedType As String)
+Sub CopySheetsToOtherWorkbooks(selectedButton As String)
     Dim sheetNames As Variant
     Dim folderNames As Variant
     Dim sheetName As Variant
@@ -165,12 +163,16 @@ Sub CopySheetsToOtherWorkbooks(selectedType As String)
     Dim file As String
     Dim fileCount As Integer
     Dim copySheetName As String
+    Dim oneDrivePath As String
     
     Application.ScreenUpdating = False
 
+    ' 環境変数からOneDriveのパスを取得
+    oneDrivePath = Environ("OneDriveGraph")
+    
     ' 対象シート名とフォルダ名のリスト
     sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
-    folderNames = Array("Helmet", "FallArrest", "Bicycle", "BaseBall")
+    folderNames = Array("☆Helmet", "☆FallArrest", "☆Bicycle", "☆BaseBall")
 
     ' シートごとに処理
     For i = LBound(sheetNames) To UBound(sheetNames)
@@ -183,13 +185,14 @@ Sub CopySheetsToOtherWorkbooks(selectedType As String)
         ' B2セルが空かどうか確認
         If ws.Range("B2").value <> "" Then
             ' コピー先ディレクトリを設定
-            destDir = ThisWorkbook.Path & "\" & folderName & "\"
+            destDir = oneDrivePath & "\" & folderName & "\"
+            Debug.Print "DestDir:" & destDir
             
             ' コピー先ファイルをループで開く
             file = Dir(destDir & "*.xls*")
             Do While file <> ""
-                ' 選択されたタイプの文字列を含むファイルをチェック
-                If InStr(file, selectedType) > 0 Then
+                ' selectedButtonの内容に基づいてフィルタリング
+                If InStr(file, selectedButton) > 0 Then
                     destFile = destDir & file
                     Set destWb = Workbooks.Open(destFile)
                     

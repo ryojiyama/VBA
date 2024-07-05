@@ -426,14 +426,20 @@ Function GetHeaderPairs(sheetNameLog As String, sheetNameSpec As String) As Vari
             headerPairs = Array( _
                 Array("試料ID", "試験ID(C)"), _
                 Array("品番", "品番(D)"), _
-                Array("試験内容", "試験内容(E)"), _
+                Array("試験内容", "試験位置(E)"), _
                 Array("検査日", "検査日(F)"), _
                 Array("温度", "温度(G)"), _
+                Array("最大値(kN)", "衝撃値(H)"), _
                 Array("前処理", "前処理(L)"), _
                 Array("重量", "重量(M)"), _
                 Array("天頂すきま", "天頂すきま(N)"), _
                 Array("帽体色", "帽体色(O)"), _
-                Array("試験区分", "試験区分(U)") _
+                Array("ロットNo.", "製造ロット(P)"), _
+                Array("帽体ロット", "帽体ロット(Q)"), _
+                Array("内装ロット", "内装ロット(R)"), _
+                Array("構造_検査結果", "構造/結果(S)"), _
+                Array("耐貫通_検査結果", "耐貫通/結果(U)"), _
+                Array("試験区分", "試験内容(U)") _
             )
     ElseIf sheetNameLog = "LOG_FallArrest" And sheetNameSpec = "FallArr_SpecSheet" Then
         headerPairs = Array( _
