@@ -15,10 +15,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 
-Private Sub ComboBox_Type_Change()
-
-End Sub
-
 Private Sub UserForm_Initialize()
     With ComboBox_Type
         .AddItem "’èŠúŽŽŒ±—p"

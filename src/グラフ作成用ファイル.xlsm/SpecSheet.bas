@@ -151,10 +151,10 @@ Sub SyncSpecSheetToLogHel()
         MsgBox "空欄があります。まずはそれを埋めてください。", vbCritical
         Exit Sub
     End If
-
-    Call ProcessSheetPairs          ' 転記処理をするプロシージャ
-    Call CustomizeSheetFormats      ' 各列に書式設定をする
     Call createID              ' B列にIDを作成する。
+    Call UpdateCrownClearance
+    Call ProcessSheetPairs          ' 転記処理をするプロシージャ
+
 End Sub
 Function HighlightDuplicateValues() As Boolean
     ' SyncSpecSheetToLogHelのサブプロシージャ
@@ -281,8 +281,90 @@ Function LocateEmptySpaces() As Boolean
         LocateEmptySpaces = True
     End If
 End Function
+' 天頂すき間を"Setting"シートのデータに合わせて調整する。
+Sub UpdateCrownClearance()
+    Dim wsHelSpec As Worksheet
+    Dim wsSetting As Worksheet
+    Dim colHinban As Integer
+    Dim colBoutai As Integer
+    Dim colTencho As Integer
+    Dim colTenchoSukima As Integer
+    Dim colSokuteiSukima As Integer
+    Dim colTenchoNikui As Integer
+    Dim lastRowHelSpec As Long
+    Dim lastRowSetting As Long
+    Dim cell As Range
+    Dim tenSukima As Long
+    Dim valueToFind As Variant
+    Dim tenchoSukimaValue As Variant
+    Dim tenchoNikuiValue As Variant
+    Dim i As Long
+    
+    ' シートをセット
+    Set wsHelSpec = ThisWorkbook.Sheets("Hel_SpecSheet")
+    Set wsSetting = ThisWorkbook.Sheets("Setting")
+    
+    ' ヘッダーの列番号を取得
+    colHinban = GetColumnIndex(wsHelSpec, "品番(D)")
+    colBoutai = GetColumnIndex(wsSetting, "帽体No.")
+    colTencho = GetColumnIndex(wsHelSpec, "天頂肉厚")
+    colTenchoSukima = GetColumnIndex(wsHelSpec, "天頂すきま(N)")
+    colSokuteiSukima = GetColumnIndex(wsHelSpec, "測定すきま")
+    colTenchoNikui = GetColumnIndex(wsHelSpec, "天頂肉厚")
+    
+    ' 必要な列が見つかったかを確認
+    If colHinban = 0 Or colBoutai = 0 Or colTencho = 0 Or colTenchoSukima = 0 Or colSokuteiSukima = 0 Or colTenchoNikui = 0 Then
+        MsgBox "必要な列が見つかりません。ヘッダーを確認してください。", vbCritical
+        Exit Sub
+    End If
+    
+    ' 最終行を取得
+    lastRowHelSpec = wsHelSpec.Cells(wsHelSpec.Rows.Count, colHinban).End(xlUp).row
+    lastRowSetting = wsSetting.Cells(wsSetting.Rows.Count, colBoutai).End(xlUp).row
+    
+    ' "品番(D)" 列の値を探索し、転記
+    For Each cell In wsHelSpec.Range(wsHelSpec.Cells(2, colHinban), wsHelSpec.Cells(lastRowHelSpec, colHinban))
+        valueToFind = cell.value
+        For tenSukima = 2 To lastRowSetting
+            If wsSetting.Cells(tenSukima, colBoutai).value = valueToFind Then
+                wsHelSpec.Cells(cell.row, colTencho).value = wsSetting.Cells(tenSukima, "H").value
+                Exit For
+            End If
+        Next tenSukima
+    Next cell
+    
+    ' "天頂すきま(N)" の値を "測定すきま" にコピーし、値を計算
+    For i = 2 To lastRowHelSpec
+        ' 各セルの値を取得
+        tenchoSukimaValue = wsHelSpec.Cells(i, colTenchoSukima).value
+        tenchoNikuiValue = wsHelSpec.Cells(i, colTenchoNikui).value
+        
+        ' "天頂すきま(N)"の値を"測定すきま"にコピー
+        If IsNumeric(tenchoSukimaValue) Then
+            wsHelSpec.Cells(i, colSokuteiSukima).value = tenchoSukimaValue
+        End If
+        
+        ' "天頂すきま(N)"の値から"天頂肉厚"の値を引く
+        If IsNumeric(tenchoSukimaValue) And IsNumeric(tenchoNikuiValue) Then
+            wsHelSpec.Cells(i, colTenchoSukima).value = tenchoSukimaValue - tenchoNikuiValue
+        End If
+        
+        ' Q列とR列に"合格"の値を代入
+        wsHelSpec.Cells(i, 17).value = "合格" ' Q列は17番目の列
+        wsHelSpec.Cells(i, 18).value = "合格" ' R列は18番目の列
+    Next i
+End Sub
 
-
+Function GetColumnIndex(sheet As Worksheet, headerName As String) As Integer
+    Dim cell As Range
+    For Each cell In sheet.Rows(1).Cells
+        If cell.value = headerName Then
+            GetColumnIndex = cell.Column
+            Exit Function
+        End If
+    Next cell
+    GetColumnIndex = 0 ' 見つからない場合は0を返す
+End Function
 ' 転記処理をするプロシージャ
 Sub ProcessSheetPairs()
     Dim sheetPairs As Variant
@@ -323,6 +405,138 @@ Function SheetExists(sheetName As String) As Boolean
 End Function
 
 Sub CopyDataBasedOnCondition(sheetNameLog As String, sheetNameSpec As String)
+    'ProcessSheetPairsのサブプロシージャ
+    Dim logSheet As Worksheet
+    Dim helSpec As Worksheet
+    Dim lastRowLog As Long
+    Dim lastRowSpec As Long
+    Dim i As Long, j As Long
+    Dim matchCount As Long
+    Dim columnsToCopy As Collection
+    Dim colPair As Variant
+    Dim logHeader As Range
+    Dim helSpecHeader As Range
+    Dim col As Range
+    Dim colLog As Range
+    Dim structureCol As Long
+    Dim penetrationCol As Long
+
+    ' ワークシートをセット
+    Set logSheet = ThisWorkbook.Worksheets(sheetNameLog)
+    Set helSpec = ThisWorkbook.Worksheets(sheetNameSpec)
+
+    ' LOGシートの最終行を取得
+    lastRowLog = logSheet.Cells(logSheet.Rows.Count, "H").End(xlUp).row
+    ' Specシートの最終行を取得
+    lastRowSpec = helSpec.Cells(helSpec.Rows.Count, "H").End(xlUp).row
+
+    ' ヘッダー行を取得
+    Set logHeader = logSheet.Rows(1)
+    Set helSpecHeader = helSpec.Rows(1)
+
+    ' 転記する列のペアをコレクションに定義
+    Set columnsToCopy = New Collection
+
+    ' ペアとなるヘッダー名を取得
+    colPair = GetHeaderPairs(sheetNameLog, sheetNameSpec)
+
+    ' ペアが正しく取得されているか確認
+    If UBound(colPair) = -1 Then
+        MsgBox "ヘッダーのペアが見つかりませんでした: " & sheetNameLog & " と " & sheetNameSpec
+        Exit Sub
+    End If
+
+    ' 各ヘッダー行を走査して一致するヘッダーを見つける
+    Dim pair As Variant
+    For Each pair In colPair
+        Dim logCol As Long
+        Dim helSpecCol As Long
+        logCol = 0
+        helSpecCol = 0
+        For Each col In logHeader.Cells
+            If col.value = pair(0) Then
+                logCol = col.Column
+                Exit For
+            End If
+        Next col
+        For Each col In helSpecHeader.Cells
+            If col.value = pair(1) Then
+                helSpecCol = col.Column
+                Exit For
+            End If
+        Next col
+        If logCol > 0 And helSpecCol > 0 Then
+            columnsToCopy.Add Array(logCol, helSpecCol)
+        Else
+            MsgBox "ヘッダーが見つかりませんでした: " & pair(0) & " または " & pair(1)
+        End If
+    Next pair
+
+    ' 値を比較して転記
+    For i = 2 To lastRowLog
+        matchCount = 0
+        For j = 2 To lastRowSpec
+            If logSheet.Cells(i, "H").value = helSpec.Cells(j, "H").value Then
+                ' H列の値が一致した場合、各列の内容を転記
+                matchCount = matchCount + 1
+                Dim k As Long
+                For k = 1 To columnsToCopy.Count
+                    logSheet.Cells(i, columnsToCopy(k)(0)).value = helSpec.Cells(j, columnsToCopy(k)(1)).value
+                Next k
+                ' C列の値もB列にコピー
+                logSheet.Cells(i, "B").value = logSheet.Cells(i, "C").value
+            End If
+        Next j
+
+        ' 一致した値が複数存在する場合、文字を太字にする
+        If matchCount > 1 Then
+            Dim l As Long
+            For l = 1 To columnsToCopy.Count
+                logSheet.Cells(i, columnsToCopy(l)(0)).Font.Bold = True
+            Next l
+        End If
+    Next i
+
+    ' 追加機能: 「構造_検査結果」と「耐貫通_検査結果」の列に「合格」を入力
+    structureCol = FindHeaderColumn(logHeader, "構造_検査結果")
+    penetrationCol = FindHeaderColumn(logHeader, "耐貫通_検査結果")
+
+    If structureCol > 0 Then
+        For i = 2 To lastRowLog
+            logSheet.Cells(i, structureCol).value = "合格"
+        Next i
+    Else
+        MsgBox "ヘッダー「構造_検査結果」が見つかりませんでした。"
+    End If
+
+    If penetrationCol > 0 Then
+        For i = 2 To lastRowLog
+            logSheet.Cells(i, penetrationCol).value = "合格"
+        Next i
+    Else
+        MsgBox "ヘッダー「耐貫通_検査結果」が見つかりませんでした。"
+    End If
+
+    ' 転記が行われたことを確認
+    MsgBox "転記が完了しました: " & sheetNameLog & " から " & sheetNameSpec
+End Sub
+
+' 指定したヘッダー名を持つ列の番号を取得する関数
+Function FindHeaderColumn(headerRow As Range, headerName As String) As Long
+    Dim col As Range
+    For Each col In headerRow.Cells
+        If col.value = headerName Then
+            FindHeaderColumn = col.Column
+            Exit Function
+        End If
+    Next col
+    FindHeaderColumn = -1 ' ヘッダーが見つからなかった場合
+End Function
+
+
+
+
+Sub CopyDataBasedOnCondition_20240705(sheetNameLog As String, sheetNameSpec As String)
     'ProcessSheetPairsのサブプロシージャ
     Dim logSheet As Worksheet
     Dim helSpec As Worksheet
