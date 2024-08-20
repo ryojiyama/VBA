@@ -1,14 +1,13 @@
 Attribute VB_Name = "SpecSheet"
  ' ☆品番、試験箇所などに応じたIDを作成する
-Sub createID()
-   
+Sub CreateID(sheetName As String)
     Dim lastRow As Long
     Dim ws As Worksheet
     Dim i As Long
     Dim id As String
 
     ' 対象のシートを設定
-    Set ws = ThisWorkbook.Sheets("Hel_SpecSheet")
+    Set ws = ThisWorkbook.Worksheets(sheetName)
 
     ' 最後の行を取得
     lastRow = ws.Cells(ws.Rows.Count, "C").End(xlUp).row
@@ -20,6 +19,9 @@ Sub createID()
         ws.Cells(i, 2).value = id
     Next i
 End Sub
+
+
+
 
 Function GenerateID(ws As Worksheet, rowIndex As Long) As String
 ' CreateID()のサブプロシージャ
@@ -88,18 +90,18 @@ Function GetColumnEValue(value As Variant) As String
     ElseIf InStr(value, "後頭部") > 0 Then
         GetColumnEValue = "後"
     ElseIf InStr(value, "側面") > 0 Then
-        Dim parts() As String
-        parts = Split(value, "_")
+        Dim Parts() As String
+        Parts = Split(value, "_")
         
-        If UBound(parts) >= 1 Then
+        If UBound(Parts) >= 1 Then
             Dim angle As String
             Dim direction As String
             
             ' 角度を抽出
-            angle = Replace(parts(0), "側面", "")
+            angle = Replace(Parts(0), "側面", "")
             
             ' 方向を抽出と整形
-            direction = parts(1)
+            direction = Parts(1)
             direction = Replace(direction, "前", "前")
             direction = Replace(direction, "後", "後")
             direction = Replace(direction, "左", "左")
@@ -151,7 +153,7 @@ Sub SyncSpecSheetToLogHel()
         MsgBox "空欄があります。まずはそれを埋めてください。", vbCritical
         Exit Sub
     End If
-    Call createID              ' B列にIDを作成する。
+'    Call CreateID              ' B列にIDを作成する。
     Call UpdateCrownClearance
     Call ProcessSheetPairs          ' 転記処理をするプロシージャ
 

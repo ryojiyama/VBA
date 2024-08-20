@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} Form_InspectionType 
    Caption         =   "Template Form"
    ClientHeight    =   5136
-   ClientLeft      =   84
+   ClientLeft      =   96
    ClientTop       =   360
-   ClientWidth     =   5736
+   ClientWidth     =   5724
    OleObjectBlob   =   "Form_InspectionType.frx":0000
    StartUpPosition =   2  '画面の中央
 End
@@ -14,6 +14,10 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
+Private Sub ComboBox_Type_Change()
+
+End Sub
 
 Private Sub UserForm_Initialize()
     With ComboBox_Type
@@ -37,13 +41,6 @@ Private Sub RunButton_Click()
     Call InspectHelmetDurationTime
     Call Utlities.AdjustingDuplicateValues
 End Sub
-
-
-
-
-
-
-'定期試験用、型式申請試験用、その他
 
 
 

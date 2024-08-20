@@ -109,24 +109,24 @@ Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLef
 End Sub
 
 Function CreateChartID(cell As Range) As String
-    Dim parts() As String
-    Dim createID As String
+    Dim Parts() As String
+    Dim CreateID As String
 
     ' B列の値が空の場合は"00000"を返す
     If IsEmpty(cell) Or cell.value = "" Then
-        createID = "00000"
+        CreateID = "00000"
     Else
         ' B列の値をSplit関数で分割し、Part(0) & Part(1)の形式でIDを作成
-        parts = Split(cell.value, "-")
+        Parts = Split(cell.value, "-")
 '        Debug.Print "Cell value: " & cell.value  ' デバッグ: セルの値を出力
 '        Debug.Print "Parts count: " & UBound(parts) + 1  ' デバッグ: 分割された部分の数を出力
-        If UBound(parts) >= 1 Then
-            createID = parts(0) & "-" & parts(1) & "-" & parts(2)
+        If UBound(Parts) >= 1 Then
+            CreateID = Parts(0) & "-" & Parts(1) & "-" & Parts(2)
         Else
-            createID = cell.value
+            CreateID = cell.value
         End If
     End If
-    CreateChartID = createID
+    CreateChartID = CreateID
 End Function
 
 ' CreateGraphHelmet_グラフの書式設定をするサブプロシージャ

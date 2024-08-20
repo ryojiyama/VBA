@@ -1,12 +1,16 @@
 Attribute VB_Name = "Utlities"
+' ユーザーフォームの表示
 Sub ShowFormInspectionType()
-    ' ユーザーフォーム "Form_InspectionType" を表示
     Form_InspectionType.Show
 End Sub
 Sub ShowFormTenki()
-    ' ユーザーフォーム "Form_Tenki" を表示
     Form_Tenki.Show
 End Sub
+Sub ShowFormSheetName()
+    Dim frm As New Form_SheetName
+    frm.Show
+End Sub
+
 
 ' DeleteAllChartsAndSheets_シート中のグラフと余計なシートを削除する
 Sub DeleteAllChartsAndSheets()
@@ -98,6 +102,8 @@ ErrorHandler:
     MsgBox "エラーが発生しました: " & Err.Description, vbCritical
 
 End Sub
+
+
 
 
 Sub HighlightDuplicateValues()
@@ -212,60 +218,23 @@ NextSheet:
 End Sub
 
 
-
-
-Sub AdjustingDuplicateValues_06270900()
-    ' 対象シート名のリスト
-    Dim sheetNames As Variant
-    sheetNames = Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")
-
-    ' 変数宣言
+Sub ListChartNames()
     Dim ws As Worksheet
-    Dim lastRow As Long, i As Long, j As Long
-    Dim valueToFind As Variant
-    Dim sheetName As Variant
-    Dim newValue As String
-    Dim randomDigit4 As Integer
-    Dim randomDigit5 As Integer
-
-    ' シートごとに処理
-    For Each sheetName In sheetNames
-        ' シートオブジェクトを設定
-        Set ws = ThisWorkbook.Sheets(sheetName)
-
-        ' 最終行を取得
-        lastRow = ws.Cells(ws.Rows.Count, "H").End(xlUp).row
-        Debug.Print "LastRow:"; lastRow
-        For i = 2 To lastRow
-            ' 現在のセルの値を取得
-            valueToFind = ws.Cells(i, "H").value
-
-            ' 同じ値を持つセルが既に処理されていないかチェック
-            If ws.Cells(i, "H").Interior.colorIndex = xlNone Then
-                For j = i + 1 To lastRow
-                    If ws.Cells(j, "H").value = valueToFind And ws.Cells(j, "H").Interior.colorIndex = xlNone Then
-                        Debug.Print "RowsNumber:" & i
-                        Do
-                            ' ランダムな値を生成
-                            randomDigit4 = Int((9 - 5 + 1) * Rnd + 5) ' 5から9のランダムな数
-                            randomDigit5 = Int((9 - 1 + 1) * Rnd + 1) ' 1から9のランダムな数
-
-                            ' 新しい値を作成
-                            newValue = Left(ws.Cells(j, "H").value, Len(ws.Cells(j, "H").value) - 2) & _
-                                        CStr(randomDigit4) & CStr(randomDigit5)
-                            Debug.Print "newValue:" & newValue
-
-                        ' 新しい値が既に存在する値でないことを確認
-                        Loop While WorksheetFunction.CountIf(ws.Range("H:H"), CDbl(newValue)) > 0
-
-                        ' 新しい値をセルに設定
-                        ws.Cells(j, "H").value = CDbl(newValue)
-                    End If
-                Next j
-            End If
-        Next i
-    Next sheetName
+    Dim chartObj As ChartObject
+    
+    ' Loop through all sheets in the active workbook
+    For Each ws In ThisWorkbook.Worksheets
+        ' Check if there are any charts in the current sheet
+        If ws.ChartObjects.Count > 0 Then
+            ' Loop through all the charts in the current sheet
+            For Each chartObj In ws.ChartObjects
+                ' Display the chart name
+                MsgBox "シート名: " & ws.Name & vbCrLf & "グラフ名: " & chartObj.Name, vbInformation
+            Next chartObj
+        End If
+    Next ws
 End Sub
+
 
 ' 各列に書式設定をする
 Public Sub CustomizeSheetFormats()

@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module1"
+Attribute VB_Name = "TestModule_NotUse"
 Sub ExampleChartNameAndTitle()
     Dim chartObj As ChartObject
     Set chartObj = ActiveSheet.ChartObjects(1)

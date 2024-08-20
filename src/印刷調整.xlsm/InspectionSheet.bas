@@ -29,19 +29,19 @@ Sub FilterAndGroupDataByF()
         Dim cellValue As String
         cellValue = ws.Cells(i, 3).value
 
-        Dim helmetData As New helmetData
-        Set helmetData = ParseHelmetData(cellValue)
+        Dim HelmetData As New HelmetData
+        Set HelmetData = ParseHelmetData(cellValue)
 
         Dim productNameKey As String
-        productNameKey = helmetData.GroupNumber & "-" & helmetData.ProductName
+        productNameKey = HelmetData.GroupNumber & "-" & HelmetData.ProductName
 
-        If Right(helmetData.ProductName, 1) = "F" Then
-            If Not groupedDataF.Exists(helmetData.GroupNumber) Then
-                groupedDataF.Add helmetData.GroupNumber, New Collection
+        If Right(HelmetData.ProductName, 1) = "F" Then
+            If Not groupedDataF.Exists(HelmetData.GroupNumber) Then
+                groupedDataF.Add HelmetData.GroupNumber, New Collection
             End If
-            groupedDataF(helmetData.GroupNumber).Add helmetData
+            groupedDataF(HelmetData.GroupNumber).Add HelmetData
 
-            If helmetData.ImpactPosition = "“V" Then
+            If HelmetData.ImpactPosition = "“V" Then
                 If Not copiedSheets.Exists(productNameKey) Then
                     ThisWorkbook.Sheets("InspectionSheet").Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
                     ActiveSheet.name = CreateUniqueName(productNameKey)
@@ -50,10 +50,10 @@ Sub FilterAndGroupDataByF()
                 End If
             End If
         Else
-            If Not groupedDataNonF.Exists(helmetData.GroupNumber) Then
-                groupedDataNonF.Add helmetData.GroupNumber, New Collection
+            If Not groupedDataNonF.Exists(HelmetData.GroupNumber) Then
+                groupedDataNonF.Add HelmetData.GroupNumber, New Collection
             End If
-            groupedDataNonF(helmetData.GroupNumber).Add helmetData
+            groupedDataNonF(HelmetData.GroupNumber).Add HelmetData
 
             If Not copiedSheets.Exists(productNameKey) Then
                 ThisWorkbook.Sheets("InspectionSheet").Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
@@ -70,10 +70,10 @@ Sub FilterAndGroupDataByF()
     PrintGroupedData groupedDataNonF
     SaveCopiedSheetNames copiedSheetNames
 End Sub
-Function ParseHelmetData(value As String) As helmetData
+Function ParseHelmetData(value As String) As HelmetData
     Dim parts() As String
     parts = Split(value, "-")
-    Dim result As New helmetData
+    Dim result As New HelmetData
     
     If UBound(parts) >= 4 Then
         result.GroupNumber = parts(0)
@@ -107,7 +107,7 @@ End Function
 
 
 Private Sub PrintGroupedData(groupedData As Object)
-    Dim key As Variant, item As helmetData
+    Dim key As Variant, item As HelmetData
     For Each key In groupedData.Keys
         Debug.Print "GroupNumber: " & key
         For Each item In groupedData(key)

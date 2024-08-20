@@ -1,0 +1,45 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet6"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Private Sub Worksheet_Activate()
+    Call CheckAndCopyValues
+End Sub
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    If Not Intersect(Target, Me.Range("A14")) Is Nothing Then
+        Call CheckAndCopyValues
+    End If
+End Sub
+
+Private Sub CheckAndCopyValues()
+    Dim copyDict As Object
+    Set copyDict = CreateObject("Scripting.Dictionary")
+    
+    ' コピー元とコピー先の対応関係を設定
+    copyDict.Add "B15", "C6"
+    copyDict.Add "B16", "C8"
+    copyDict.Add "B17", "C10"
+    copyDict.Add "B18", "E6"
+    copyDict.Add "B19", "E8"
+    copyDict.Add "B20", "E10"
+    copyDict.Add "B21", "G6"
+    copyDict.Add "B22", "G8"
+    copyDict.Add "B23", "G10"
+
+    ' A14の値が"Group"であるか確認
+    If Me.Range("A14").value = "Group" Then
+        Dim key As Variant
+        For Each key In copyDict.Keys
+            Me.Range(copyDict(key)).value = Me.Range(key).value
+        Next key
+    End If
+    
+    ' ディクショナリの解放
+    Set copyDict = Nothing
+End Sub

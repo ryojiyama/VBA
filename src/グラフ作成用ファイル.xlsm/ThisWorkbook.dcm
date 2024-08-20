@@ -14,4 +14,3 @@ End Sub
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     RemoveRightClickMenu
 End Sub
-
