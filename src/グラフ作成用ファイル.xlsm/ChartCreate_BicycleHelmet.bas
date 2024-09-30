@@ -20,7 +20,7 @@ End Function
 ' グラフを作成するメインのサブプロシージャ
 Sub CreateGraphBicycle()
     Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets("LOG_Bicycle")
+    Set ws = ActiveWorkbook.Sheets("LOG_Bicycle")
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
     Dim chartLeft As Long

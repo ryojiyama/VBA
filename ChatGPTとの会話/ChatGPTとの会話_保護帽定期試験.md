@@ -5514,3 +5514,5 @@ Dim colBoutai As String
 - グラフ名は"03-390F-前" のような構造で構成されています。"-"でSplitし、Parts(2)を用いて分岐します。
 - Parts(2)は{天、前、後、側面}のいずれかになっています。
 - Parts(2)が"天"の場合、yAxis.MaximumScale = 5, それ以外の場合は、yAxis.MaximumScale = 10 に設定する。
+1. 最終的に作成される表は2列か3列なのでその倍数に合わせる。
+2. 

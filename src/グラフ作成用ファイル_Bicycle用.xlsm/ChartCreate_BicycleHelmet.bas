@@ -1,6 +1,7 @@
 Attribute VB_Name = "ChartCreate_BicycleHelmet"
-' グラフのサイズを決定する関数
+
 Function GetChartSize(ByVal helmetType As String) As Variant
+' グラフのサイズを決定する関数
     Dim size(1) As Long
     Select Case helmetType
         Case "HEL_TOP", "HEL_ZENGO"
@@ -54,7 +55,7 @@ End Sub
 Sub CreateIndividualChart(ByRef ws As Worksheet, ByVal i As Long, ByRef chartLeft As Long, ByVal chartTop As Long, ByVal colStart As String, ByVal colEnd As String, ByVal chartSize As Variant)
     Dim maxVal As Double
     maxVal = Application.WorksheetFunction.Max(ws.Range(ws.Cells(i, colStart), ws.Cells(i, colEnd)))
-    ws.Cells(i, "H").value = maxVal
+    ws.Cells(i, "J").value = maxVal
     
     Dim chartObj As ChartObject
     Set chartObj = ws.ChartObjects.Add(Left:=chartLeft, Width:=chartSize(0), Top:=chartTop, Height:=chartSize(1))
@@ -141,9 +142,9 @@ Sub SetXAxis(ByRef chart As chart)
     End With
 
 End Sub
-
+'自転車帽試験のデータを処理するメインのサブルーチン
 Sub Bicycle_150G_DurationTime()
-    '自転車帽試験のデータを処理するメインのサブルーチン
+    
     Dim ws As Worksheet
     Dim lastRow As Long
 
@@ -160,13 +161,15 @@ Sub Bicycle_150G_DurationTime()
     FillEmptyCells ws, GetLastRow(ws, "B")
 End Sub
 
-'Bicycle150GDuration_特定のカラムの最終行を取得する関数です。
+
 Function GetLastRow(ws As Worksheet, column As String) As Long
+'Bicycle150GDuration_特定のカラムの最終行を取得する関数
     GetLastRow = ws.Cells(ws.Rows.Count, column).End(xlUp).row
 End Function
 
-'Bicycle150GDuration_各行の最大値のセルを色付けし、最大値の時間を記録するサブルーチンです。
+
 Sub ColorAndRecordMaxVal(ws As Worksheet, lastRow As Long, threshold As Double)
+'Bicycle150GDuration_各行の最大値のセルを色付けし、最大値の時間を記録するサブルーチン
     Dim rng As Range
     Dim i As Long
     Dim cell As Range
@@ -176,20 +179,21 @@ Sub ColorAndRecordMaxVal(ws As Worksheet, lastRow As Long, threshold As Double)
 
         Dim MaxValue As Double
         MaxValue = Application.WorksheetFunction.Max(rng)
-        ws.Cells(i, "H").value = MaxValue
+        ws.Cells(i, "J").value = MaxValue '最大値をJ列に記録
 
         For Each cell In rng
             If cell.value = MaxValue Then
                 cell.Interior.Color = RGB(255, 111, 56)
-                ws.Cells(i, "I").value = ws.Cells(1, cell.column).value ' 対応する時間をI列に記録
+                ws.Cells(i, "K").value = ws.Cells(1, cell.column).value ' 最大値の時間をI列に記録
                 Exit For ' 最初の最大値が見つかったらループを抜ける
             End If
         Next cell
     Next i
 End Sub
 
-'Bicycle150GDuration_150G以上を記録した範囲を色付けし、その範囲の時間差を記録するサブルーチンです。
+
 Sub ColorAndRecordTimeDifference(ws As Worksheet, lastRow As Long, threshold As Double)
+'Bicycle150GDuration_150G以上を記録した範囲を色付けし、その範囲の時間差を記録するサブルーチン
     Dim rng As Range
     Dim i As Long
     Dim cell As Range
@@ -238,20 +242,21 @@ Sub ColorAndRecordTimeDifference(ws As Worksheet, lastRow As Long, threshold As 
         If maxRange150 > 0 Then
             Dim timeDifference150 As Double
             timeDifference150 = ws.Cells(1, maxEnd150).value - ws.Cells(1, maxStart150).value
-            ws.Cells(i, "K").value = timeDifference150
+            ws.Cells(i, "L").value = timeDifference150 '150Gの継続時間をL列に記録
         Else
-            ws.Cells(i, "K").value = "-"
+            ws.Cells(i, "L").value = "-"
         End If
     Next i
 End Sub
 
-'Bicycle150GDuration_空のセルを"-"で埋めるサブルーチンです。
+
 Sub FillEmptyCells(ws As Worksheet, lastRow As Long)
+'Bicycle150GDuration_空のセルを"-"で埋めるサブルーチン
     Dim cellRng As Range
 
     For Each cellRng In ws.Range("F2:P" & lastRow)
         If IsEmpty(cellRng) Then
-            cellRng.value = "-"
+            cellRng.value = "－"
         End If
     Next cellRng
 End Sub

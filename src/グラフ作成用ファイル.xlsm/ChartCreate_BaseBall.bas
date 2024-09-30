@@ -23,7 +23,7 @@ End Function
 ' グラフを作成するメインのサブプロシージャ
 Sub CreateGraphBaseBall()
     Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets("LOG_BaseBall")
+    Set ws = ActiveWorkbook.Sheets("LOG_BaseBall")
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).row
     Dim chartLeft As Long

@@ -43,8 +43,6 @@ Sub DeleteAllChartsAndSheets()
     Next sheet
 
     Application.DisplayAlerts = True
-
-
 End Sub
 
 ' DeleteAllChartsAndSheets_配列内に特定の値が存在するかチェックする関数
@@ -407,5 +405,31 @@ NextSheet:
         ' 次のシートの処理に移る前に変数をクリア
         Set ws = Nothing
     Next sheetName
+End Sub
+
+Sub DeleteAllChartsAndDataFromActiveSheet()
+    Dim sheet As Worksheet
+    Dim chart As ChartObject
+    Dim proceed As Integer
+
+    ' アクティブなシートを取得
+    Set sheet = ThisWorkbook.ActiveSheet
+
+    Application.DisplayAlerts = False
+
+    ' グラフの削除
+    For Each chart In sheet.ChartObjects
+        chart.Delete
+    Next chart
+
+    ' B2セルからZZ15までのデータの有無をチェックし、有れば警告を表示
+    If Application.WorksheetFunction.CountA(sheet.Range("B2:ZZ15")) <> 0 Then
+        Application.DisplayAlerts = True
+        proceed = MsgBox("Sheet '" & sheet.Name & "' contains data. Do you want to continue?", vbYesNo + vbExclamation, "Warning")
+        Application.DisplayAlerts = False
+        If proceed = vbNo Then Exit Sub
+    End If
+
+    Application.DisplayAlerts = True
 End Sub
 
