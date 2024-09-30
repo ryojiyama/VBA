@@ -137,3 +137,24 @@ Sub PrintChartIDs()
     Next ws
 End Sub
 
+
+Private Sub DeleteInsertedRows()
+    ' アクティブシートのI列に "Insert" と印がついている行を削除する
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim currentRow As Long
+    
+    ' アクティブシートを取得
+    Set ws = ActiveSheet
+    
+    ' I列の最終行を取得
+    lastRow = ws.Cells(ws.Rows.count, "I").End(xlUp).row
+    
+    ' 最後の行から1行ずつ上に向かって削除を確認
+    For currentRow = lastRow To 1 Step -1
+        If Left(ws.Cells(currentRow, "I").value, 6) = "Insert" Then
+            ws.Rows(currentRow).Delete
+        End If
+    Next currentRow
+End Sub
+

@@ -62,8 +62,11 @@ Private Function GetMappingDictionary() As Object
 
     ' 転記元の列 → 転記先の列を列名として明示的に記述
     dict.Add "D", "B" ' 転記元のD列 → 転記先のB列
-    dict.Add "B", "C" ' 転記元のB列 → 転記先のC列
-
+    dict.Add "E", "C" ' 転記元のE列 → 転記先のC列
+    dict.Add "L", "D" ' 転記元のL列 → 転記先のD列
+    dict.Add "H", "E" ' 転記元のH列 → 転記先のE列
+    dict.Add "M", "F" ' 転記元のM列 → 転記先のF列
+    dict.Add "N", "G" ' 転記元のN列 → 転記先のG列
     ' 必要に応じて他の列のマッピングも追加
 
     Set GetMappingDictionary = dict
@@ -78,21 +81,57 @@ Private Sub TransferMappedValues(wsSource As Worksheet, wsDest As Worksheet, sou
         wsDest.Cells(destRow, Columns(mappingDict(key)).Column).value = wsSource.Cells(sourceRow, Columns(key).Column).value
     Next key
 End Sub
-
 Private Sub ApplyFormattingToNewRows(ws As Worksheet, startRow As Long, endRow As Long)
-    ' 新しく追加された行にフォーマットを適用する
+    ' 新しく追加された行にフォーマットを適用し、I列に印をつける
+    Dim currentRow As Long
     Dim targetRange As Range
+    Dim eRange As Range, fRange As Range, gRange As Range, iRange As Range
+    
+    ' 1行ずつ処理
+    For currentRow = startRow To endRow
+        ' 現在の行の範囲を取得
+        Set targetRange = ws.Range("B" & currentRow & ":G" & currentRow)
+        
+        ' フォーマットを適用
+        With targetRange
+            .Font.Name = "游ゴシック" ' フォント名を設定
+            .Font.ThemeFont = xlThemeFontMinor ' Lightウェイトにする（テーマフォント）
+            .Font.Bold = False ' 太字を解除
+            .Font.color = RGB(0, 0, 0) ' フォントの色を黒に設定
+            
+            ' 背景色を行ごとに変更
+            If currentRow Mod 2 = 0 Then
+                ' 偶数行：薄い青色
+                .Interior.color = RGB(220, 230, 241)
+            Else
+                ' 奇数行：薄い灰色
+                .Interior.color = RGB(255, 255, 255)
+            End If
+            
+            .Borders.LineStyle = xlContinuous ' 罫線を設定
+        End With
+        
+        ' E列に 0.00 "kN" の書式設定
+        Set eRange = ws.Range("E" & currentRow)
+        eRange.NumberFormat = "0.00 ""kN"""
+        eRange.HorizontalAlignment = xlRight ' 右寄せ
 
-    ' 新しく追加された行の範囲を設定
-    Set targetRange = ws.Range("B" & startRow & ":G" & endRow)
+        ' F列に 0.0 "g" の書式設定
+        Set fRange = ws.Range("F" & currentRow)
+        fRange.NumberFormat = "0.0 ""g"""
+        fRange.HorizontalAlignment = xlRight ' 右寄せ
 
-    ' フォーマットを適用
-    With targetRange
-        .Font.Bold = True ' フォントを太字に設定
-        .Interior.color = RGB(220, 230, 241) ' 背景色を設定（青系）
-        .Borders.LineStyle = xlContinuous ' 罫線を設定
-    End With
+        ' G列に 0.0 "mm" の書式設定
+        Set gRange = ws.Range("G" & currentRow)
+        gRange.NumberFormat = "0.0 ""mm"""
+        gRange.HorizontalAlignment = xlRight ' 右寄せ
+
+        ' I列に "Insert + 行番号" の印を付ける
+        Set iRange = ws.Range("I" & currentRow)
+        iRange.value = "Insert " & currentRow
+    Next currentRow
 End Sub
+
 
 
 
