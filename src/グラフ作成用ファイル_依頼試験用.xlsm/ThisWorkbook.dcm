@@ -8,6 +8,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub Workbook_Open()
+    ' ブックを開いたときに「Help」シートを表示
+    Sheets("Setting").Activate
     CustomizeRightClickMenu
 End Sub
 
