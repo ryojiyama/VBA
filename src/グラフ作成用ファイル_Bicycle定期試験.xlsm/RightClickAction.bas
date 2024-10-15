@@ -11,24 +11,31 @@ Public Sub CustomizeRightClickMenu()
     ' Add custom menu item
     Set Menu = Application.CommandBars("Cell").Controls.Add(Type:=msoControlPopup, Temporary:=True)
     Menu.Caption = "Custom Menu"
-
-    ' Add a menu item for "Create ID"
+    
+    ' Add a menu item for "UniformizeLineGraphAxes"
     Set MenuItem = Menu.Controls.Add(Type:=msoControlButton)
     With MenuItem
-        .Caption = "Create ID"
-        .OnAction = "ShowFormSheetName"
+        .Caption = "Uniformize Axes"
+        .OnAction = "UniformizeLineGraphAxes"
         .FaceId = 438
     End With
 
-    ' Add a menu item for "Sync Spec Sheet"
+    ' Add a menu item for "InspectionSheet_Make"
     Set MenuItem = Menu.Controls.Add(Type:=msoControlButton)
     With MenuItem
-        .Caption = "Sync Spec Sheet"
-        .OnAction = "SyncSpecSheetToLogHel"
-        .FaceId = 212
+        .Caption = "Make InspectionSheets"
+        .OnAction = "InspectionSheet_Make"
+        .FaceId = 212 ' 358 is an example FaceId, you can change it to any valid FaceId
+    End With
+    
+    ' Add a menu item for "InspectionSheet_Make"
+    Set MenuItem = Menu.Controls.Add(Type:=msoControlButton)
+    With MenuItem
+        .Caption = "Delete Copied Sheets"
+        .OnAction = "DeleteCopiedSheets"
+        .FaceId = 358 ' 358 is an example FaceId, you can change it to any valid FaceId
     End With
 End Sub
-
 
 
 Public Sub RemoveRightClickMenu()
@@ -36,12 +43,7 @@ Public Sub RemoveRightClickMenu()
     Application.CommandBars("Cell").Controls("Custom Menu").Delete
     On Error GoTo 0
 End Sub
-Public Sub SettingSheet_Focus()
-    ' [Setting] シートのB2セルにフォーカスを移動
-    ActiveWorkbook.Sheets("Setting").Range("B2").Select
-End Sub
 
-'Sub ShowFormSheetName()
-'    Form_SheetName.Show
-'End Sub
+
+
 

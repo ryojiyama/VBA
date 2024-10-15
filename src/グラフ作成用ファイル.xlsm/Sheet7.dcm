@@ -1,0 +1,48 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet7"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+'Private Sub Worksheet_Activate()
+'
+'    Call CopyDataToHelSpecSheet
+'
+'End Sub
+'
+'Sub CopyDataToHelSpecSheet()
+'
+'    Dim wb As Workbook
+'    Dim wsSrc As Worksheet, wsDest As Worksheet
+'    Dim lastRowSrc As Long, lastRowDest As Long
+'    Dim sheetName As String
+'
+'    ' ワークブックの設定
+'    Set wb = ThisWorkbook
+'
+'    ' コピー先のシートを設定 (このシート自身)
+'    Set wsDest = wb.ActiveSheet
+'
+'    ' コピー先の最終行を取得
+'    lastRowDest = wsDest.Cells(wsDest.Rows.Count, "B").End(xlUp).row
+'
+'    ' コピー元のシートを検索
+'    For Each wsSrc In wb.Sheets
+'        If InStr(1, wsSrc.Name, "Hel_SpecSheet_", vbTextCompare) > 0 Then
+'
+'            ' 最終行を取得
+'            lastRowSrc = wsSrc.Cells(wsSrc.Rows.Count, "B").End(xlUp).row
+'
+'            ' データをコピー (ヘッダーを除く)
+'            wsSrc.Range("B2:Z" & lastRowSrc).Copy Destination:=wsDest.Range("B" & lastRowDest + 1)
+'
+'            ' コピー先の最終行を更新
+'            lastRowDest = wsDest.Cells(wsDest.Rows.Count, "B").End(xlUp).row
+'
+'        End If
+'    Next wsSrc
+'
+'End Sub
