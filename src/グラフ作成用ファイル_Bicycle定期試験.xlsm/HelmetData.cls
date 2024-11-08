@@ -8,8 +8,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Public GroupNumber As String
-Public ProductName As String
+Public productName As String
 Public ImpactPosition As String
 Public ImpactTemp As String
-Public Color As String
+Public anvilForm As String
+Public headModel As String
 

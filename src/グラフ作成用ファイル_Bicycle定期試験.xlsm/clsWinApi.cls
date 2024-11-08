@@ -108,7 +108,7 @@ Function NonTitleBar(objName As String) As Long
     Dim uForm As Object
     
     For Each uf In VBA.UserForms
-        If uf.name = objName Then Set uForm = uf: Exit For
+        If uf.Name = objName Then Set uForm = uf: Exit For
     Next
     
     formHeight = uForm.InsideHeight
@@ -133,7 +133,7 @@ Sub FormDrag(objName As String, ByVal Button As Integer)
     Dim uForm As Object
     
     For Each uf In VBA.UserForms
-        If uf.name = objName Then Set uForm = uf: Exit For
+        If uf.Name = objName Then Set uForm = uf: Exit For
     Next
     
     If Button = 1 Then
@@ -165,8 +165,8 @@ End Sub
 '  âÊñ ÇÃïù
 '</summary>
 Function ThisScreenWidth() As Long
-    Windows(ThisWorkbook.name).WindowState = xlMaximized           ' win10/Excel2013 ä¬ã´ÇæÇ∆è„ÇQçs
-    ThisScreenWidth = Windows(ThisWorkbook.name).Width
+    Windows(ThisWorkbook.Name).WindowState = xlMaximized           ' win10/Excel2013 ä¬ã´ÇæÇ∆è„ÇQçs
+    ThisScreenWidth = Windows(ThisWorkbook.Name).Width
 '    Application.WindowState = xlMaximized                                            ' win7/Excel2010 ä¬ã´ÇæÇ∆â∫ÇQçs
 '    ThisScreenWidth = Application.Width
 End Function
@@ -175,8 +175,8 @@ End Function
 '  âÊñ ÇÃçÇÇ≥
 '</summary>
 Function ThisScreenHeight() As Long
-    Windows(ThisWorkbook.name).WindowState = xlMaximized           ' win10/Excel2013 ä¬ã´ÇæÇ∆è„ÇQçs
-    ThisScreenHeight = Windows(ThisWorkbook.name).Height
+    Windows(ThisWorkbook.Name).WindowState = xlMaximized           ' win10/Excel2013 ä¬ã´ÇæÇ∆è„ÇQçs
+    ThisScreenHeight = Windows(ThisWorkbook.Name).Height
 '    Application.WindowState = xlMaximized                                            ' win7/Excel2010 ä¬ã´ÇæÇ∆â∫ÇQçs
 '    ThisScreenHeight = Application.Height
 End Function

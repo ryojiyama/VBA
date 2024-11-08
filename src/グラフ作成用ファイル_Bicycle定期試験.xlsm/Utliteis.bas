@@ -12,7 +12,7 @@ Sub DeleteCopiedSheets()
     End If
 
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).Row
 
     Dim i As Long
     Application.DisplayAlerts = False
@@ -38,17 +38,22 @@ Sub ClearCopiedSheetNames()
     End If
 End Sub
 ' "LOG_Helmet上のグラフを削除する
-Public Sub DeleteAllChartsOnLOG_Helmet()
+Public Sub DeleteAllChartsOnSheetsContainingName()
+
     Dim ws As Worksheet
     Dim chartObj As ChartObject
-    
-    ' "LOG_Helmet"シートを取得
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-    
-    ' シート上のすべてのグラフオブジェクトをループ
-    For Each chartObj In ws.ChartObjects
-        chartObj.Delete
-    Next chartObj
+
+    ' ワークブック内のすべてのシートをループ
+    For Each ws In ThisWorkbook.Worksheets
+        ' シート名が"500S_"を含む場合
+        If InStr(ws.Name, "500S_") > 0 Then
+            ' シート上のすべてのグラフオブジェクトをループ
+            For Each chartObj In ws.ChartObjects
+                chartObj.Delete
+            Next chartObj
+        End If
+    Next ws
+
 End Sub
 
 Sub PrintMatchingSheetsFirstPage_SUb()
@@ -62,7 +67,7 @@ Sub PrintMatchingSheetsFirstPage_SUb()
     Set copiedSheetNames = ThisWorkbook.Sheets("CopiedSheetNames")
     
     ' A列の値をループ
-    For Each cell In copiedSheetNames.Range("A1:A" & copiedSheetNames.Cells(copiedSheetNames.Rows.count, "A").End(xlUp).row)
+    For Each cell In copiedSheetNames.Range("A1:A" & copiedSheetNames.Cells(copiedSheetNames.Rows.count, "A").End(xlUp).Row)
         sheetName = cell.value
         
         ' 一致するシートを検索
@@ -97,7 +102,7 @@ Sub PrintFirstPageOfUniqueListedSheets()
     Set printedSheets = New Collection ' 印刷されたシート名を追跡するコレクション
 
     ' A列の最終行を取得
-    lastRow = wsSource.Cells(wsSource.Rows.count, "A").End(xlUp).row
+    lastRow = wsSource.Cells(wsSource.Rows.count, "A").End(xlUp).Row
 
     ' A列の値をループ
     For i = 1 To lastRow
@@ -106,7 +111,7 @@ Sub PrintFirstPageOfUniqueListedSheets()
         On Error Resume Next
         ' コレクションに同じ名前が既に存在するかチェック
         printedSheets.Add sheetName, sheetName
-        If Err.number = 0 Then ' 追加が成功した場合、シートはまだ印刷されていない
+        If Err.Number = 0 Then ' 追加が成功した場合、シートはまだ印刷されていない
             Set wsTarget = ThisWorkbook.Sheets(sheetName)
             If Not wsTarget Is Nothing Then
                 wsTarget.PrintOut From:=1, To:=1 ' シートの1ページ目のみを印刷
@@ -130,16 +135,16 @@ Sub UniformizeLineGraphAxes()
             Dim chartObj As ChartObject
             For Each chartObj In ws.ChartObjects
                 ' Split the chart name using "-"
-                Dim Parts() As String
-                Parts = Split(chartObj.name, "-")
+                Dim parts() As String
+                parts = Split(chartObj.Name, "-")
                 
                 ' Check the third part of the name
-                If UBound(Parts) >= 2 Then
+                If UBound(parts) >= 2 Then
                     With chartObj.chart.Axes(xlValue)
-                        If Parts(2) = "天" Then
+                        If parts(2) = "天" Then
                             .MaximumScale = 5
                             .MajorUnit = 1# ' 1.0刻み
-                        ElseIf Parts(2) = "前" Or Parts(2) = "後" Or Parts(2) = "側面" Then
+                        ElseIf parts(2) = "前" Or parts(2) = "後" Or parts(2) = "側面" Then
                             .MaximumScale = 10
                             .MajorUnit = 2# ' 2.0刻み
                         End If
@@ -175,3 +180,23 @@ Sub DeleteIconsKeepCharts()
     Next shp
 End Sub
 
+' Settingの"B2"セルにフォーカス
+Public Sub Auto_Open()
+    On Error GoTo ErrorHandler
+    
+    If SheetExists("Setting") Then
+        Application.GoTo ActiveWorkbook.Sheets("Setting").Range("B2")
+    End If
+    Exit Sub
+    
+ErrorHandler:
+    Debug.Print "Error " & Err.Number & ": " & Err.Description
+End Sub
+
+Private Function SheetExists(ByVal sheetName As String) As Boolean
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = ActiveWorkbook.Sheets(sheetName)
+    On Error GoTo 0
+    SheetExists = Not ws Is Nothing
+End Function

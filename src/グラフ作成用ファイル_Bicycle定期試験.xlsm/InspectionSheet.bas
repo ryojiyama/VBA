@@ -1,24 +1,22 @@
 Attribute VB_Name = "InspectionSheet"
 Sub InspectionSheet_Make()
-    Call FilterAndGroupDataByF
-    Call TransferDataToAppropriateSheets
-    Call TransferDataToTopImpactTest
-    Call TransferDataToDynamicSheets
-    Call ImpactValueJudgement
-    Call FormatNonContinuousCells
-    Call DistributeChartsToSheets
+    Call SetupInspectionReport
+'    Call TransferDataToAppropriateSheets
+'    Call TransferDataToTopImpactTest
+'    Call TransferDataToDynamicSheets
+'    Call ImpactValueJudgement
+'    Call FormatNonContinuousCells
+'    Call DistributeChartsToSheets
 End Sub
-
-Sub FilterAndGroupDataByF()
+' 既存のシートをコピーし、productName_1 などの名前をつける。
+Sub SetupInspectionReport()
     Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
+    Set ws = ThisWorkbook.Sheets("LOG_Bicycle")
     Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.count, "C").End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, "C").End(xlUp).Row
 
-    Dim groupedDataF As Object
-    Set groupedDataF = CreateObject("Scripting.Dictionary")
-    Dim groupedDataNonF As Object
-    Set groupedDataNonF = CreateObject("Scripting.Dictionary")
+    Dim groupedData As Object
+    Set groupedData = CreateObject("Scripting.Dictionary")
     Dim copiedSheets As Object
     Set copiedSheets = CreateObject("Scripting.Dictionary")
     Dim copiedSheetNames As Collection
@@ -27,66 +25,59 @@ Sub FilterAndGroupDataByF()
     Dim i As Long
     For i = 2 To lastRow
         Dim cellValue As String
-        cellValue = ws.Cells(i, 3).value
+        cellValue = ws.Cells(i, 2).value
 
         Dim HelmetData As New HelmetData
         Set HelmetData = ParseHelmetData(cellValue)
 
-        Dim productNameKey As String
-        productNameKey = HelmetData.GroupNumber & "-" & HelmetData.ProductName
+'        Dim productNameKey As String
+'        productNameKey = HelmetData.GroupNumber & "-" & HelmetData.ProductName
 
-        If Right(HelmetData.ProductName, 1) = "F" Then
-            If Not groupedDataF.Exists(HelmetData.GroupNumber) Then
-                groupedDataF.Add HelmetData.GroupNumber, New Collection
-            End If
-            groupedDataF(HelmetData.GroupNumber).Add HelmetData
-
-            If HelmetData.ImpactPosition = "天" Then
-                If Not copiedSheets.Exists(productNameKey) Then
-                    ThisWorkbook.Sheets("InspectionSheet").Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
-                    ActiveSheet.name = CreateUniqueName(productNameKey)
-                    copiedSheets.Add productNameKey, Nothing
-                    copiedSheetNames.Add ActiveSheet.name
-                End If
-            End If
-        Else
-            If Not groupedDataNonF.Exists(HelmetData.GroupNumber) Then
-                groupedDataNonF.Add HelmetData.GroupNumber, New Collection
-            End If
-            groupedDataNonF(HelmetData.GroupNumber).Add HelmetData
-
-            If Not copiedSheets.Exists(productNameKey) Then
-                ThisWorkbook.Sheets("InspectionSheet").Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
-                ActiveSheet.name = CreateUniqueName(productNameKey)
-                copiedSheets.Add productNameKey, Nothing
-                copiedSheetNames.Add ActiveSheet.name
-            End If
+        If Not groupedData.Exists(HelmetData.GroupNumber) Then
+            groupedData.Add HelmetData.GroupNumber, New Collection
         End If
+        groupedData(HelmetData.GroupNumber).Add HelmetData
+
+        If Not copiedSheets.Exists(HelmetData.productName) Then
+            ' 3種類のシートをコピーし、連番で名前を設定
+            Dim sheetIndex As Long
+            Dim sheetName As Variant
+            For sheetIndex = 1 To 3
+                sheetName = Array("InspectionSheet01", "InspectionSheet02", "InspectionSheet03")(sheetIndex - 1)
+                ThisWorkbook.Sheets(sheetName).Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
+                ActiveSheet.Name = CreateUniqueName(HelmetData.productName & "_" & sheetIndex)
+                copiedSheetNames.Add ActiveSheet.Name
+            Next sheetIndex
+
+            copiedSheets.Add HelmetData.productName, Nothing ' コピー済みフラグ設定
+        End If
+
     Next i
 
-    Debug.Print "Data with ProductName ending in 'F':"
-    PrintGroupedData groupedDataF
-    Debug.Print "Data without ProductName ending in 'F':"
-    PrintGroupedData groupedDataNonF
+    Debug.Print "Grouped Data:"
+    PrintGroupedData groupedData
     SaveCopiedSheetNames copiedSheetNames
 End Sub
 Function ParseHelmetData(value As String) As HelmetData
-    Dim Parts() As String
-    Parts = Split(value, "-")
+' SetupInspectionReportのサブプロシージャ
+    Dim parts() As String
+    parts = Split(value, "-")
     Dim result As New HelmetData
     
-    If UBound(Parts) >= 4 Then
-        result.GroupNumber = Parts(0)
-        result.ProductName = Parts(1)
-        result.ImpactPosition = Parts(2)
-        result.ImpactTemp = Parts(3)
-        result.Color = Parts(4)
+    If UBound(parts) >= 4 Then
+        result.GroupNumber = parts(0)
+        result.productName = parts(1)
+        result.ImpactPosition = parts(2)
+        result.ImpactTemp = parts(3)
+        result.anvilForm = parts(4)
+        result.headModel = parts(5)
     End If
     
     Set ParseHelmetData = result
 End Function
 
 Function CreateUniqueName(baseName As String) As String
+' SetupInspectionReportのサブプロシージャ
     Dim uniqueName As String
     uniqueName = baseName
     Dim count As Integer
@@ -98,35 +89,55 @@ Function CreateUniqueName(baseName As String) As String
     CreateUniqueName = uniqueName ' 正しい戻り値の設定
 End Function
 Function SheetExists(sheetName As String) As Boolean
+' SetupInspectionReportのサブプロシージャ
     Dim sheet As Worksheet
     On Error Resume Next
     Set sheet = ThisWorkbook.Sheets(sheetName)
     On Error GoTo 0
     SheetExists = Not sheet Is Nothing ' 正しい戻り値の設定
 End Function
-
-
 Private Sub PrintGroupedData(groupedData As Object)
+' SetupInspectionReportのサブプロシージャ
     Dim key As Variant, item As HelmetData
     For Each key In groupedData.Keys
         Debug.Print "GroupNumber: " & key
         For Each item In groupedData(key)
-            Debug.Print "  ProductName: " & item.ProductName
+            Debug.Print "  ProductName: " & item.productName
             Debug.Print "  ImpactPosition: " & item.ImpactPosition
             Debug.Print "  ImpactTemp: " & item.ImpactTemp
-            Debug.Print "  Color: " & item.Color
+            Debug.Print "  Anvil: " & item.anvilForm
+            Debug.Print "  Head: " & item.headModel
             Debug.Print "----------------------------"
         Next item
         Debug.Print "============================"
     Next key
 End Sub
+Sub SaveCopiedSheetNames(sheetNames As Collection)
+' SetupInspectionReportのサブプロシージャ
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = ThisWorkbook.Sheets("CopiedSheetNames")
+    On Error GoTo 0
+
+    If ws Is Nothing Then
+        Set ws = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count))
+        ws.Name = "CopiedSheetNames"
+    End If
+
+    ws.Cells.ClearContents
+
+    Dim i As Long
+    For i = 1 To sheetNames.count
+        ws.Cells(i, 1).value = sheetNames(i)
+    Next i
+End Sub
 
 ' コピーしたシートにヘッダーと試験結果を転記する。
-Sub TransferDataToAppropriateSheets()
+Sub TransferDataToInspectionReports()
     Dim wsSource As Worksheet
-    Set wsSource = ThisWorkbook.Sheets("LOG_Helmet")
+    Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
     Dim lastRow As Long
-    lastRow = wsSource.Cells(wsSource.Rows.count, "C").End(xlUp).row
+    lastRow = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
 
     Dim wsTarget As Worksheet
     Dim i As Long
@@ -137,53 +148,127 @@ Sub TransferDataToAppropriateSheets()
     ' LOG_Helmetシートの各行をループして処理します
     For i = 2 To lastRow
         ' GroupNumberとProductNameからproductNameKeyを構築します
-        productNameKey = wsSource.Cells(i, 3).value
-        productNameKey = Split(productNameKey, "-")(0) & "-" & Split(productNameKey, "-")(1)
-        
-        ' productNameKeyに基づいて対応するシートを検索します
-        On Error Resume Next
-        Set wsTarget = ThisWorkbook.Sheets(productNameKey)
-        On Error GoTo 0
-        
-        ' シートが存在する場合、データを転記します
-        If Not wsTarget Is Nothing Then
-            ' ターゲットシートにヘッダーを転記する処理
-            If wsTarget.Range("B28").value = "" Then ' ヘッダーが未転記であれば転記
-                wsSource.Range("B1:Z1").Copy Destination:=wsTarget.Range("B28")
-            End If
-            
-            ' 最終行を見つけ、次の行からデータの転記を開始します
-            targetRow = wsTarget.Cells(wsTarget.Rows.count, "B").End(xlUp).row + 1
-            If targetRow < 29 Then
-                targetRow = 29 ' 最初のデータ転記開始位置をB29に設定
-            End If
-            Set dataRange = wsSource.Range("B" & i & ":Z" & i)
-            dataRange.Copy Destination:=wsTarget.Range("B" & targetRow)
+        Dim parts() As String
+        parts = Split(wsSource.Cells(i, "B").value, "-")
+        productNameKey = parts(1) & "-" & parts(0)
+        Dim productName As String
+        productName = parts(1) ' "500" など
+
+        Dim sheetIndex As Long
+        Dim numericPart As Long
+        numericPart = CLng(Split(productNameKey, "-")(1))
+
+        If numericPart >= 1 And numericPart <= 6 Then ' 数値部分が1から6の場合
+            ' シートインデックスを計算 (productName-4 も含む)
+            Select Case numericPart
+                Case 1: sheetIndex = 1
+                Case 2, 3: sheetIndex = 2
+                Case 4, 5, 6: sheetIndex = 3 ' productName-4 は productName_3 に転記
+            End Select
+
+            Dim targetSheetName As String
+            targetSheetName = productName & "_" & sheetIndex
+
+            TransferData productName, sheetIndex, i
+
+        Else ' 数値部分が1から6以外の場合は転記しない
+            Debug.Print "productNameKey: " & productNameKey & " は範囲外のため転記されません。"
         End If
-        
-        ' 次のイテレーションのためにwsTargetをリセットします
-        Set wsTarget = Nothing
     Next i
 End Sub
 
-Sub SaveCopiedSheetNames(sheetNames As Collection)
-    Dim ws As Worksheet
+Private Sub TransferData(productName As String, sheetIndex As Long, sourceRow As Long)
+' TransferDataToInspectionReportsのサブプロシージャ。データ転記処理を関数化
+    Dim targetSheetName As String
+    targetSheetName = productName & "_" & sheetIndex
+
     On Error Resume Next
-    Set ws = ThisWorkbook.Sheets("CopiedSheetNames")
+    Dim wsTarget As Worksheet
+    Set wsTarget = ThisWorkbook.Sheets(targetSheetName)
     On Error GoTo 0
 
-    If ws Is Nothing Then
-        Set ws = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count))
-        ws.name = "CopiedSheetNames"
+    If Not wsTarget Is Nothing Then
+        ' ターゲットシートにヘッダーを転記する処理
+        If wsTarget.Range("B30").value = "" Then ' ヘッダーが未転記であれば転記
+            ThisWorkbook.Sheets("LOG_Bicycle").Range("B1:Z1").Copy Destination:=wsTarget.Range("B30")
+        End If
+
+        ' 最終行を見つけ、次の行からデータの転記を開始します
+        targetRow = wsTarget.Cells(wsTarget.Rows.count, "B").End(xlUp).Row + 1
+        If targetRow < 31 Then
+            targetRow = 31 ' 最初のデータ転記開始位置をB31に設定
+        End If
+
+        ThisWorkbook.Sheets("LOG_Bicycle").Range("B" & sourceRow & ":Z" & sourceRow).Copy Destination:=wsTarget.Range("B" & targetRow)
+
+        Set wsTarget = Nothing ' wsTarget をリセット
     End If
-
-    ws.Cells.ClearContents
-
-    Dim i As Long
-    For i = 1 To sheetNames.count
-        ws.Cells(i, 1).value = sheetNames(i)
-    Next i
 End Sub
+
+' _4のデータのみを転記する
+Sub MoveSpecificRecords()
+    Dim wsSource As Worksheet, wsTarget As Worksheet
+    Dim productName As String
+    Dim lastRowSource As Long, lastRowTarget As Long
+    Dim headerRow As Long
+    Dim sampleIDColumn As Long, testLocationColumn As Long
+    Dim i As Long, j As Long ' ループカウンタ j を追加
+
+    headerRow = 30 ' ヘッダー行
+
+    ' 各シートをループ処理 (productName_3 シートを対象とする)
+    For Each ws In ThisWorkbook.Worksheets
+        If Right(ws.Name, 2) = "_3" Then ' シート名が "_3" で終わるシートのみ処理
+            productName = Left(ws.Name, Len(ws.Name) - 2) ' productName を取得
+
+            ' シートの有無を確認
+            On Error Resume Next
+            Set wsTarget = ThisWorkbook.Worksheets(productName & "_2")
+            Set wsSource = ThisWorkbook.Worksheets(productName & "_3") ' wsSource をここで設定
+            On Error GoTo 0
+            If wsTarget Is Nothing Then
+                MsgBox productName & "_2 シートが存在しません。", vbCritical
+                Exit Sub
+            End If
+            If wsSource Is Nothing Then
+                MsgBox productName & "_3 シートが存在しません。", vbCritical
+                Exit Sub
+            End If
+
+            ' "試料ID" と "試験箇所" の列番号を取得
+            For j = 1 To wsSource.Cells(headerRow, Columns.count).End(xlToLeft).Column
+                If wsSource.Cells(headerRow, j).value = "試料ID" Then
+                    sampleIDColumn = j
+                ElseIf wsSource.Cells(headerRow, j).value = "試験箇所" Then
+                    testLocationColumn = j
+                End If
+            Next j
+
+            If sampleIDColumn = 0 Or testLocationColumn = 0 Then
+                MsgBox "「試料ID」または「試験箇所」のヘッダーが見つかりません。", vbCritical
+                Exit Sub
+            End If
+
+            lastRowSource = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
+            lastRowTarget = wsTarget.Cells(wsTarget.Rows.count, "B").End(xlUp).Row
+
+            ' 転記元シートのデータをループ処理 (下から上にループ)
+            For i = lastRowSource To headerRow + 1 Step -1
+                If wsSource.Cells(i, sampleIDColumn).value = 4 And _
+                   (wsSource.Cells(i, testLocationColumn).value = "前頭部" Or wsSource.Cells(i, testLocationColumn).value = "後頭部") Then
+
+                    ' データを転記先シートにコピー
+                    wsSource.Rows(i).EntireRow.Copy Destination:=wsTarget.Rows(lastRowTarget + 1)
+                    ' 転記先シートの最終行を更新
+                    lastRowTarget = lastRowTarget + 1
+                    wsSource.Rows(i).Delete
+                End If
+            Next i
+        End If
+    Next ws
+End Sub
+
+
 
 
 
@@ -203,25 +288,25 @@ Sub TransferDataToTopImpactTest()
     Dim TemperatureCondition As String
 
     ' ソースシートを設定
-    Set wsSource = ThisWorkbook.Sheets("Log_Helmet")
+    Set wsSource = ThisWorkbook.Sheets("Log_Bicycle")
 
     ' ソースシートの最終行を取得
-    lastRow = wsSource.Cells(wsSource.Rows.count, "C").End(xlUp).row
+    lastRow = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
 
     ' 2行目から最終行までループ
     For i = 2 To lastRow
         ' C列の値から製品コードを取得
-        firstDashPos = InStr(wsSource.Cells(i, 3).value, "-")
+        firstDashPos = InStr(wsSource.Cells(i, "B").value, "-")
         If firstDashPos > 0 Then
-            secondDashPos = InStr(firstDashPos + 1, wsSource.Cells(i, 3).value, "-")
+            secondDashPos = InStr(firstDashPos + 1, wsSource.Cells(i, "B").value, "-")
             If secondDashPos > 0 Then
-                matchName = Left(wsSource.Cells(i, 3).value, secondDashPos - 1)
+                matchName = Left(wsSource.Cells(i, "B").value, secondDashPos - 1)
             End If
         End If
 
         ' 各シートをループして条件に一致するシートを検索
         For Each wsDestination In ThisWorkbook.Sheets
-            If wsDestination.name = matchName Then ' シート名が製品コードに一致するか確認
+            If wsDestination.Name = matchName Then ' シート名が製品コードに一致するか確認
                 ' 条件に一致した場合、転記を実行
                 ' 以下のコードは変更なし
                 wsDestination.Range("C2").value = wsSource.Cells(i, 21).value
@@ -245,32 +330,32 @@ Sub TransferDataToTopImpactTest()
     Next i
 End Sub
 
-    ' Fつき帽体の試験結果を対応するシートに転記する。
+' productName_1のシートに転記する。
 Sub TransferDataToDynamicSheets()
 
     Dim wsSource As Worksheet, wsDestination As Worksheet
     Dim lastRow As Long, i As Long
     Dim sourceData As String, checkData As String
-    Dim Parts() As String
+    Dim parts() As String
     Dim destinationSheetName As String
 
     ' ソースシートの設定
-    Set wsSource = ThisWorkbook.Sheets("LOG_Helmet")
-    lastRow = wsSource.Cells(wsSource.Rows.count, "C").End(xlUp).row
+    Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
+    lastRow = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
     
     ' Excelのパフォーマンス向上のための設定
-    Application.ScreenUpdating = False
+    Application.screenUpdating = False
     Application.Calculation = xlCalculationManual
 
     ' wsSourceのC列をループしてデータを処理
     For i = 2 To lastRow
-        sourceData = wsSource.Cells(i, 3).value
+        sourceData = wsSource.Cells(i, "B").value
         checkData = wsSource.Cells(i, 5).value
-        Parts = Split(sourceData, "-")
+        parts = Split(sourceData, "-")
 
         ' シート名の生成
-        If UBound(Parts) >= 2 Then
-            destinationSheetName = Parts(0) & "-" & Parts(1)
+        If UBound(parts) >= 2 Then
+            destinationSheetName = parts(0) & "-" & parts(1)
 
             ' 転記先シートの存在確認
             On Error Resume Next
@@ -279,7 +364,7 @@ Sub TransferDataToDynamicSheets()
 
             ' シートが存在し、かつ条件が一致する場合にデータを転記
             If Not wsDestination Is Nothing Then
-                Select Case Parts(2)
+                Select Case parts(2)
                     Case "天"
                         If checkData = "天頂" Then
                             ' 天に関するデータ転記
@@ -319,7 +404,7 @@ Sub TransferDataToDynamicSheets()
     Next i
     
     ' Excelの設定を元に戻す
-    Application.ScreenUpdating = True
+    Application.screenUpdating = True
     Application.Calculation = xlCalculationAutomatic
 End Sub
 
@@ -361,7 +446,7 @@ Function GetTargetSheetNames() As Collection
     Dim sheetNames As New Collection
     
     Set ws = ThisWorkbook.Sheets("CopiedSheetNames")
-    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).row
+    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).Row
     
     For i = 1 To lastRow
         sheetNames.Add ws.Cells(i, 1).value
@@ -462,13 +547,13 @@ Sub FormatSpecificEndStrings(rng As Range, fontName As String, fontSize As Integ
         If textLength >= 2 Then
             If Right(text, 2) = "高温" Or Right(text, 2) = "低温" Then
                 With cell.Characters(Start:=textLength - 1, Length:=2).Font
-                    .name = fontName
+                    .Name = fontName
                     .size = fontSize
                     .Bold = isBold
                 End With
             ElseIf textLength >= 3 And Right(text, 3) = "浸せき" Then
                 With cell.Characters(Start:=textLength - 2, Length:=3).Font
-                    .name = fontName
+                    .Name = fontName
                     .size = fontSize
                     .Bold = isBold
                 End With
@@ -480,7 +565,7 @@ End Sub
 Sub FormatRange(rng As Range, fontName As String, fontSize As Integer, isBold As Boolean, Optional bgColor As Variant)
     ' 範囲に書式を適用するためのサブプロシージャ
     With rng
-        .Font.name = fontName
+        .Font.Name = fontName
         .Font.size = fontSize
         .Font.Bold = isBold
         If Not IsMissing(bgColor) Then
@@ -501,7 +586,7 @@ Sub DistributeChartsToSheets()
     Dim chartObj As ChartObject
     Dim chartTitle As String
     Dim sheetName As String
-    Dim Parts() As String
+    Dim parts() As String
     Dim groups As Object
     Dim ws As Worksheet
     Dim targetSheet As Worksheet
@@ -520,11 +605,11 @@ Sub DistributeChartsToSheets()
         End If
         
         ' chartNameを"-"で分割し、sheetNameを取得
-        Parts = Split(chartObj.name, "-")
-        If UBound(Parts) >= 1 Then
-            sheetName = Parts(0) & "-" & Parts(1)
+        parts = Split(chartObj.Name, "-")
+        If UBound(parts) >= 1 Then
+            sheetName = parts(0) & "-" & parts(1)
         Else
-            sheetName = Parts(0)
+            sheetName = parts(0)
         End If
         
         If Not groups.Exists(sheetName) Then
@@ -549,7 +634,7 @@ Sub DistributeChartsToSheets()
             ' チャートの移動
             Dim chart As ChartObject
             For Each chart In groups(key)
-                chart.chart.Location Where:=xlLocationAsObject, name:=targetSheet.name
+                chart.chart.Location Where:=xlLocationAsObject, Name:=targetSheet.Name
             Next chart
             
             Set targetSheet = Nothing

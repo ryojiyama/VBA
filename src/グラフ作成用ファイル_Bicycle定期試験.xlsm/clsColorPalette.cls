@@ -12,7 +12,7 @@ Private clsApi As New clsWinApi
 Private WithEvents colorLabel As MSForms.label
 Attribute colorLabel.VB_VarHelpID = -1
 Private uf As Object
-Private number As Integer
+Private Number As Integer
 
 Private Sub Class_Terminate()
     Set clsApi = Nothing
@@ -22,11 +22,11 @@ Property Let LabelObject(l As Object)
 Attribute LabelObject.VB_UserMemId = 0
     Set colorLabel = l
     Set uf = l.Parent
-    number = CInt(Replace(l.name, "color", ""))
+    Number = CInt(Replace(l.Name, "color", ""))
 End Property
 
 Private Sub colorLabel_Click()
-    Call uf.Makeup(number)
+    Call uf.Makeup(Number)
 End Sub
 
 Private Sub colorLabel_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
