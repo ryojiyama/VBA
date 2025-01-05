@@ -2703,17 +2703,17 @@ D,G列の幅：167ピクセル
     Debug.Print "recordID:" & recordID
 
 
-recordID: 01-500-前-Hot
-recordID: 02-500-前-Cold
-recordID: 03-500-前-Wet
-recordID: 01-500-後-Hot
-recordID: 02-500-後-Cold
-recordID: 03-500-後-Wet
-recordID: 01-500-左-Hot
-recordID: 02-500-左-Cold
-recordID: 03-500-左-Wet
-recordID: 01-500-右-Hot
-recordID: 02-500-右-Cold
+recordID: 01-500S-前-Hot
+recordID: 02-500S-前-Cold
+recordID: 03-500S-前-Wet
+recordID: 01-500S-後-Hot
+recordID: 02-500S-後-Cold
+recordID: 03-500S-後-Wet
+recordID: 01-500S-左-Hot
+recordID: 02-500S-左-Cold
+recordID: 03-500S-左-Wet
+recordID: 01-500S-右-Hot
+recordID: 02-500S-右-Cold
 recordID: 03-530-右-Wet
 recordID: 04-530-前-Hot
 recordID: 05-530-前-Cold
@@ -3040,3 +3040,264 @@ End Sub
 - ブック内のシート名を検索し、{"Hel_SpecSheet : LOG_Helmet"}, {"Bicycle_SpecSheet : LOG_Bicycle"}, {"Fall_SpecSheet : LOG_FallArrest"}, {"BaseBall_SpecSheet : LOG_BaseBall"} のペアを作成する。
 - それぞれのペアで"SpecSheet"を名前に含むシートから "LOG_"を名前に含むシートへ値を転記する。
 - 転記するのはH列の値。H列の行を最終行まで取得し、転記する。
+
+ありがとうございます。コードは機能しました。
+続いて以下の条件を満たすコードを書いてください。
+# 条件
+- productName-4に当てはまるレコードをいくつか"productNumKey_2"のシートに移動します。
+- 新しく作成したヘッダー(30行目)の値が、"試料ID"と"試験箇所"の列を探します。
+- "試料ID"の値が 4 と"試験箇所"の値が 前頭部、"試料ID"の値が 4 と"試験箇所"の値が 後頭部のレコードを探します。
+- 該当するレコードを "productNumKey_2"シートの最終行の次の行に移動します。
+条件について不明な場合は質問してください。
+
+
+1. 条件を満たすレコードすべてです。
+2. productNameKey ではなく、 productNameのまちがいでした。"productName_2", "productName_3" のシート名になります。
+3. ヘッダー行は30行目です。列番号は条件に従って特定してください。
+4. テスト環境では保証されていますが、本番では例外があるかもしれません。エラー処理もお願いします。
+
+
+実行時エラー '91'
+オブジェクト変数またはWithブロック変数が設定されていません。
+
+            With wsSource
+                sampleIDColumn = .Rows(headerRow).Find("試料ID").Column
+
+上記エラーが発生しました。しかしコードは機能し、転記は正常に行われています。
+
+```vb
+Sub TransferDataToDynamicSheets()
+
+    Dim wsSource As Worksheet, wsDestination As Worksheet
+    Dim lastRow As Long, i As Long
+    Dim sourceData As String
+    Dim parts() As String
+    Dim destinationSheetName As String
+    Dim productNum as String
+
+    ' ソースシートの設定
+    Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
+    lastRow = wsSource.Cells(wsSource.Rows.Count, "B").End(xlUp).Row
+
+    ' Excelのパフォーマンス向上のための設定
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
+    ' wsSourceのC列をループしてデータを処理
+    For i = 2 To lastRow
+        sourceData = wsSource.Cells(i, "B").Value
+        parts = Split(sourceData, "-")
+
+        ' シート名を生成し、wsDesitinationに代入。
+        If UBound(parts) >= 2 Then
+            destinationSheetName = parts(1) & "_" & 1
+
+            ' 転記先シートの存在確認
+            On Error Resume Next
+            Set wsDestination = ThisWorkbook.Sheets(destinationSheetName)
+            On Error GoTo 0
+
+            ' シートが存在する場合にデータを転記
+            If Not wsDestination Is Nothing Then
+                productNum = wsSource.Cells.(i, "D").value
+                wsDestination.Range("D3").Value = "No." & Left(productCode, Len(productCode) - 1) & "-" & Right(productCode, 1)
+                wsDestination.Range("D4").Value = wsSource.Cells(i, "F").Value
+                wsDestination.Range("D5").Value = wsSource.Cells(i, "G").Value
+                wsDestination.Range("D6").Value = wsSource.Cells(i, "G").Value
+                wsDestination.Range("I3").Value = wsSource.Cells(i, "M").Value
+                wsDestination.Range("I4").Value = wsSource.Cells(i, "N").Value
+            End If
+        End If
+    Next i
+
+    ' Excelの設定を元に戻す
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+End Sub
+```
+"LOG_Bicycle"シートから"productName_1", "productName_2", "productName_3" の3つのシートの所定の位置に値を転記するVBAのコードを書いてください。変数名は英語で適宜、有効なものを作成・変更してください。
+# 条件
+- "LOG_Bicycle"シートのB列の最終行を取得し、1行目のヘッダーを除く全てのレコードを対象とする。
+- B列の値は"01-500-前-Hot-平-E"となっていて、splitで"-"を除き、parts(0)... などのように分解する。
+- productNameは変数で productName = parts(1) です。
+- "productName_1", "productName_2", "productName_3" それぞれのシートのB列、G列を探索し、"衝撃点&アンビル"の値を探し、その行番号を取得する。
+- Cells(i, "B"), Cells(i, "G")が見つかったら、Cells(i, "D"), Cells(i, "I") (これらのセルは結合されています。)の値を抜き出す。
+- その値は"前頭部・平面"となっているのでそれを、inspectionSheetParts(0)="前頭部", inspectionSheetparts(1)="平"(面という字を削除する), に分割する。
+- 先程のparts(2)とinspectionSheetParts(0), parts(4)とinspectionSheetParts(1) を比較し、同一のレコードを見つける。
+- そのレコードの"LOG_Bicycle.Cells(i, "J")を"productName_1 or 2 or 3.Cells(i+1, "D") に転記する。
+これらのロジックをまずは日本語で整理してみてください。コードの生成は私が指示してからお願いします。
+
+実行時エラー'1004'
+RangeクラスのSelectメソッドが失敗しました。
+
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    RemoveRightClickMenu
+    SettingSheet_Focus
+End Sub
+
+Public Sub RemoveRightClickMenu()
+    On Error Resume Next
+    Application.CommandBars("Cell").Controls("Custom Menu").Delete
+    On Error GoTo 0
+End Sub
+Private Sub SettingSheet_Focus()
+    ' [Setting]シートのB2セルにフォーカスを移動
+    ActiveWorkbook.Sheets("Setting").Range("B2").Select
+End Sub
+
+
+以上のコードに以下の条件を加えて修正をお願いします。VBAの記法に従い、コンパイルエラーが無いようにお願いします。
+# 条件
+- Array("LOG_Helmet", "LOG_FallArrest", "LOG_Bicycle", "LOG_BaseBall")のシートごとに条件を変更したい。今の処理は"LOG_Helmet"向けです。
+
+スリング打ち合わせ
+
+
+添付してあるPythonのコードを修正したい。
+現在、
+        'HEL': 'LOG_Helmet',
+        'BICYCLE': 'LOG_Bicycle',
+        'BASEBALL': 'LOG_BaseBall',
+        'FALLALL': 'LOG_FallArrest'
+にて転記するシートを決定していますが、転記したシート名に応じてファイル名も変更したい。
+base_filenameに転記したシートに応じて{Helmet, Bicycle, BaseBall, FallAll}の文字をファイル名の先頭に付けてほしい。
+
+また、読み込むファイルも転記したデータに応じて変更したい。
+転記する際に
+        'HEL': 'LOG_Helmet',
+        'BICYCLE': 'LOG_Bicycle',
+        'BASEBALL': 'LOG_BaseBall',
+        'FALLALL': 'LOG_FallArrest'
+に応じたデータのうち、数が多いカテゴリで決定したい。
+現在読み込むシートは
+excel_path = os.path.join(parent_directory, 'グラフ作成用ファイル.xlsm')
+となっていますが、これを
+{ヘルメットグラフ作成.xlsm, 乗車帽グラフ作成.xlsm, 野球帽グラフ作成.xlsm, 安全帯グラフ作成.xlsm}
+にしたい。
+まずは日本語で修正するプロセスを説明願います。実際のコード修正は少し待ってください。
+
+現在、検査データを
+
+コメントの付け方
+'*******************************************************************************
+' 型定義と定数
+' 試料および測定点の情報を格納する構造体と状態を示す定数の定義
+'*******************************************************************************
+
+'*******************************************************************************
+' 文字列変換用の辞書を初期化
+' 機能：位置と形状の日本語表記を省略形に変換するための辞書を作成
+' 戻値：Dictionaryオブジェクト（前頭部→前、後頭部→後、など）
+'*******************************************************************************
+
+以下の条件を満たすVBAのコードを作成してください。"レポートグラフ"シートに所定の範囲にヘッダーを挿入し、そのヘッダーを目印に複数のシートに印刷するプログラム。
+# 条件
+- I列を探索し、Insert+Num(例：Insert1,Insert2)などの値を見つける。
+- それぞれのInsert ＋ Numが始まる行の上に新しい行を挿入する。
+まずはここまでのコードを示してください。
+
+- Numはグループになっており、2グループが印刷範囲に含まれる。
+
+意図とは違う結果でした。それぞれのInsert+Numに行が挿入されてしまっています。
+1:Insert1
+2:Insert1
+3:Insert2
+4:Insert2
+となっている場合、1行目と3行目に行を挿入するようにしたいです。おなじInsert+Numが並んでいる場合は行は挿入しません。
+
+つづいて別プロシージャに以下の機能を持ったコードを作成してください。
+# 条件
+- 先程追加したNewColumnの行の高さを30ピクセルに指定
+- NewColumn行のB列からG列を結合し、文字位置を左側に
+- セル色をRGB(48, 84, 150), 文字色をRGB(242,242,242)に指定
+- A列の内容をすべて消去。
+
+それでは続いて印刷するプログラムの作成に入ります。
+印刷範囲を指定するためのロジックについて日本語で説明しますので、あなたもそれを日本語で整理してください。
+
+# 印刷範囲の条件
+- "レポートグラフ"のA列からG列
+- NewColumn+Numから次のNewColumn+Num-1行目までが1ブロック
+- そのブロックの高さの合計が728ピクセルになるまでを1ページの印刷範囲に含める。
+
+
+処理中の行: 15, 値: Insert2, 現在の累積高さ: 692
+処理中の行: 16, 値: NewColumn3, 現在の累積高さ: 710
+処理中の行: 17, 値: Insert3, 現在の累積高さ: 728
+-------------------
+ページ 1 の出力準備:
+開始行: 2
+終了行: 17
+現在の累積高さ: 728
+では累積高さが728のときにページを区切っていますが、その区切りは
+処理中の行: 16, 値: NewColumn3, 現在の累積高さ: 710
+から、15行目であるべきです。
+また、2ページ目の始まりは
+-------------------
+処理中の行: 18, 値: Insert3, 現在の累積高さ: 18
+処理中の行: 19, 値: Insert3, 現在の累積高さ: 146
+ではなく、NewColumnを含んでいなければなりません。
+
+先程の例でいくと、処理中の行: 17, 値: Insert3, 現在の累積高さ: 728
+で分割するのではなく、
+処理中の行: 15, 値: Insert2, 現在の累積高さ: 692
+------------------------------------
+処理中の行: 16, 値: NewColumn3, 現在の累積高さ: 710
+
+のように分割されます。理由は16行目にNewColumn3が含まれるからです。
+また、次ページは
+処理中の行: 16, 値: NewColumn3, 現在の累積高さ: 710
+処理中の行: 17, 値: Insert3, 現在の累積高さ: 728
+のように始まります。
+
+
+
+まず、累積高さを728まで計算する。
+728になったら、上方向に探索し、直近のI列にNewColumnが含まれるレコードを見つけその-1行目から分割する。
+分割後のレコードはI列がNewColumnである。
+
+このロジックのエラー処理としてどのようなものがあるでしょうか?
+
+上記コードに以下の条件を加えてください。
+- A列を探索し、3文字以上の値のセルを見つける。
+- その値をB列からG列を結合したセルに転記する。
+- 転記するセルは 3文字以上の値のセルがCells(i, A) ならば Cells(i-1, {B-G})
+
+コードを修正します。下記の条件に合わせてください。
+-
+
+2024年11月27日 自転車帽グラフ作成_依頼試験_修正中の続き
+
+- 2024年11月26日作ったマクロをひとつに纏める。
+- まとめたマクロを右クリックに登録
+- ExportReportToPDF()の出力先をサブプロシージャに分離。
+- 分離したサブプロシージャに選択式でPDFか紙かを選ぶ機能を追加する。
+-
+
+別プロシージャに以下の機能を持ったコードを作成してください。
+# 条件
+- Cells(1,"A"), Cells(2."B")を結合する。
+- Cells(1,"C"), Cells(2."E")を結合する。
+- 結合したセルCells(1,"A") に"表題"と記入
+- Cells(1,"F") に"作成日"と記入
+- Cells(2,"F") に"作成者"と記入
+- Cells(1,"G") に"=today()"を記入
+
+
+VBAで"Previous"シートから"Renew"シートへ値を転記するコードを作成してください。
+# 条件
+- 2つのシートはそれぞれ3つのセクションに別れており、ヘッダーでそれを区別します。
+- Section1{"Previous:原材料・部品（品名・品番及び価格）", Renew:(原材料、部品の品番/品名及びその詳細)},Section2{"Previous:副資材（品名・品番及び価格）", Renew:（副資材の品番/品名及びその詳細）},Section3{"Previous:副資材（品名・品番及び価格）", Renew:（容器包装の品番/品名及びその詳細）}
+- セクションごとに列を精査し、同じ位置に値をコピー
+
+以上のロジックを一度日本語で説明してください。私自身の説明に自身がありません。
+
+結合状態(セクションによる違いはない)
+Previous： B～F、H～L
+Renew：B～F、I~L
+
+2024/12/05
+## グラフ作成ファイル改善リスト
+左のアイコン削除
+
