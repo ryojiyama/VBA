@@ -1,17 +1,182 @@
 Attribute VB_Name = "Test"
-Sub TransferDataToDynamicSheets()
+Sub CheckAndMarkRecords()
+    Dim wsSource As Worksheet
+    Dim ws As Worksheet
+    Dim lastRow As Long, checkRow As Long
+    Dim targetLastRow As Long
+    Dim foundSheets As Collection
+    Dim PLNum As String
+    Dim hasFailedRecord As Boolean
+    Dim failedRow As Range
+    Dim clearRange As Range
+    Dim isAllPass As Boolean    ' 全シート合格フラグを追加
+    
+    ' エラーハンドリングの設定
+    On Error GoTo ErrorHandler
+    
+    ' ソースシートの設定
+    Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
+    lastRow = wsSource.Cells(wsSource.Rows.count, "D").End(xlUp).Row
+    
+    ' Excelのパフォーマンス向上のための設定
+    Application.screenUpdating = False
+    Application.Calculation = xlCalculationManual
+    
+    ' 該当するシートを探索するためのコレクション作成
+    Set foundSheets = New Collection
+    
+    ' D列から対象シートを探索
+    For checkRow = 2 To lastRow
+        PLNum = wsSource.Cells(checkRow, "D").value
+        
+        ' ワークブック内の全シートをチェック
+        For Each ws In ThisWorkbook.Worksheets
+            ' シート名が "PLNum_数字" の形式と一致するかチェック
+            If ws.Name Like PLNum & "_[0-9]*" Then
+                ' 重複を避けるため、既に追加されていないかチェック
+                On Error Resume Next
+                foundSheets.Add ws, ws.Name
+                On Error GoTo ErrorHandler
+            End If
+        Next ws
+    Next checkRow
+    
+    ' 見つかったシートがない場合の処理
+    If foundSheets.count = 0 Then
+        MsgBox "対象となるシートが見つかりません。", vbExclamation
+        GoTo CleanExit
+    End If
+    
+    ' 全シート合格フラグを初期化
+    isAllPass = True
+    
+    ' 各シートに対して処理を実行
+    For Each ws In foundSheets
+        hasFailedRecord = False
+        targetLastRow = ws.Cells(ws.Rows.count, "D").End(xlUp).Row
+        
+        ' 既存の"不合格"行を削除
+        On Error Resume Next
+        ws.Rows(targetLastRow + 1).Delete
+        On Error GoTo ErrorHandler
+        
+        ' 既存の色付けをクリア
+        Set clearRange = ws.Range(ws.Cells(30, "B"), ws.Cells(targetLastRow, "U"))
+        clearRange.Interior.ColorIndex = xlNone
+        
+        ' H18セルの内容をクリア
+        ws.Range("H18").value = ""
+        
+        ' 30行目から最終行までチェック
+        For checkRow = 30 To targetLastRow
+            ' D列の値が"PLNum"と一致するレコードをチェック
+            If ws.Cells(checkRow, "D").value = PLNum Then
+                ' J列とL列の値を取得
+                Dim jValue As Variant
+                Dim lValue As Variant
+                
+                jValue = ws.Cells(checkRow, "J").value
+                lValue = ws.Cells(checkRow, "L").value
+                
+                ' J列の数値チェックと条件判定
+                If Not IsNumeric(jValue) Then
+                    jValue = 0
+                End If
+                
+                ' L列の数値チェックと条件判定
+                If Not IsNumeric(lValue) Then
+                    lValue = 0
+                End If
+                
+                ' 条件チェック
+                If CDbl(jValue) >= 300 Or CDbl(lValue) >= 4 Then
+                    ' B列からU列を色付け
+                    ws.Range(ws.Cells(checkRow, "B"), _
+                            ws.Cells(checkRow, "U")).Interior.Color = RGB(255, 153, 153)
+                    hasFailedRecord = True
+                End If
+            End If
+        Next checkRow
+        
+        ' 条件を満たすレコードが1つでもあった場合、不合格を入力
+        If hasFailedRecord Then
+            isAllPass = False   ' 不合格があった場合、全シート合格フラグをfalseに
+            
+            ' 最終行を再取得
+            targetLastRow = ws.Cells(ws.Rows.count, "D").End(xlUp).Row
+            
+            ' 不合格行の設定
+            Set failedRow = ws.Range(ws.Cells(targetLastRow + 1, "A"), _
+                                   ws.Cells(targetLastRow + 1, "U"))
+            
+            With failedRow
+                ' セルの結合
+                .Merge
+                ' 不合格テキストの入力
+                .value = "不合格 ※ J列が300以上 または L列が4以上 のレコードが存在します"
+                ' セルの書式設定
+                With .Interior
+                    .Color = RGB(255, 153, 153)
+                End With
+                With .Font
+                    .Bold = True
+                    .Size = 12
+                    .Color = RGB(192, 0, 0)
+                End With
+                ' 配置設定
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+            
+            ' 行の高さを調整
+            ws.Rows(targetLastRow + 1).RowHeight = 25
+        End If
+    Next ws
+    
+    ' すべてのシートの処理が終わった後、全シート合格なら合格を表示
+    If isAllPass Then
+        For Each ws In foundSheets
+            With ws.Range("H18")
+                .value = "合格"
+                With .Font
+                    .Bold = True
+                    .Size = 12
+                    .Color = RGB(0, 176, 80)  ' 緑色
+                End With
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+        Next ws
+    End If
+    
+CleanExit:
+    ' Excelの設定を元に戻す
+    Application.screenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    Exit Sub
+    
+ErrorHandler:
+    ' エラー発生時の処理
+    MsgBox "エラーが発生しました。" & vbCrLf & _
+           "エラー番号: " & Err.Number & vbCrLf & _
+           "エラー内容: " & Err.Description, vbCritical
+    Resume CleanExit
+End Sub
+
+
+' productName_1のシートの体裁を整える。
+Sub CustomizeReportIntroduction()
 
     Dim wsSource As Worksheet, wsDestination As Worksheet
     Dim lastRow As Long, i As Long
-    Dim sourceData As String
+    Dim sourceData As String, checkData As String
     Dim parts() As String
     Dim destinationSheetName As String
-    Dim productNum As String
 
     ' ソースシートの設定
     Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
     lastRow = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
-
+    
     ' Excelのパフォーマンス向上のための設定
     Application.screenUpdating = False
     Application.Calculation = xlCalculationManual
@@ -19,340 +184,188 @@ Sub TransferDataToDynamicSheets()
     ' wsSourceのC列をループしてデータを処理
     For i = 2 To lastRow
         sourceData = wsSource.Cells(i, "B").value
+        checkData = wsSource.Cells(i, 5).value
         parts = Split(sourceData, "-")
 
-        ' シート名を生成し、wsDesitinationに代入。
+        ' シート名の生成
         If UBound(parts) >= 2 Then
-            destinationSheetName = parts(1) & "_" & 1
+            destinationSheetName = parts(0) & "-" & parts(1)
 
             ' 転記先シートの存在確認
             On Error Resume Next
             Set wsDestination = ThisWorkbook.Sheets(destinationSheetName)
             On Error GoTo 0
 
-            ' シートが存在する場合にデータを転記
+            ' シートが存在し、かつ条件が一致する場合にデータを転記
             If Not wsDestination Is Nothing Then
-                productNum = wsSource.Cells(i, "D").value
-                wsDestination.Range("D3").value = "No." & Left(productNum, Len(productNum) - 1) & "-" & Right(productNum, 1)
-                wsDestination.Range("D4").value = wsSource.Cells(i, "O").value
-                wsDestination.Range("D5").value = wsSource.Cells(i, "E").value
-                wsDestination.Range("D6").value = wsSource.Cells(i, "Q").value
-                wsDestination.Range("I3").value = wsSource.Cells(i, "F").value
-                wsDestination.Range("I4").value = wsSource.Cells(i, "G").value
-                ' 試験データの転記
-                wsDestination.Range("D22").value = wsSource.Cells(i, "J").value
-                wsDestination.Range("D23").value = wsSource.Cells(i, "L").value
+                Select Case parts(2)
+                    Case "天"
+                        If checkData = "天頂" Then
+                            ' 天に関するデータ転記
+                            wsDestination.Range("C2").value = wsSource.Cells(i, 21).value
+                            wsDestination.Range("F2").value = wsSource.Cells(i, 6).value
+                            wsDestination.Range("H2").value = wsSource.Cells(i, 7).value
+                            wsDestination.Range("C3").value = "No." & wsSource.Cells(i, 4).value & "_" & wsSource.Cells(i, 15).value
+                            wsDestination.Range("F3").value = wsSource.Cells(i, 13).value
+                            wsDestination.Range("H3").value = wsSource.Cells(i, 14).value
+                            wsDestination.Range("C4").value = wsSource.Cells(i, 16).value
+                            wsDestination.Range("F4").value = wsSource.Cells(i, 17).value
+                            wsDestination.Range("H4").value = wsSource.Cells(i, 18).value
+                            wsDestination.Range("H7").value = wsSource.Cells(i, 19).value
+                            wsDestination.Range("H8").value = wsSource.Cells(i, 20).value
+                            wsDestination.Range("E11").value = wsSource.Cells(i, 8).value
+                            wsDestination.Range("A10").value = "※前処理：" & wsSource.Cells(i, 12).value
+                        End If
+                    Case "前"
+                        If checkData = "前頭部" Then
+                            ' 前頭部に関するデータ転記
+                            wsDestination.Range("E13").value = wsSource.Cells(i, 8).value
+                            wsDestination.Range("E14").value = wsSource.Cells(i, 10).value
+                            wsDestination.Range("E15").value = wsSource.Cells(i, 11).value
+                            wsDestination.Range("A13").value = "前頭部"
+                        End If
+                    Case "後"
+                        If checkData = "後頭部" Then
+                            ' 後頭部に関するデータ転記
+                            wsDestination.Range("E17").value = wsSource.Cells(i, 8).value
+                            wsDestination.Range("E18").value = wsSource.Cells(i, 10).value
+                            wsDestination.Range("E19").value = wsSource.Cells(i, 11).value
+                            wsDestination.Range("A17").value = "後頭部"
+                        End If
+                End Select
             End If
         End If
     Next i
-
+    
     ' Excelの設定を元に戻す
     Application.screenUpdating = True
     Application.Calculation = xlCalculationAutomatic
 End Sub
-' 文字列変換用の関数
-Function ConvertCompareString(ByVal strValue As String) As String
-    ' 頭部関連の変換
-    strValue = Replace(strValue, "前頭部", "前")
-    strValue = Replace(strValue, "後頭部", "後")
-    strValue = Replace(strValue, "右側頭部", "右")
-    strValue = Replace(strValue, "左側頭部", "左")
+
+
+
+Function GetTargetSheetNames() As Collection
+    ' CopiedSheetNamesシートのA列からシート名を取得
+    Dim ws As Worksheet
+    Dim lastRow As Long, i As Long
+    Dim sheetNames As New Collection
     
-    ' 形状関連の変換
-    strValue = Replace(strValue, "平面", "平")
-    strValue = Replace(strValue, "半球", "球")
+    Set ws = ThisWorkbook.Sheets("CopiedSheetNames")
+    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).Row
     
-    ConvertCompareString = strValue
-End Function
-
-Sub 転記処理()
-    Dim logSheet As Worksheet
-    Dim productSheet As Worksheet
-    Dim lastRow As Long
-    Dim i As Long, sheetNum As Long, j As Long, k As Long
-    Dim productCode As String, productName As String, productSheetName As String
-    Dim parts() As String, inspectionSheetPartsB() As String, inspectionSheetPartsG() As String
-    Dim impactCellB As String, impactCellG As String
-    Dim impactRowsB As Variant, impactRowsG As Variant
-    Dim foundB As Boolean, foundG As Boolean
-    Dim mergeArea As Range
-
-    Set logSheet = ThisWorkbook.Sheets("LOG_Bicycle")
-    lastRow = logSheet.Cells(Rows.count, "B").End(xlUp).Row
-
-    For i = 2 To lastRow
-        productCode = logSheet.Cells(i, "B").value
-        parts = Split(productCode, "-")
-        productName = parts(1)
-        foundB = False
-        foundG = False
-
-        For sheetNum = 1 To 3
-            productSheetName = productName & "_" & sheetNum
-
-            On Error Resume Next
-            Set productSheet = ThisWorkbook.Sheets(productSheetName)
-            On Error GoTo 0
-
-            If Not productSheet Is Nothing Then
-                impactRowsB = FindAllRows(productSheet, "B", "衝撃点&アンビル")
-                impactRowsG = FindAllRows(productSheet, "G", "衝撃点&アンビル")
-
-                ' B列の処理
-                If IsArray(impactRowsB) Then
-                    For j = LBound(impactRowsB) To UBound(impactRowsB)
-                        If productSheet.Cells(impactRowsB(j), "B").MergeCells Then
-                            Set mergeArea = productSheet.Cells(impactRowsB(j), "B").mergeArea
-                            Dim nextColB As Long
-                            nextColB = mergeArea.Column + mergeArea.Columns.count
-                            impactCellB = productSheet.Cells(impactRowsB(j), nextColB).value
-
-                            If Len(Trim(impactCellB)) > 0 Then
-                                inspectionSheetPartsB = Split(impactCellB, "・")
-                                If UBound(inspectionSheetPartsB) >= 1 Then
-                                    Dim convertedFirst As String, convertedSecond As String
-                                    convertedFirst = ConvertCompareString(inspectionSheetPartsB(0))
-                                    convertedSecond = ConvertCompareString(inspectionSheetPartsB(1))
-
-                                    If parts(2) = convertedFirst And parts(4) = convertedSecond Then
-                                        productSheet.Cells(impactRowsB(j), nextColB).value = logSheet.Cells(i, "J").value
-                                        foundB = True
-                                        Exit For
-                                    End If
-                                End If
-                            End If
-                        End If
-                    Next j
-                End If
-
-                ' G列の処理
-                If IsArray(impactRowsG) Then
-                    For k = LBound(impactRowsG) To UBound(impactRowsG)
-                        If productSheet.Cells(impactRowsG(k), "G").MergeCells Then
-                            Set mergeArea = productSheet.Cells(impactRowsG(k), "G").mergeArea
-                            Dim nextColG As Long
-                            nextColG = mergeArea.Column + mergeArea.Columns.count
-                            impactCellG = productSheet.Cells(impactRowsG(k), nextColG).value
-
-                            If Len(Trim(impactCellG)) > 0 Then
-                                inspectionSheetPartsG = Split(impactCellG, "・")
-                                If UBound(inspectionSheetPartsG) >= 1 Then
-                                    convertedFirst = ConvertCompareString(inspectionSheetPartsG(0))
-                                    convertedSecond = ConvertCompareString(inspectionSheetPartsG(1))
-
-                                    If parts(2) = convertedFirst And parts(4) = convertedSecond Then
-                                        productSheet.Cells(impactRowsG(k), nextColG).value = logSheet.Cells(i, "J").value
-                                        foundG = True
-                                        Exit For
-                                    End If
-                                End If
-                            End If
-                        End If
-                    Next k
-                End If
-
-                If foundB Or foundG Then Exit For
-            End If
-            Set productSheet = Nothing
-        Next sheetNum
-    Next i
-End Sub
-
-Function FindAllRows(sheet As Worksheet, Col As String, searchStr As String) As Variant
-    Dim result(0 To 1000) As Long
-    Dim resultCount As Long
-    Dim lastRow As Long
-    Dim i As Long
-    Dim mergeArea As Range
-
-    resultCount = -1
-    lastRow = sheet.Cells(sheet.Rows.count, Col).End(xlUp).Row
-
     For i = 1 To lastRow
-        If sheet.Cells(i, Col).MergeCells Then
-            Set mergeArea = sheet.Cells(i, Col).mergeArea
-            If sheet.Cells(i, Col).Address = mergeArea.Cells(1, 1).Address Then
-                If InStr(1, mergeArea.Cells(1, 1).value, searchStr) > 0 Then
-                    resultCount = resultCount + 1
-                    result(resultCount) = i
-                End If
-            End If
-        Else
-            If InStr(1, sheet.Cells(i, Col).value, searchStr) > 0 Then
-                resultCount = resultCount + 1
-                result(resultCount) = i
-            End If
-        End If
+        sheetNames.Add ws.Cells(i, 1).value
     Next i
-
-    If resultCount >= 0 Then
-        Dim finalResult() As Long
-        ReDim finalResult(0 To resultCount)
-        For i = 0 To resultCount
-            finalResult(i) = result(i)
-        Next i
-        FindAllRows = finalResult
-    Else
-        FindAllRows = Array()
-    End If
+    
+    Set GetTargetSheetNames = sheetNames
 End Function
-
-Sub セル値確認()
-    Dim ws As Worksheet
-    Dim sheetNames As Variant
-    Dim targetCells As Variant
-    Dim i As Long, j As Long
+    ' CopiedSheetNamesシートのA列に基づいて検査票に書式を設定する
+Sub FormatNonContinuousCells()
+    Dim wsTarget As Worksheet
+    Dim i As Long
+    Dim sheetName As String
+    Dim targetSheets As Collection
+    Dim rng As Range
+    Dim cell As Range
     
-    ' 確認するシート名を配列に格納
-    sheetNames = Array("500S_1", "500S_2", "500S_3")
+    ' 処理するシート名を取得
+    Set targetSheets = GetTargetSheetNames()
     
-    ' 確認するセルの位置を配列に格納 (列, 行)
-    targetCells = Array(Array("B", 21), Array("B", 25), Array("G", 21), Array("G", 25))
-    
-    Debug.Print "セル値確認開始"
-    Debug.Print "-------------------"
-    
-    ' 各シートをループ
-    For i = 0 To UBound(sheetNames)
-        On Error Resume Next
-        Set ws = ThisWorkbook.Sheets(sheetNames(i))
-        On Error GoTo 0
+    ' 対象のシート名に基づいて処理を行う
+    For i = 1 To targetSheets.count
+        sheetName = targetSheets(i)
         
-        If Not ws Is Nothing Then
-            Debug.Print sheetNames(i) & " のセル値:"
+        ' ワークシートが存在するかチェック
+        On Error Resume Next
+        Set wsTarget = ThisWorkbook.Sheets(sheetName)
+        On Error GoTo 0
+
+        ' ワークシートが存在すれば、指定したセル範囲に書式を設定
+        If Not wsTarget Is Nothing Then
+            ' 範囲と書式設定を関連付け
+            FormatRange wsTarget.Range("E7"), "游明朝", 12, True
+            FormatRange wsTarget.Range("E8"), "游明朝", 12, True
+            FormatRange wsTarget.Range("E9"), "游明朝", 12, True
+
+            ' E13に値がない場合、A14:E14とB15:D16をグレーアウト
+            If IsEmpty(wsTarget.Range("E13").value) Then
+                wsTarget.Range("A13").value = "検査対象外"
+                FormatRange wsTarget.Range("A13"), "游ゴシック", 10, False, RGB(242, 242, 242)
+                FormatRange wsTarget.Range("B13:F13, B14:E15"), "游ゴシック", 10, False, RGB(242, 242, 242)
+            Else
+                FormatRange wsTarget.Range("A13"), "游ゴシック", 12, True
+                FormatRange wsTarget.Range("E13:E15"), "游ゴシック", 10, False, RGB(255, 255, 255)
+            End If
+
+            ' E17に値がない場合、A19:E19とB20:D21をグレーアウト
+            If IsEmpty(wsTarget.Range("E17").value) Then
+                wsTarget.Range("A17").value = "検査対象外"
+                FormatRange wsTarget.Range("A17"), "游ゴシック", 10, False, RGB(242, 242, 242)
+                FormatRange wsTarget.Range("B17:F17, B18:E19"), "游ゴシック", 10, False, RGB(242, 242, 242)
+            Else
+                FormatRange wsTarget.Range("A17"), "游ゴシック", 12, True
+                FormatRange wsTarget.Range("E17:E19"), "游ゴシック", 10, False, RGB(255, 255, 255)
+            End If
             
-            ' 各対象セルをループ
-            For j = 0 To UBound(targetCells)
-                Dim Col As String
-                Dim Row As Long
-                Col = targetCells(j)(0)
-                Row = targetCells(j)(1)
-                
-                ' セルが結合されているか確認
-                If ws.Cells(Row, Col).MergeCells Then
-                    Dim mergeArea As Range
-                    Set mergeArea = ws.Cells(Row, Col).mergeArea
-                    Debug.Print "  " & Col & Row & ": " & mergeArea.Cells(1, 1).value & _
-                              " (結合セル: " & mergeArea.Address & ")"
+            ' 特定の文字に書式を適用
+            FormatSpecificEndStrings wsTarget.Range("A10"), "游ゴシック", 12, True
+            
+            ' セルの書式設定
+            With wsTarget.Range("C2:C4, F2:F4, H2:H4")
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+            End With
+            wsTarget.Range("F3").NumberFormat = "0.0"" g"""
+            wsTarget.Range("H2").NumberFormat = "0"" ℃"""
+            wsTarget.Range("H3").NumberFormat = "0.0"" mm"""
+            wsTarget.Range("E11, E14, E19").NumberFormat = "0.00"" kN"""
+            
+            ' E14:E15, E18:E19の値に応じて書式を設定
+            Set rng = wsTarget.Range("E14:E15, E18:E19")
+            For Each cell In rng
+                If cell.value <= 0.01 Then
+                    cell.value = "―"
                 Else
-                    Debug.Print "  " & Col & Row & ": " & ws.Cells(Row, Col).value
+                    cell.NumberFormat = "0.00"" ms"""
                 End If
-            Next j
-            Debug.Print "-------------------"
-        Else
-            Debug.Print "シート " & sheetNames(i) & " が見つかりません"
-            Debug.Print "-------------------"
+            Next cell
+            
+            ' 他の範囲も同様に設定可能
+            ' FormatRange wsTarget.Range("その他の範囲"), "フォント名", フォントサイズ, 太字かどうか, 背景色
+
+            Set wsTarget = Nothing
         End If
     Next i
-    
-    Debug.Print "確認完了"
 End Sub
 
 
+Sub FormatSpecificEndStrings(rng As Range, fontName As String, fontSize As Integer, isBold As Boolean)
+    ' セルの特定の文字(前処理)に書式を適用するサブプロシージャ
+    Dim cell As Range
 
-' -------------------------------------------------------------------------------------------------------------
-Sub GroupAndListChartNamesAndTitles()
-    Dim chartObj As ChartObject
-    Dim chartTitle As String
-    Dim part0 As String
-    Dim groups As Object
-    Set groups = CreateObject("Scripting.Dictionary")
+    For Each cell In rng
+        Dim text As String
+        text = cell.value
+        Dim textLength As Integer
+        textLength = Len(text)
 
-    ' アクティブシートのチャートオブジェクトをループ処理
-    For Each chartObj In ActiveSheet.ChartObjects
-        ' グラフにタイトルがあるかどうかをチェック
-        If chartObj.chart.HasTitle Then
-            chartTitle = chartObj.chart.chartTitle.text
-        Else
-            chartTitle = "No Title"  ' タイトルがない場合
+        If textLength >= 2 Then
+            If Right(text, 2) = "高温" Or Right(text, 2) = "低温" Then
+                With cell.Characters(Start:=textLength - 1, Length:=2).Font
+                    .Name = fontName
+                    .Size = fontSize
+                    .Bold = isBold
+                End With
+            ElseIf textLength >= 3 And Right(text, 3) = "浸せき" Then
+                With cell.Characters(Start:=textLength - 2, Length:=3).Font
+                    .Name = fontName
+                    .Size = fontSize
+                    .Bold = isBold
+                End With
+            End If
         End If
-
-        ' chartNameを"-"で分割し、part(0)を取得
-        part0 = Split(chartObj.Name, "-")(0)
-
-        ' グループがまだ存在しない場合、新規作成
-        If Not groups.Exists(part0) Then
-            groups.Add part0, New Collection
-        End If
-
-        ' グループにチャート名とタイトルを追加
-        groups(part0).Add "Chart Name: " & chartObj.Name & "; Title: " & chartTitle
-    Next chartObj
-
-    ' 各グループの内容をイミディエイトウィンドウに出力
-    Dim key As Variant
-    For Each key In groups.Keys
-        Debug.Print "Group: " & key
-        Dim item As Variant
-        For Each item In groups(key)
-            Debug.Print item
-        Next item
-    Next key
+    Next cell
 End Sub
-
-Sub DistributeChartsToSheets()
-    Dim chartObj As ChartObject
-    Dim chartTitle As String
-    Dim sheetName As String
-    Dim parts() As String
-    Dim groups As Object
-    Dim ws As Worksheet
-    Dim targetSheet As Worksheet
-    
-    Set groups = CreateObject("Scripting.Dictionary")
-    
-    ' "LOG_Helmet"シートを対象にする
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-    
-    ' "LOG_Helmet"シートのチャートオブジェクトをグループ分け
-    For Each chartObj In ws.ChartObjects
-        If chartObj.chart.HasTitle Then
-            chartTitle = chartObj.chart.chartTitle.text
-        Else
-            chartTitle = "No Title"
-        End If
-        
-        ' chartNameを"-"で分割し、sheetNameを取得
-        parts = Split(chartObj.Name, "-")
-        If UBound(parts) >= 1 Then
-            sheetName = parts(0) & "-" & parts(1)
-        Else
-            sheetName = parts(0)
-        End If
-        
-        If Not groups.Exists(sheetName) Then
-            groups.Add sheetName, New Collection
-        End If
-        
-        groups(sheetName).Add chartObj
-    Next chartObj
-    
-    ' グループごとにチャートを対応するシートに移動
-    Dim key As Variant
-    For Each key In groups.Keys
-        ' シートの存在を確認
-        On Error Resume Next
-        Set targetSheet = ThisWorkbook.Sheets(key)
-        On Error GoTo 0
-        
-        ' シートが存在しない場合、チャートを移動しない
-        If Not targetSheet Is Nothing Then
-            Debug.Print "NewSheetName: " & key
-            
-            ' チャートの移動
-            Dim chart As ChartObject
-            For Each chart In groups(key)
-                chart.chart.Location Where:=xlLocationAsObject, Name:=targetSheet.Name
-            Next chart
-            
-            Set targetSheet = Nothing
-        Else
-            Debug.Print "Sheet " & key & " does not exist. Charts not moved."
-        End If
-    Next key
-End Sub
-
-
 
 
 

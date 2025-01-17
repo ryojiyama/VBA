@@ -1,11 +1,8 @@
-Attribute VB_Name = "ChartBunpai_Seikou"
-' 2024-11-08作成 うまく行ったが、課題も多い。
-
-
+Attribute VB_Name = "ChartDistribution"
 ' ===== 型定義を最初に配置 =====
 Private Type sampleInfo
     SampleNumber As String
-    Condition As String
+    condition As String
 End Type
 
 Private Type pointInfo
@@ -16,6 +13,8 @@ End Type
 ' ===== 定数定義 =====
 Private Const CHART_SUFFIX As String = "-E"
 Private Const SERIES_PREFIX As String = "500S"
+Private Const CHART_WIDTH As Double = 482   ' 17cm
+Private Const CHART_HEIGHT As Double = 170  ' 6cm
 
 ' ===== 辞書オブジェクト格納用変数 =====
 Private locationDict As Object
@@ -78,8 +77,14 @@ ErrorHandler:
     Err.Raise Err.Number, "InitializeDictionaries", "辞書の初期化に失敗しました"
 End Sub
 
-' ===== メインのチャート分配処理 =====
-Sub チャート分配処理()
+'*******************************************************************************
+' メインプロシージャ
+' 機能：指定されたシートのチャートを検索し、対応する製品シートに配置
+' 引数：productSheet - 配置先の製品シート
+'       logSheet    - チャートが格納されているLOGシート
+'       errorLogs   - エラー情報の格納先
+'*******************************************************************************
+Private Sub ProcessChartDistribution()
     On Error GoTo ErrorHandler
     
     Application.Calculation = xlCalculationManual
@@ -137,7 +142,11 @@ ErrorHandler:
     Resume CleanUp
 End Sub
 
-' ===== シート処理 =====
+' ProcessChartDistributionのサブプロシージャ
+' 機能：指定されたシートのチャートを検索し、対応する製品シートに配置
+' 引数：productSheet - 配置先の製品シート
+'       logSheet    - チャートが格納されているLOGシート
+'       errorLogs   - エラー情報の格納先
 Private Sub ProcessSheet(ByRef productSheet As Worksheet, _
                         ByRef logSheet As Worksheet, _
                         ByRef errorLogs As String)
@@ -166,7 +175,7 @@ Private Sub ProcessSheet(ByRef productSheet As Worksheet, _
     Next i
 End Sub
 
-' ===== 試料情報抽出 =====
+' ProcessSheetのサブプロシージャ
 Private Function ExtractSampleInfo(ByVal cellValue As String) As sampleInfo
     Dim info As sampleInfo
     Dim parts As Variant
@@ -184,9 +193,9 @@ Private Function ExtractSampleInfo(ByVal cellValue As String) As sampleInfo
         
         ' 状態の判定（辞書に存在するかチェック）
         If conditionDict.Exists(parts(1)) Then
-            info.Condition = conditionDict(parts(1))
+            info.condition = conditionDict(parts(1))
         Else
-            info.Condition = "Unknown"
+            info.condition = "Unknown"
             Debug.Print "未定義の状態: " & parts(1)
         End If
     End If
@@ -196,11 +205,11 @@ Private Function ExtractSampleInfo(ByVal cellValue As String) As sampleInfo
     
 ErrorHandler:
     info.SampleNumber = "00"
-    info.Condition = "Error"
+    info.condition = "Error"
     ExtractSampleInfo = info
 End Function
 
-' ===== 測定点処理 =====
+' ProcessSheetのサブプロシージャ
 Private Sub ProcessMeasurementPoint(ByRef productSheet As Worksheet, _
                                   ByRef logSheet As Worksheet, _
                                   ByVal currentRow As Long, _
@@ -226,7 +235,7 @@ Private Sub ProcessMeasurementPoint(ByRef productSheet As Worksheet, _
     Next colIndex
 End Sub
 
-' ===== 測定点情報抽出 =====
+' ProcessMeasurementPointのサブプロシージャ
 Private Function ExtractPointInfo(ByRef sheet As Worksheet, _
                                 ByVal Row As Long, _
                                 ByVal Col As Long) As pointInfo
@@ -267,7 +276,12 @@ ErrorHandler:
     ExtractPointInfo = info
 End Function
 
-' ===== チャートID生成 =====
+'*******************************************************************************
+' チャートIDパターン取得
+' 機能：LOGシートから検索用チャートIDのパターンを生成
+' 参照：LOG_Bicycle シートのD2セル（シリーズ）とQ2セル（サフィックス）
+' 戻値："{0}-シリーズ-{1}-{2}-{3}サフィックス" 形式の文字列
+'*******************************************************************************
 Private Function GetChartPattern(ByRef logSheet As Worksheet) As String
     ' 初期値（エラー時のフォールバック用）
     Dim suffixPattern As String: suffixPattern = "-XX"
@@ -295,13 +309,13 @@ Private Function GetChartPattern(ByRef logSheet As Worksheet) As String
     GetChartPattern = "{0}-" & seriesPrefix & "-{1}-{2}-{3}" & suffixPattern
 End Function
 
-' ===== チャートID生成（修正版） =====
+' GenerateChartIdのサブプロシージャ
 Private Function GenerateChartId(ByRef logSheet As Worksheet, _
                                ByRef sampleInfo As sampleInfo, _
                                ByRef pointInfo As pointInfo) As String
     On Error GoTo ErrorHandler
     
-    If Len(sampleInfo.SampleNumber) = 0 Or Len(sampleInfo.Condition) = 0 _
+    If Len(sampleInfo.SampleNumber) = 0 Or Len(sampleInfo.condition) = 0 _
        Or Len(pointInfo.Position) = 0 Or Len(pointInfo.Shape) = 0 Then
         GenerateChartId = ""
         Exit Function
@@ -314,7 +328,7 @@ Private Function GenerateChartId(ByRef logSheet As Worksheet, _
     ' IDを生成
     GenerateChartId = Replace(pattern, "{0}", sampleInfo.SampleNumber)
     GenerateChartId = Replace(GenerateChartId, "{1}", pointInfo.Position)
-    GenerateChartId = Replace(GenerateChartId, "{2}", sampleInfo.Condition)
+    GenerateChartId = Replace(GenerateChartId, "{2}", sampleInfo.condition)
     GenerateChartId = Replace(GenerateChartId, "{3}", pointInfo.Shape)
     Exit Function
     
@@ -322,7 +336,16 @@ ErrorHandler:
     GenerateChartId = ""
 End Function
 
-' ===== チャートコピー処理 =====
+'*******************************************************************************
+' チャートのコピー処理
+' 機能：指定されたIDのチャートを検索し、指定位置にコピー
+' 特記：コピー処理の安定性のため、待機時間とクリップボード制御を実装
+' 引数：sourceSheet - コピー元シート
+'       targetSheet - コピー先シート
+'       chartId     - 検索対象チャートのID
+'       targetCell  - コピー先の基準セル
+'       errorLogs   - エラー情報の格納先
+'*******************************************************************************
 Private Sub CopyChart(ByRef sourceSheet As Worksheet, _
                      ByRef targetSheet As Worksheet, _
                      ByVal chartId As String, _
@@ -372,8 +395,8 @@ Private Sub CopyChart(ByRef sourceSheet As Worksheet, _
                     Set newChart = targetSheet.ChartObjects(targetSheet.ChartObjects.count)
                     
                     ' サイズを元のチャートに合わせる
-                    newChart.Width = originalWidth
-                    newChart.Height = originalHeight
+                    newChart.Width = CHART_WIDTH
+                    newChart.Height = CHART_HEIGHT
                     
                     ' 完了後に待機
                     Application.Wait Now + TimeValue(WAIT_TIME)

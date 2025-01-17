@@ -8,7 +8,12 @@ Sub InspectionSheet_Make()
 '    Call FormatNonContinuousCells
 '    Call DistributeChartsToSheets
 End Sub
-' 既存のシートをコピーし、productName_1 などの名前をつける。
+
+'*******************************************************************************
+' メインプロシージャ
+' 機能：検査報告書シートを作成し、シート名を管理
+' 引数：なし
+'*******************************************************************************
 Sub SetupInspectionReport()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("LOG_Bicycle")
@@ -43,7 +48,7 @@ Sub SetupInspectionReport()
             Dim sheetIndex As Long
             Dim sheetName As Variant
             For sheetIndex = 1 To 3
-                sheetName = Array("InspectionSheet01", "InspectionSheet02", "InspectionSheet03")(sheetIndex - 1)
+                sheetName = Array("Report01", "Report02", "Report03")(sheetIndex - 1)
                 ThisWorkbook.Sheets(sheetName).Copy After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.count)
                 ActiveSheet.Name = CreateUniqueName(HelmetData.productName & "_" & sheetIndex)
                 copiedSheetNames.Add ActiveSheet.Name
@@ -58,8 +63,13 @@ Sub SetupInspectionReport()
     PrintGroupedData groupedData
     SaveCopiedSheetNames copiedSheetNames
 End Sub
+
+'*******************************************************************************
+' 機能：データ文字列を解析してHelmetDataオブジェクトを作成
+' 引数：value - ハイフン区切りのデータ文字列
+' 戻値：HelmetData - 解析されたデータオブジェクト
+'*******************************************************************************
 Function ParseHelmetData(value As String) As HelmetData
-' SetupInspectionReportのサブプロシージャ
     Dim parts() As String
     parts = Split(value, "-")
     Dim result As New HelmetData
@@ -75,9 +85,12 @@ Function ParseHelmetData(value As String) As HelmetData
     
     Set ParseHelmetData = result
 End Function
-
+'*******************************************************************************
+' 機能：重複しないユニークなシート名を生成
+' 引数：baseName - 基本となるシート名
+' 戻値：String - ユニークなシート名
+'*******************************************************************************
 Function CreateUniqueName(baseName As String) As String
-' SetupInspectionReportのサブプロシージャ
     Dim uniqueName As String
     uniqueName = baseName
     Dim count As Integer
@@ -88,16 +101,24 @@ Function CreateUniqueName(baseName As String) As String
     Wend
     CreateUniqueName = uniqueName ' 正しい戻り値の設定
 End Function
+'*******************************************************************************
+' 機能：指定されたシート名が存在するか確認
+' 引数：sheetName - 確認するシート名
+' 戻値：Boolean - シートが存在する場合True
+'*******************************************************************************
 Function SheetExists(sheetName As String) As Boolean
-' SetupInspectionReportのサブプロシージャ
     Dim sheet As Worksheet
     On Error Resume Next
     Set sheet = ThisWorkbook.Sheets(sheetName)
     On Error GoTo 0
     SheetExists = Not sheet Is Nothing ' 正しい戻り値の設定
 End Function
+
+'*******************************************************************************
+' 機能：グループ化されたデータをデバッグウィンドウに出力
+' 引数：groupedData - 出力するデータオブジェクト
+'*******************************************************************************
 Private Sub PrintGroupedData(groupedData As Object)
-' SetupInspectionReportのサブプロシージャ
     Dim key As Variant, item As HelmetData
     For Each key In groupedData.Keys
         Debug.Print "GroupNumber: " & key
@@ -112,6 +133,10 @@ Private Sub PrintGroupedData(groupedData As Object)
         Debug.Print "============================"
     Next key
 End Sub
+'*******************************************************************************
+' 機能：コピーしたシート名をCopiedSheetNamesシートに保存
+' 引数：sheetNames - 保存するシート名のコレクション
+'*******************************************************************************
 Sub SaveCopiedSheetNames(sheetNames As Collection)
 ' SetupInspectionReportのサブプロシージャ
     Dim ws As Worksheet
@@ -131,8 +156,20 @@ Sub SaveCopiedSheetNames(sheetNames As Collection)
         ws.Cells(i, 1).value = sheetNames(i)
     Next i
 End Sub
+'*******************************************************************************
+' メインプロシージャ
+' 機能：検査記録の転記と特定レコードの移動を実行
+' 引数：なし
+'*******************************************************************************
+Sub ManageInspectionRecords()
+    Call TransferDataToInspectionReports
+    Call MoveSpecificRecords
+End Sub
 
-' コピーしたシートにヘッダーと試験結果を転記する。
+'*******************************************************************************
+' 機能：LOG_Bicycleシートのデータを検査報告書に転記
+' 引数：なし
+'*******************************************************************************
 Sub TransferDataToInspectionReports()
     Dim wsSource As Worksheet
     Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
@@ -176,9 +213,13 @@ Sub TransferDataToInspectionReports()
         End If
     Next i
 End Sub
-
+'*******************************************************************************
+' 機能：指定された製品名とインデックスに基づきデータを転記
+' 引数：productName - 製品名
+'       sheetIndex - シートインデックス
+'       sourceRow - 転記元の行番号
+'*******************************************************************************
 Private Sub TransferData(productName As String, sheetIndex As Long, sourceRow As Long)
-' TransferDataToInspectionReportsのサブプロシージャ。データ転記処理を関数化
     Dim targetSheetName As String
     targetSheetName = productName & "_" & sheetIndex
 
@@ -205,7 +246,10 @@ Private Sub TransferData(productName As String, sheetIndex As Long, sourceRow As
     End If
 End Sub
 
-' _4のデータのみを転記する
+'*******************************************************************************
+' 機能：試料IDに'4がつくデータを_3シートから_2シートに移動
+' 引数：なし
+'*******************************************************************************
 Sub MoveSpecificRecords()
     Dim wsSource As Worksheet, wsTarget As Worksheet
     Dim productName As String
@@ -270,376 +314,97 @@ End Sub
 
 
 
-
-
-
-    
-    
-    '天頂試験のみのシートを作成する。
-Sub TransferDataToTopImpactTest()
-    '"Log_Helmet"からコピーした検査票に値を転記する。
+Sub CustomizeReportProcess()
     Dim wsSource As Worksheet
     Dim wsDestination As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    Dim firstDashPos As Integer
-    Dim secondDashPos As Integer
-    Dim matchName As String
-    Dim TemperatureCondition As String
-
-    ' ソースシートを設定
-    Set wsSource = ThisWorkbook.Sheets("Log_Bicycle")
-
-    ' ソースシートの最終行を取得
-    lastRow = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
-
-    ' 2行目から最終行までループ
-    For i = 2 To lastRow
-        ' C列の値から製品コードを取得
-        firstDashPos = InStr(wsSource.Cells(i, "B").value, "-")
-        If firstDashPos > 0 Then
-            secondDashPos = InStr(firstDashPos + 1, wsSource.Cells(i, "B").value, "-")
-            If secondDashPos > 0 Then
-                matchName = Left(wsSource.Cells(i, "B").value, secondDashPos - 1)
-            End If
-        End If
-
-        ' 各シートをループして条件に一致するシートを検索
-        For Each wsDestination In ThisWorkbook.Sheets
-            If wsDestination.Name = matchName Then ' シート名が製品コードに一致するか確認
-                ' 条件に一致した場合、転記を実行
-                ' 以下のコードは変更なし
-                wsDestination.Range("C2").value = wsSource.Cells(i, 21).value
-                wsDestination.Range("F2").value = wsSource.Cells(i, 6).value
-                wsDestination.Range("H2").value = wsSource.Cells(i, 7).value
-                wsDestination.Range("C3").value = "No." & wsSource.Cells(i, 4).value & "_" & wsSource.Cells(i, 15).value
-                wsDestination.Range("F3").value = wsSource.Cells(i, 13).value
-                wsDestination.Range("H3").value = wsSource.Cells(i, 14).value
-                wsDestination.Range("C4").value = wsSource.Cells(i, 16).value
-                wsDestination.Range("F4").value = wsSource.Cells(i, 17).value
-                wsDestination.Range("H4").value = wsSource.Cells(i, 18).value
-                wsDestination.Range("H7").value = wsSource.Cells(i, 19).value
-                wsDestination.Range("H8").value = wsSource.Cells(i, 20).value
-                wsDestination.Range("E11").value = wsSource.Cells(i, 8).value
-                wsDestination.Range("A10").value = "※前処理：" & wsSource.Cells(i, 12).value
-                wsDestination.Range("A14").value = "検査対象外"
-                wsDestination.Range("A19").value = "検査対象外"
-                Exit For ' 転記後は次の行へ
-            End If
-        Next wsDestination
-    Next i
-End Sub
-
-' productName_1のシートに転記する。
-Sub TransferDataToDynamicSheets()
-
-    Dim wsSource As Worksheet, wsDestination As Worksheet
-    Dim lastRow As Long, i As Long
-    Dim sourceData As String, checkData As String
+    Dim lastRow As Long, checkRow As Long
+    Dim sourceData As String
     Dim parts() As String
-    Dim destinationSheetName As String
-
+    Dim baseSheetName As String
+    Dim ws As Worksheet
+    Dim foundSheets As Collection
+    Dim targetSheet As Worksheet
+    Dim isValidData As Boolean
+    
+    ' エラーハンドリングの設定
+    On Error GoTo ErrorHandler
+    
     ' ソースシートの設定
     Set wsSource = ThisWorkbook.Sheets("LOG_Bicycle")
-    lastRow = wsSource.Cells(wsSource.Rows.count, "B").End(xlUp).Row
+    lastRow = wsSource.Cells(wsSource.Rows.count, "D").End(xlUp).Row
     
     ' Excelのパフォーマンス向上のための設定
     Application.screenUpdating = False
     Application.Calculation = xlCalculationManual
-
-    ' wsSourceのC列をループしてデータを処理
-    For i = 2 To lastRow
-        sourceData = wsSource.Cells(i, "B").value
-        checkData = wsSource.Cells(i, 5).value
-        parts = Split(sourceData, "-")
-
-        ' シート名の生成
-        If UBound(parts) >= 2 Then
-            destinationSheetName = parts(0) & "-" & parts(1)
-
-            ' 転記先シートの存在確認
-            On Error Resume Next
-            Set wsDestination = ThisWorkbook.Sheets(destinationSheetName)
-            On Error GoTo 0
-
-            ' シートが存在し、かつ条件が一致する場合にデータを転記
-            If Not wsDestination Is Nothing Then
-                Select Case parts(2)
-                    Case "天"
-                        If checkData = "天頂" Then
-                            ' 天に関するデータ転記
-                            wsDestination.Range("C2").value = wsSource.Cells(i, 21).value
-                            wsDestination.Range("F2").value = wsSource.Cells(i, 6).value
-                            wsDestination.Range("H2").value = wsSource.Cells(i, 7).value
-                            wsDestination.Range("C3").value = "No." & wsSource.Cells(i, 4).value & "_" & wsSource.Cells(i, 15).value
-                            wsDestination.Range("F3").value = wsSource.Cells(i, 13).value
-                            wsDestination.Range("H3").value = wsSource.Cells(i, 14).value
-                            wsDestination.Range("C4").value = wsSource.Cells(i, 16).value
-                            wsDestination.Range("F4").value = wsSource.Cells(i, 17).value
-                            wsDestination.Range("H4").value = wsSource.Cells(i, 18).value
-                            wsDestination.Range("H7").value = wsSource.Cells(i, 19).value
-                            wsDestination.Range("H8").value = wsSource.Cells(i, 20).value
-                            wsDestination.Range("E11").value = wsSource.Cells(i, 8).value
-                            wsDestination.Range("A10").value = "※前処理：" & wsSource.Cells(i, 12).value
-                        End If
-                    Case "前"
-                        If checkData = "前頭部" Then
-                            ' 前頭部に関するデータ転記
-                            wsDestination.Range("E13").value = wsSource.Cells(i, 8).value
-                            wsDestination.Range("E14").value = wsSource.Cells(i, 10).value
-                            wsDestination.Range("E15").value = wsSource.Cells(i, 11).value
-                            wsDestination.Range("A13").value = "前頭部"
-                        End If
-                    Case "後"
-                        If checkData = "後頭部" Then
-                            ' 後頭部に関するデータ転記
-                            wsDestination.Range("E17").value = wsSource.Cells(i, 8).value
-                            wsDestination.Range("E18").value = wsSource.Cells(i, 10).value
-                            wsDestination.Range("E19").value = wsSource.Cells(i, 11).value
-                            wsDestination.Range("A17").value = "後頭部"
-                        End If
-                End Select
-            End If
-        End If
-    Next i
     
+    ' B列のデータを取得して処理
+    sourceData = wsSource.Cells(2, "B").value
+    parts = Split(sourceData, "-")
+    
+    ' エラーチェック：データ形式の確認
+    If UBound(parts) < 4 Then
+        MsgBox "データ形式が不正です: " & sourceData, vbExclamation
+        GoTo CleanExit
+    End If
+    
+    ' D列のデータ検証
+    isValidData = True
+    For checkRow = 2 To lastRow
+        If wsSource.Cells(checkRow, "D").value <> parts(1) Then
+            isValidData = False
+            Exit For
+        End If
+    Next checkRow
+    
+    ' データ検証結果の確認
+    If Not isValidData Then
+        MsgBox "エラー: D列に異なる値が存在します。処理を中止します。" & vbCrLf & _
+               "期待値: " & parts(1) & vbCrLf & _
+               "確認行: " & checkRow, vbCritical
+        GoTo CleanExit
+    End If
+    
+    ' シート名のベース部分を生成
+    baseSheetName = parts(1) & "_1"
+    
+    ' 該当するシートを探索
+    Set foundSheets = New Collection
+    For Each ws In ThisWorkbook.Worksheets
+        If InStr(1, ws.Name, baseSheetName) > 0 Then
+            foundSheets.Add ws
+        End If
+    Next ws
+    
+    ' 見つかったシートがない場合の処理
+    If foundSheets.count = 0 Then
+        MsgBox "警告: " & baseSheetName & " に該当するシートが見つかりません。", vbExclamation
+        GoTo CleanExit
+    End If
+    
+    ' 見つかった各シートに対して処理を実行
+    For Each targetSheet In foundSheets
+        ' データの転記処理
+        With targetSheet
+            .Range("D3").value = wsSource.Cells(2, "D").value
+            .Range("D4").value = wsSource.Cells(2, "O").value
+            .Range("D5").value = wsSource.Cells(2, "E").value
+            .Range("D6").value = wsSource.Cells(2, "Q").value
+            .Range("I3").value = wsSource.Cells(2, "F").value
+            .Range("I4").value = wsSource.Cells(2, "G").value
+        End With
+    Next targetSheet
+    
+CleanExit:
     ' Excelの設定を元に戻す
     Application.screenUpdating = True
     Application.Calculation = xlCalculationAutomatic
+    Exit Sub
+    
+ErrorHandler:
+    ' エラー発生時の処理
+    MsgBox "エラーが発生しました。" & vbCrLf & _
+           "エラー番号: " & Err.Number & vbCrLf & _
+           "エラー内容: " & Err.Description, vbCritical
+    Resume CleanExit
 End Sub
 
-Sub ImpactValueJudgement()
-    'CopiedSheetNamesシートのA列に基づいて各検査票シートの衝撃値を判定する
-    Dim wsSource As Worksheet
-    Dim lastRow As Long, i As Long
-    Dim sheetName As String
-    Dim resultE11 As Boolean, resultE14 As Boolean, resultE19 As Boolean
-    Dim targetSheets As Collection
-    
-    ' 処理するシート名を取得
-    Set targetSheets = GetTargetSheetNames()
-    
-    ' 対象のシート名に基づいて処理を行う
-    For i = 1 To targetSheets.count
-        sheetName = targetSheets(i)
-        ' 対象のシートを設定
-        Set wsTarget = ThisWorkbook.Sheets(sheetName)
-        
-        ' D11, D14, D19の値を基に判定
-        resultE11 = wsTarget.Range("E11").value <= 4.9
-        resultE14 = IsEmpty(wsTarget.Range("E13")) Or wsTarget.Range("E13").value <= 9.81
-        resultE19 = IsEmpty(wsTarget.Range("E17")) Or wsTarget.Range("E17").value <= 9.81
-        
-        ' 全ての条件がTrueの場合は"合格"、それ以外は"不合格"をG9に記入
-        If resultE11 And resultE14 And resultE19 Then
-            wsTarget.Range("H9").value = "合格"
-        Else
-            wsTarget.Range("H9").value = "不合格"
-        End If
-    Next i
-End Sub
-
-Function GetTargetSheetNames() As Collection
-    ' CopiedSheetNamesシートのA列からシート名を取得
-    Dim ws As Worksheet
-    Dim lastRow As Long, i As Long
-    Dim sheetNames As New Collection
-    
-    Set ws = ThisWorkbook.Sheets("CopiedSheetNames")
-    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).Row
-    
-    For i = 1 To lastRow
-        sheetNames.Add ws.Cells(i, 1).value
-    Next i
-    
-    Set GetTargetSheetNames = sheetNames
-End Function
-    ' CopiedSheetNamesシートのA列に基づいて検査票に書式を設定する
-Sub FormatNonContinuousCells()
-    Dim wsTarget As Worksheet
-    Dim i As Long
-    Dim sheetName As String
-    Dim targetSheets As Collection
-    Dim rng As Range
-    Dim cell As Range
-    
-    ' 処理するシート名を取得
-    Set targetSheets = GetTargetSheetNames()
-    
-    ' 対象のシート名に基づいて処理を行う
-    For i = 1 To targetSheets.count
-        sheetName = targetSheets(i)
-        
-        ' ワークシートが存在するかチェック
-        On Error Resume Next
-        Set wsTarget = ThisWorkbook.Sheets(sheetName)
-        On Error GoTo 0
-
-        ' ワークシートが存在すれば、指定したセル範囲に書式を設定
-        If Not wsTarget Is Nothing Then
-            ' 範囲と書式設定を関連付け
-            FormatRange wsTarget.Range("E7"), "游明朝", 12, True
-            FormatRange wsTarget.Range("E8"), "游明朝", 12, True
-            FormatRange wsTarget.Range("E9"), "游明朝", 12, True
-
-            ' E13に値がない場合、A14:E14とB15:D16をグレーアウト
-            If IsEmpty(wsTarget.Range("E13").value) Then
-                wsTarget.Range("A13").value = "検査対象外"
-                FormatRange wsTarget.Range("A13"), "游ゴシック", 10, False, RGB(242, 242, 242)
-                FormatRange wsTarget.Range("B13:F13, B14:E15"), "游ゴシック", 10, False, RGB(242, 242, 242)
-            Else
-                FormatRange wsTarget.Range("A13"), "游ゴシック", 12, True
-                FormatRange wsTarget.Range("E13:E15"), "游ゴシック", 10, False, RGB(255, 255, 255)
-            End If
-
-            ' E17に値がない場合、A19:E19とB20:D21をグレーアウト
-            If IsEmpty(wsTarget.Range("E17").value) Then
-                wsTarget.Range("A17").value = "検査対象外"
-                FormatRange wsTarget.Range("A17"), "游ゴシック", 10, False, RGB(242, 242, 242)
-                FormatRange wsTarget.Range("B17:F17, B18:E19"), "游ゴシック", 10, False, RGB(242, 242, 242)
-            Else
-                FormatRange wsTarget.Range("A17"), "游ゴシック", 12, True
-                FormatRange wsTarget.Range("E17:E19"), "游ゴシック", 10, False, RGB(255, 255, 255)
-            End If
-            
-            ' 特定の文字に書式を適用
-            FormatSpecificEndStrings wsTarget.Range("A10"), "游ゴシック", 12, True
-            
-            ' セルの書式設定
-            With wsTarget.Range("C2:C4, F2:F4, H2:H4")
-                .HorizontalAlignment = xlCenter
-                .VerticalAlignment = xlCenter
-            End With
-            wsTarget.Range("F3").NumberFormat = "0.0"" g"""
-            wsTarget.Range("H2").NumberFormat = "0"" ℃"""
-            wsTarget.Range("H3").NumberFormat = "0.0"" mm"""
-            wsTarget.Range("E11, E14, E19").NumberFormat = "0.00"" kN"""
-            
-            ' E14:E15, E18:E19の値に応じて書式を設定
-            Set rng = wsTarget.Range("E14:E15, E18:E19")
-            For Each cell In rng
-                If cell.value <= 0.01 Then
-                    cell.value = "―"
-                Else
-                    cell.NumberFormat = "0.00"" ms"""
-                End If
-            Next cell
-            
-            ' 他の範囲も同様に設定可能
-            ' FormatRange wsTarget.Range("その他の範囲"), "フォント名", フォントサイズ, 太字かどうか, 背景色
-
-            Set wsTarget = Nothing
-        End If
-    Next i
-End Sub
-
-
-Sub FormatSpecificEndStrings(rng As Range, fontName As String, fontSize As Integer, isBold As Boolean)
-    ' セルの特定の文字(前処理)に書式を適用するサブプロシージャ
-    Dim cell As Range
-
-    For Each cell In rng
-        Dim text As String
-        text = cell.value
-        Dim textLength As Integer
-        textLength = Len(text)
-
-        If textLength >= 2 Then
-            If Right(text, 2) = "高温" Or Right(text, 2) = "低温" Then
-                With cell.Characters(Start:=textLength - 1, Length:=2).Font
-                    .Name = fontName
-                    .size = fontSize
-                    .Bold = isBold
-                End With
-            ElseIf textLength >= 3 And Right(text, 3) = "浸せき" Then
-                With cell.Characters(Start:=textLength - 2, Length:=3).Font
-                    .Name = fontName
-                    .size = fontSize
-                    .Bold = isBold
-                End With
-            End If
-        End If
-    Next cell
-End Sub
-
-Sub FormatRange(rng As Range, fontName As String, fontSize As Integer, isBold As Boolean, Optional bgColor As Variant)
-    ' 範囲に書式を適用するためのサブプロシージャ
-    With rng
-        .Font.Name = fontName
-        .Font.size = fontSize
-        .Font.Bold = isBold
-        If Not IsMissing(bgColor) Then
-            .Interior.Color = bgColor
-        Else
-            .Interior.colorIndex = xlColorIndexAutomatic ' 背景色を自動に設定
-        End If
-        .Borders(xlEdgeLeft).LineStyle = xlContinuous
-        .Borders(xlEdgeRight).LineStyle = xlContinuous
-        .Borders(xlEdgeTop).LineStyle = xlContinuous
-        .Borders(xlEdgeBottom).LineStyle = xlContinuous
-        .Borders(xlInsideVertical).LineStyle = xlContinuous
-        .Borders(xlInsideHorizontal).LineStyle = xlContinuous
-    End With
-End Sub
-' チャートを各シートに分配する。
-Sub DistributeChartsToSheets()
-    Dim chartObj As ChartObject
-    Dim chartTitle As String
-    Dim sheetName As String
-    Dim parts() As String
-    Dim groups As Object
-    Dim ws As Worksheet
-    Dim targetSheet As Worksheet
-    
-    Set groups = CreateObject("Scripting.Dictionary")
-    
-    ' "LOG_Helmet"シートを対象にする
-    Set ws = ThisWorkbook.Sheets("LOG_Helmet")
-    
-    ' "LOG_Helmet"シートのチャートオブジェクトをグループ分け
-    For Each chartObj In ws.ChartObjects
-        If chartObj.chart.HasTitle Then
-            chartTitle = chartObj.chart.chartTitle.text
-        Else
-            chartTitle = "No Title"
-        End If
-        
-        ' chartNameを"-"で分割し、sheetNameを取得
-        parts = Split(chartObj.Name, "-")
-        If UBound(parts) >= 1 Then
-            sheetName = parts(0) & "-" & parts(1)
-        Else
-            sheetName = parts(0)
-        End If
-        
-        If Not groups.Exists(sheetName) Then
-            groups.Add sheetName, New Collection
-        End If
-        
-        groups(sheetName).Add chartObj
-    Next chartObj
-    
-    ' グループごとにチャートを対応するシートに移動
-    Dim key As Variant
-    For Each key In groups.Keys
-        ' シートの存在を確認
-        On Error Resume Next
-        Set targetSheet = ThisWorkbook.Sheets(key)
-        On Error GoTo 0
-        
-        ' シートが存在しない場合、チャートを移動しない
-        If Not targetSheet Is Nothing Then
-            Debug.Print "NewSheetName: " & key
-            
-            ' チャートの移動
-            Dim chart As ChartObject
-            For Each chart In groups(key)
-                chart.chart.Location Where:=xlLocationAsObject, Name:=targetSheet.Name
-            Next chart
-            
-            Set targetSheet = Nothing
-        Else
-            Debug.Print "Sheet " & key & " does not exist. Charts not moved."
-        End If
-    Next key
-End Sub
